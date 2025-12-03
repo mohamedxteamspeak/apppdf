@@ -1844,7 +1844,7 @@
                 
             } catch (error) {
                 console.error('PDF Error:', error);
-                showSnackbar('خطأ في إنشاء PDF', 'error');
+                showSnackbar('خطأ في إنشاء PDF: ' + error.message, 'error');
                 goToPage('layout');
             }
         }
@@ -1877,7 +1877,11 @@
             const totalImages = images.length;
             const totalPages = Math.ceil(totalImages / perPage);
             
+            console.log(`Creating PDF: ${totalImages} images, ${totalPages} pages`);
+            
             let pageCount = 0;
+            let addedImages = 0;
+            let errors = [];
             
             for (let i = 0; i < totalImages; i++) {
                 const pos = i % perPage;
@@ -1894,10 +1898,21 @@
                 const x = margin + (col * cellWidth);
                 const y = margin + (row * cellHeight);
                 
+                // First ensure we have valid image data
+                if (!img.data || !img.data.startsWith('data:image')) {
+                    console.error(`Invalid image data for image ${i}`);
+                    errors.push(`Image ${i}: Invalid data`);
+                    continue;
+                }
+                
                 try {
                     const maxW = cellWidth - (padding * 2);
                     const maxH = cellHeight - (padding * 2);
-                    const imgRatio = img.width / img.height;
+                    
+                    // Ensure valid dimensions
+                    const imgWidth = img.width || 100;
+                    const imgHeight = img.height || 100;
+                    const imgRatio = imgWidth / imgHeight;
                     const cellRatio = maxW / maxH;
                     
                     let drawWidth, drawHeight;
@@ -1912,20 +1927,60 @@
                     const drawX = x + padding + (maxW - drawWidth) / 2;
                     const drawY = y + padding + (maxH - drawHeight) / 2;
                     
-                    doc.setDrawColor(230, 230, 230);
-                    doc.setLineWidth(0.2);
+                    // Draw border
+                    doc.setDrawColor(220, 220, 220);
+                    doc.setLineWidth(0.1);
                     doc.rect(x + padding, y + padding, maxW, maxH);
                     
-                    doc.addImage(img.data, 'JPEG', drawX, drawY, drawWidth, drawHeight, undefined, 'FAST');
+                    // Always convert to JPEG for consistency
+                    let imageData = img.data;
+                    if (img.data.includes('data:image/png')) {
+                        try {
+                            imageData = await convertToJPEG(img.data);
+                        } catch (convErr) {
+                            console.warn('PNG to JPEG conversion failed, using original');
+                        }
+                    }
+                    
+                    // Add image
+                    doc.addImage(
+                        imageData, 
+                        'JPEG', 
+                        drawX, 
+                        drawY, 
+                        drawWidth, 
+                        drawHeight
+                    );
+                    
+                    addedImages++;
+                    console.log(`Added image ${i + 1}/${totalImages}`);
                     
                 } catch (e) {
-                    console.warn('Image add error:', e);
+                    console.error('Image add error:', i, e.message);
+                    errors.push(`Image ${i}: ${e.message}`);
+                    
+                    // Try simpler approach
+                    try {
+                        const simpleData = await convertToJPEG(img.data);
+                        doc.addImage(
+                            simpleData, 
+                            'JPEG', 
+                            x + padding, 
+                            y + padding, 
+                            cellWidth - (padding * 2), 
+                            cellHeight - (padding * 2)
+                        );
+                        addedImages++;
+                        console.log(`Added image ${i + 1} (fallback)`);
+                    } catch (e2) {
+                        console.error('Fallback failed:', e2.message);
+                    }
                 }
                 
                 // Update progress
                 const percent = ((i + 1) / totalImages) * 100;
                 updateProgress(percent, `صفحة ${pageCount}/${totalPages}`);
-                document.getElementById('proc-stat-images').textContent = i + 1;
+                document.getElementById('proc-stat-images').textContent = addedImages;
                 document.getElementById('proc-stat-pages').textContent = pageCount;
                 
                 // Yield to UI
@@ -1934,13 +1989,47 @@
                 }
             }
             
+            console.log(`PDF created: ${addedImages} images added, ${errors.length} errors`);
+            
+            if (addedImages === 0) {
+                const errorMsg = errors.length > 0 ? errors[0] : 'Unknown error';
+                throw new Error(`لم تتم إضافة أي صور: ${errorMsg}`);
+            }
+            
             doc.setProperties({
                 title: document.getElementById('output-name').value || 'Lesson Images',
                 creator: 'محول صور الدروس v6.0 - Mohamed Elherd'
             });
             
             state.generatedPDF = doc;
-            updateProgress(100, 'اكتمل!');
+            state.pdfStats = { images: addedImages, pages: pageCount };
+            updateProgress(100, `اكتمل! ${addedImages} صورة`);
+        }
+        
+        // Convert image to JPEG format
+        function convertToJPEG(dataUrl) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        
+                        // White background
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0);
+                        
+                        resolve(canvas.toDataURL('image/jpeg', 0.85));
+                    } catch (e) {
+                        reject(e);
+                    }
+                };
+                img.onerror = reject;
+                img.src = dataUrl;
+            });
         }
 
         function updateProgress(percent, status) {
@@ -1966,51 +2055,43 @@
         }
 
         function downloadPDF() {
-            if (!state.generatedPDF) return;
+            if (!state.generatedPDF) {
+                showSnackbar('لا يوجد ملف PDF', 'error');
+                return;
+            }
             
-            const fileName = (document.getElementById('output-name').value || 'output') + '.pdf';
+            // Get filename from input (already set automatically)
+            const fileName = (document.getElementById('output-name').value || state.baseName + '_images') + '.pdf';
             
             try {
-                // Method 1: Try standard save (works on desktop)
-                if (!isMobileDevice()) {
-                    state.generatedPDF.save(fileName);
-                    showSnackbar('تم التحميل بنجاح', 'success');
-                    return;
-                }
-                
-                // Method 2: For mobile - use blob and create download link
+                // Create blob from PDF
                 const blob = state.generatedPDF.output('blob');
                 const url = URL.createObjectURL(blob);
                 
-                // Try using download link
+                // Create download link
                 const link = document.createElement('a');
                 link.href = url;
                 link.download = fileName;
-                link.style.display = 'none';
+                link.style.cssText = 'position:fixed;left:-9999px;';
                 document.body.appendChild(link);
                 
-                // Trigger click
-                link.click();
-                
-                // Cleanup after delay
+                // Use setTimeout to ensure the link is in DOM
                 setTimeout(() => {
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                }, 1000);
+                    link.click();
+                    
+                    // Cleanup
+                    setTimeout(() => {
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                    }, 500);
+                }, 100);
                 
-                showSnackbar('تم التحميل بنجاح', 'success');
+                showSnackbar('جاري التحميل...', 'success');
                 
             } catch (error) {
                 console.error('Download error:', error);
-                // Fallback: Open in new tab
-                try {
-                    const blob = state.generatedPDF.output('blob');
-                    const url = URL.createObjectURL(blob);
-                    window.open(url, '_blank');
-                    showSnackbar('تم فتح الملف في نافذة جديدة', 'info');
-                } catch (e) {
-                    showSnackbar('خطأ في التحميل، جرب المشاركة', 'error');
-                }
+                // Fallback: Try opening in new tab
+                openPDFInBrowser();
             }
         }
         
