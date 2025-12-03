@@ -1016,6 +1016,11 @@
                     مشاركة
                 </button>
                 
+                <button onclick="openPDFInBrowser()" class="btn-secondary w-full" style="border-color: #00C853; color: #00C853;">
+                    <span class="material-icons-round">open_in_new</span>
+                    فتح في المتصفح
+                </button>
+                
                 <button onclick="startNew()" class="btn-secondary w-full">
                     <span class="material-icons-round">refresh</span>
                     بدء جديد
@@ -1962,26 +1967,115 @@
 
         function downloadPDF() {
             if (!state.generatedPDF) return;
-            const fileName = document.getElementById('output-name').value || 'output';
-            state.generatedPDF.save(`${fileName}.pdf`);
-            showSnackbar('تم التحميل', 'success');
+            
+            const fileName = (document.getElementById('output-name').value || 'output') + '.pdf';
+            
+            try {
+                // Method 1: Try standard save (works on desktop)
+                if (!isMobileDevice()) {
+                    state.generatedPDF.save(fileName);
+                    showSnackbar('تم التحميل بنجاح', 'success');
+                    return;
+                }
+                
+                // Method 2: For mobile - use blob and create download link
+                const blob = state.generatedPDF.output('blob');
+                const url = URL.createObjectURL(blob);
+                
+                // Try using download link
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = fileName;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                
+                // Trigger click
+                link.click();
+                
+                // Cleanup after delay
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                }, 1000);
+                
+                showSnackbar('تم التحميل بنجاح', 'success');
+                
+            } catch (error) {
+                console.error('Download error:', error);
+                // Fallback: Open in new tab
+                try {
+                    const blob = state.generatedPDF.output('blob');
+                    const url = URL.createObjectURL(blob);
+                    window.open(url, '_blank');
+                    showSnackbar('تم فتح الملف في نافذة جديدة', 'info');
+                } catch (e) {
+                    showSnackbar('خطأ في التحميل، جرب المشاركة', 'error');
+                }
+            }
+        }
+        
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+                || window.innerWidth < 768
+                || 'ontouchstart' in window;
         }
 
         async function sharePDF() {
             if (!state.generatedPDF) return;
             
-            const fileName = document.getElementById('output-name').value || 'output';
-            const blob = state.generatedPDF.output('blob');
-            const file = new File([blob], `${fileName}.pdf`, { type: 'application/pdf' });
+            const fileName = (document.getElementById('output-name').value || 'output') + '.pdf';
             
-            if (navigator.share && navigator.canShare?.({ files: [file] })) {
-                try {
-                    await navigator.share({ files: [file], title: fileName });
-                } catch (e) {
-                    if (e.name !== 'AbortError') downloadPDF();
+            try {
+                const blob = state.generatedPDF.output('blob');
+                const file = new File([blob], fileName, { type: 'application/pdf' });
+                
+                // Check if Web Share API is available and can share files
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: fileName.replace('.pdf', ''),
+                        text: 'ملف PDF من محول صور الدروس'
+                    });
+                    showSnackbar('تمت المشاركة بنجاح', 'success');
+                } else {
+                    // Fallback to download
+                    downloadPDF();
                 }
-            } else {
-                downloadPDF();
+            } catch (e) {
+                if (e.name !== 'AbortError') {
+                    console.error('Share error:', e);
+                    downloadPDF();
+                }
+            }
+        }
+        
+        // Alternative download method for WebView apps
+        function openPDFInBrowser() {
+            if (!state.generatedPDF) return;
+            
+            try {
+                const blob = state.generatedPDF.output('blob');
+                const url = URL.createObjectURL(blob);
+                
+                // Open in new window/tab
+                const newWindow = window.open(url, '_blank');
+                
+                if (!newWindow) {
+                    // Popup blocked, try iframe method
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = url;
+                    document.body.appendChild(iframe);
+                    
+                    setTimeout(() => {
+                        document.body.removeChild(iframe);
+                        URL.revokeObjectURL(url);
+                    }, 5000);
+                }
+                
+                showSnackbar('تم فتح الملف', 'success');
+            } catch (e) {
+                showSnackbar('خطأ في فتح الملف', 'error');
             }
         }
 
