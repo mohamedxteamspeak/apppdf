@@ -11,7 +11,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
     
-    <title>محول صور الدروس إلى PDF v6.0</title>
+    <title>محول صور الدروس إلى PDF v5.1</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -44,8 +44,8 @@
         html, body {
             margin: 0;
             padding: 0;
+            overflow-x: hidden;
             overscroll-behavior: none;
-            touch-action: manipulation;
         }
         
         body {
@@ -53,9 +53,14 @@
             color: var(--on-surface);
             min-height: 100vh;
             min-height: 100dvh;
-            overflow-x: hidden;
         }
         
+        /* تحسينات للمس */
+        button, .card, .radio-option, .checkbox-wrapper {
+            touch-action: manipulation;
+        }
+        
+        /* Install Banner */
         .install-banner {
             position: fixed;
             bottom: 0;
@@ -88,7 +93,7 @@
         }
         
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
         
@@ -113,13 +118,14 @@
         .glass {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .btn-primary {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
             color: white;
-            padding: 16px 32px;
+            padding: 18px 32px;
             border-radius: 16px;
             font-weight: 600;
             font-size: 1.1rem;
@@ -130,27 +136,41 @@
             align-items: center;
             justify-content: center;
             gap: 12px;
-            -webkit-appearance: none;
+            width: 100%;
+            min-height: 56px;
+            position: relative;
+            overflow: hidden;
         }
         
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(13, 71, 161, 0.4);
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background-size: 200% 100%;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
         
-        .btn-primary:active:not(:disabled) {
-            transform: scale(0.98);
+        .btn-primary:active {
+            transform: scale(0.97);
+        }
+        
+        .btn-primary:active::after {
+            opacity: 1;
+            animation: shimmer 0.6s ease;
         }
         
         .btn-primary:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            transform: none;
         }
         
         .btn-secondary {
             background: transparent;
             color: var(--primary-light);
-            padding: 14px 28px;
+            padding: 16px 28px;
             border-radius: 16px;
             font-weight: 600;
             border: 2px solid var(--primary-light);
@@ -160,19 +180,22 @@
             align-items: center;
             justify-content: center;
             gap: 12px;
+            width: 100%;
+            min-height: 54px;
         }
         
-        .btn-secondary:hover {
-            background: rgba(25, 118, 210, 0.1);
+        .btn-secondary:active {
+            background: rgba(25, 118, 210, 0.15);
+            transform: scale(0.97);
         }
         
         .btn-success {
             background: linear-gradient(135deg, #00C853 0%, #00E676 100%);
             color: white;
-            padding: 18px 36px;
+            padding: 20px 40px;
             border-radius: 20px;
             font-weight: 700;
-            font-size: 1.15rem;
+            font-size: 1.2rem;
             border: none;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -180,35 +203,24 @@
             align-items: center;
             justify-content: center;
             gap: 12px;
+            width: 100%;
+            min-height: 60px;
         }
         
-        .btn-success:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 200, 83, 0.4);
-        }
-        
-        .btn-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .btn-icon:active {
-            transform: scale(0.9);
+        .btn-success:active {
+            transform: scale(0.97);
         }
         
         .card {
             background: var(--surface);
             border-radius: 20px;
             padding: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.05);
             transition: all 0.3s ease;
+        }
+        
+        .card:active {
+            transform: scale(0.98);
         }
         
         .card.selected {
@@ -225,6 +237,7 @@
             justify-content: center;
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
             margin: 0 auto 20px;
+            box-shadow: 0 8px 32px rgba(13, 71, 161, 0.4);
         }
         
         .progress-ring {
@@ -239,7 +252,7 @@
         
         .progress-ring circle {
             fill: none;
-            stroke-width: 8;
+            stroke-width: 10;
         }
         
         .progress-ring .bg {
@@ -252,224 +265,23 @@
             transition: stroke-dashoffset 0.3s ease;
         }
         
-        .file-drop-zone {
-            border: 3px dashed rgba(25, 118, 210, 0.5);
-            border-radius: 24px;
-            padding: 40px 20px;
-            text-align: center;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .file-drop-zone:hover, .file-drop-zone.dragover {
-            border-color: var(--primary-light);
-            background: rgba(25, 118, 210, 0.1);
-        }
-        
-        .file-drop-zone.processing {
-            pointer-events: none;
-            opacity: 0.7;
-        }
-        
-        input[type="text"] {
-            width: 100%;
-            background: var(--surface-variant);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 16px 20px;
-            color: white;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-        
-        input[type="text"]:focus {
-            outline: none;
-            border-color: var(--primary-light);
-            background: var(--surface);
-        }
-        
-        .stats-card {
-            background: linear-gradient(135deg, var(--surface) 0%, var(--surface-variant) 100%);
-            border-radius: 16px;
-            padding: 16px;
-            text-align: center;
-        }
-        
-        .stats-value {
-            font-size: 1.75rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        /* Image Gallery Styles */
-        .image-gallery {
+        .layout-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            padding: 8px;
-            max-height: 60vh;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+            gap: 4px;
+            padding: 10px;
         }
         
-        .image-item {
-            position: relative;
-            aspect-ratio: 1;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 2px solid transparent;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-        
-        .image-item img {
+        .layout-dot {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            aspect-ratio: 4/3;
+            background: rgba(25, 118, 210, 0.3);
+            border-radius: 2px;
+            border: 1px solid rgba(25, 118, 210, 0.5);
         }
         
-        .image-item.selected {
-            border-color: var(--success);
-        }
-        
-        .image-item.excluded {
-            border-color: var(--error);
-            opacity: 0.5;
-        }
-        
-        .image-item .badge {
-            position: absolute;
-            top: 4px;
-            right: 4px;
-            padding: 2px 6px;
-            border-radius: 8px;
-            font-size: 0.65rem;
-            font-weight: 700;
-        }
-        
-        .image-item .checkbox {
-            position: absolute;
-            bottom: 4px;
-            left: 4px;
-            width: 24px;
-            height: 24px;
-            border-radius: 6px;
-            background: rgba(0,0,0,0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .image-item.selected .checkbox {
-            background: var(--success);
-        }
-        
-        .badge-duplicate { background: rgba(255, 179, 0, 0.9); color: #000; }
-        .badge-logo { background: rgba(207, 102, 121, 0.9); color: #fff; }
-        .badge-valid { background: rgba(0, 200, 83, 0.9); color: #fff; }
-        
-        /* Full Image Viewer */
-        .image-viewer {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.95);
-            z-index: 2000;
-            display: none;
-            flex-direction: column;
-        }
-        
-        .image-viewer.show {
-            display: flex;
-        }
-        
-        .image-viewer-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px;
-            background: rgba(0,0,0,0.5);
-        }
-        
-        .image-viewer-content {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            overflow: auto;
-        }
-        
-        .image-viewer-content img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            border-radius: 8px;
-        }
-        
-        .image-viewer-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 50px;
-            height: 50px;
-            background: rgba(255,255,255,0.1);
-            border: none;
-            border-radius: 50%;
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .image-viewer-nav.prev { left: 10px; }
-        .image-viewer-nav.next { right: 10px; }
-        
-        /* Filter Tabs */
-        .filter-tabs {
-            display: flex;
-            gap: 8px;
-            padding: 12px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-        }
-        
-        .filter-tabs::-webkit-scrollbar {
-            display: none;
-        }
-        
-        .filter-tab {
-            padding: 10px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            white-space: nowrap;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .filter-tab.active {
-            background: var(--primary-light);
-            color: white;
-        }
-        
-        .filter-tab:not(.active) {
-            background: var(--surface);
-            color: var(--on-surface);
-        }
-        
-        /* Snackbar */
         .snackbar {
             position: fixed;
-            bottom: 80px;
+            bottom: 90px;
             left: 50%;
             transform: translateX(-50%) translateY(100px);
             background: var(--surface);
@@ -483,7 +295,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            max-width: 90%;
+            max-width: 85%;
             font-size: 0.9rem;
         }
         
@@ -492,7 +304,222 @@
             opacity: 1;
         }
         
-        /* Loading Overlay */
+        .file-drop-zone {
+            border: 3px dashed rgba(25, 118, 210, 0.5);
+            border-radius: 24px;
+            padding: 40px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(25, 118, 210, 0.03);
+        }
+        
+        .file-drop-zone:active, .file-drop-zone.dragover {
+            border-color: var(--primary-light);
+            background: rgba(25, 118, 210, 0.1);
+            transform: scale(0.99);
+        }
+        
+        .file-drop-zone.processing {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 18px;
+            background: var(--surface);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .radio-option:active {
+            transform: scale(0.98);
+        }
+        
+        .radio-option.selected {
+            border-color: var(--primary-light);
+            background: rgba(25, 118, 210, 0.1);
+        }
+        
+        .radio-circle {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        
+        .radio-option.selected .radio-circle {
+            border-color: var(--primary-light);
+            background: var(--primary-light);
+        }
+        
+        .radio-circle::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: white;
+            transform: scale(0);
+            transition: transform 0.2s ease;
+        }
+        
+        .radio-option.selected .radio-circle::after {
+            transform: scale(1);
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            background: var(--surface-variant);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 18px 20px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            background: var(--surface);
+        }
+        
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+            padding: 10px 0;
+        }
+        
+        .checkbox {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        
+        .checkbox.checked {
+            background: var(--primary-light);
+            border-color: var(--primary-light);
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, var(--surface) 0%, var(--surface-variant) 100%);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .stats-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .image-preview {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            max-height: 160px;
+            overflow-y: auto;
+            padding: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .image-preview img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px;
+            background: var(--background);
+        }
+        
+        .step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .step-dot.active {
+            background: var(--primary-light);
+            width: 28px;
+            border-radius: 5px;
+        }
+        
+        .step-dot.done {
+            background: var(--success);
+        }
+        
+        .analysis-box {
+            background: var(--surface-variant);
+            border-radius: 16px;
+            padding: 14px;
+            margin-top: 14px;
+        }
+        
+        .analysis-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.9rem;
+        }
+        
+        .analysis-item:last-child {
+            border-bottom: none;
+        }
+        
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .badge-success { background: rgba(0, 200, 83, 0.2); color: #00E676; }
+        .badge-warning { background: rgba(255, 179, 0, 0.2); color: #FFB300; }
+        .badge-error { background: rgba(207, 102, 121, 0.2); color: #CF6679; }
+        .badge-info { background: rgba(25, 118, 210, 0.2); color: #64B5F6; }
+
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 2px; }
+        
         .loading-overlay {
             position: fixed;
             inset: 0;
@@ -501,8 +528,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 1500;
-            gap: 16px;
+            z-index: 1000;
+            gap: 20px;
             padding: 20px;
         }
         
@@ -515,138 +542,52 @@
             animation: spin 1s linear infinite;
         }
         
-        .step-indicator {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            padding: 16px;
-        }
-        
-        .step-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-        }
-        
-        .step-dot.active {
-            background: var(--primary-light);
-            width: 24px;
-            border-radius: 4px;
-        }
-        
-        .step-dot.done {
-            background: var(--success);
-        }
-        
-        /* Layout Grid */
-        .layout-option {
-            padding: 12px;
-            border-radius: 16px;
-            background: var(--surface);
-            border: 2px solid transparent;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .layout-option.selected {
-            border-color: var(--primary-light);
-            background: rgba(25, 118, 210, 0.1);
-        }
-        
-        .layout-preview {
-            display: grid;
-            gap: 3px;
-            padding: 8px;
-            aspect-ratio: 3/4;
-        }
-        
-        .layout-preview-dot {
-            background: rgba(25, 118, 210, 0.4);
-            border-radius: 2px;
-        }
-        
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 2px; }
-        
-        /* Safe areas */
-        @supports (padding: max(0px)) {
-            .page { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
-            .fixed-bottom { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
-        }
-        
-        /* Checkbox styles */
-        .custom-checkbox {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            padding: 12px 16px;
-            background: var(--surface);
-            border-radius: 12px;
-            transition: all 0.2s ease;
-        }
-        
-        .custom-checkbox:active {
+        .extraction-log {
             background: var(--surface-variant);
+            border-radius: 12px;
+            padding: 10px;
+            max-height: 120px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.7rem;
+            color: #888;
+            margin-top: 14px;
+            -webkit-overflow-scrolling: touch;
         }
         
-        .custom-checkbox .check-box {
-            width: 24px;
-            height: 24px;
-            border-radius: 6px;
-            border: 2px solid rgba(255,255,255,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            flex-shrink: 0;
-        }
+        .extraction-log .success { color: #00E676; }
+        .extraction-log .warning { color: #FFB300; }
+        .extraction-log .error { color: #CF6679; }
+        .extraction-log .info { color: #64B5F6; }
         
-        .custom-checkbox.checked .check-box {
-            background: var(--primary-light);
-            border-color: var(--primary-light);
-        }
-        
-        /* Modal */
-        .modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.8);
-            z-index: 1800;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .modal.show {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: var(--surface);
-            border-radius: 24px;
-            max-width: 400px;
-            width: 100%;
-            max-height: 80vh;
-            overflow: hidden;
-        }
-        
-        /* Action Bar */
-        .action-bar {
+        /* Bottom Fixed Button Area */
+        .bottom-action {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: var(--surface);
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding: 12px 16px;
-            display: flex;
-            gap: 12px;
+            padding: 16px 20px;
+            padding-bottom: max(16px, env(safe-area-inset-bottom));
+            background: linear-gradient(to top, var(--background) 0%, var(--background) 60%, transparent 100%);
             z-index: 100;
+        }
+        
+        /* Content padding for bottom button */
+        .content-with-bottom {
+            padding-bottom: 100px !important;
+        }
+        
+        /* Safe area */
+        @supports (padding: max(0px)) {
+            .step-indicator {
+                padding-bottom: max(16px, env(safe-area-inset-bottom));
+            }
+        }
+
+        /* Smooth scrolling on iOS */
+        .scroll-container {
+            -webkit-overflow-scrolling: touch;
+            overflow-y: auto;
         }
     </style>
 </head>
@@ -655,35 +596,10 @@
     <div id="loading-overlay" class="loading-overlay" style="display: none;">
         <div class="loading-spinner"></div>
         <p id="loading-text" class="text-lg text-center">جاري التحميل...</p>
-        <div id="loading-progress" class="w-64 h-2 bg-gray-700 rounded-full overflow-hidden" style="display: none;">
+        <div id="loading-progress" class="w-56 h-2 bg-gray-700 rounded-full overflow-hidden" style="display: none;">
             <div id="loading-bar" class="h-full bg-blue-500 transition-all duration-300" style="width: 0%"></div>
         </div>
         <p id="loading-detail" class="text-sm text-gray-500 text-center"></p>
-    </div>
-
-    <!-- Image Viewer -->
-    <div id="image-viewer" class="image-viewer">
-        <div class="image-viewer-header">
-            <button onclick="closeImageViewer()" class="btn-icon bg-white/10">
-                <span class="material-icons-round text-white">close</span>
-            </button>
-            <span id="viewer-counter" class="text-white font-medium">1 / 10</span>
-            <button onclick="toggleImageSelection()" id="viewer-toggle-btn" class="btn-icon bg-green-500">
-                <span class="material-icons-round text-white" id="viewer-toggle-icon">check</span>
-            </button>
-        </div>
-        <div class="image-viewer-content">
-            <img id="viewer-image" src="" alt="صورة">
-        </div>
-        <button class="image-viewer-nav prev" onclick="viewerPrev()">
-            <span class="material-icons-round">chevron_right</span>
-        </button>
-        <button class="image-viewer-nav next" onclick="viewerNext()">
-            <span class="material-icons-round">chevron_left</span>
-        </button>
-        <div class="p-4 bg-black/50 text-center">
-            <p id="viewer-info" class="text-sm text-gray-400"></p>
-        </div>
     </div>
 
     <!-- PWA Install Banner -->
@@ -697,7 +613,7 @@
         </div>
         <div class="flex gap-2">
             <button onclick="installPWA()" class="bg-white text-blue-900 px-4 py-2 rounded-lg font-bold text-sm">تثبيت</button>
-            <button onclick="dismissInstall()" class="text-white/70 px-2">✕</button>
+            <button onclick="dismissInstall()" class="text-white/70 px-2 text-xl">✕</button>
         </div>
     </div>
 
@@ -712,30 +628,30 @@
                     محول صور الدروس
                 </h1>
                 <p class="text-gray-400 text-base mb-2">إلى ملفات PDF احترافية</p>
-                <p class="text-gray-500 text-sm">الإصدار 6.0 - Mohamed Elherd</p>
+                <p class="text-gray-600 text-xs">الإصدار 5.1 - Mohamed Elherd</p>
             </div>
             
             <div class="w-full max-w-sm space-y-4">
-                <button onclick="startWithPDF()" class="btn-primary w-full">
+                <button onclick="startWithPDF()" class="btn-primary">
                     <span class="material-icons-round">picture_as_pdf</span>
-                    استخراج من PDF
+                    استخراج الصور من PDF
                 </button>
-                <button onclick="startWithFolder()" class="btn-secondary w-full">
-                    <span class="material-icons-round">photo_library</span>
-                    اختيار صور
+                <button onclick="startWithFolder()" class="btn-secondary">
+                    <span class="material-icons-round">folder_open</span>
+                    استخدام مجلد صور
                 </button>
             </div>
             
-            <div class="mt-8 glass rounded-xl p-4 max-w-sm w-full">
+            <div class="mt-8 glass rounded-2xl p-4 max-w-sm w-full">
                 <div class="flex items-start gap-3 text-sm text-gray-400">
-                    <span class="material-icons-round text-blue-400 mt-0.5">tips_and_updates</span>
+                    <span class="material-icons-round text-blue-400 mt-0.5">info</span>
                     <div>
-                        <p class="font-semibold text-white mb-2">الجديد v6.0:</p>
+                        <p class="font-semibold text-white mb-2">الميزات v5.1:</p>
                         <ul class="space-y-1 text-xs">
-                            <li>✓ معاينة كاملة للصور بالضغط</li>
-                            <li>✓ تصفية مخصصة - اختر ما تريد</li>
-                            <li>✓ إصلاح مشاكل الأداء والذاكرة</li>
-                            <li>✓ واجهة محسنة للهاتف</li>
+                            <li>• استخراج الصور الفعلية من PDF</li>
+                            <li>• إزالة الشعارات والتكرارات تلقائياً</li>
+                            <li>• 7 تخطيطات مختلفة للصفحة</li>
+                            <li>• تحميل مباشر بدون نوافذ</li>
                         </ul>
                     </div>
                 </div>
@@ -744,6 +660,7 @@
         
         <div class="step-indicator">
             <div class="step-dot active"></div>
+            <div class="step-dot"></div>
             <div class="step-dot"></div>
             <div class="step-dot"></div>
             <div class="step-dot"></div>
@@ -758,43 +675,77 @@
                 رجوع
             </button>
             <h2 class="text-xl font-bold text-white" id="file-page-title">اختر ملف PDF</h2>
-            <p class="text-white/70 text-sm mt-1" id="file-page-subtitle">سيتم استخراج الصور تلقائياً</p>
+            <p class="text-white/70 text-sm mt-1" id="file-page-subtitle">سيتم استخراج جميع الصور</p>
         </div>
         
-        <div class="flex-1 p-5 -mt-5 overflow-auto pb-24">
+        <div class="flex-1 p-5 -mt-5 overflow-auto scroll-container content-with-bottom">
             <div id="file-drop-zone" class="file-drop-zone" onclick="triggerFileInput()">
-                <div class="icon-circle mx-auto mb-4" style="width: 60px; height: 60px;">
+                <div class="icon-circle mx-auto mb-4" style="width: 56px; height: 56px;">
                     <span class="material-icons-round text-white" style="font-size: 28px;" id="file-icon">upload_file</span>
                 </div>
-                <p class="text-base font-semibold mb-1" id="file-name-display">اضغط للاختيار</p>
-                <p class="text-gray-500 text-sm" id="file-hint">PDF أو صور</p>
+                <p class="text-base font-semibold mb-1" id="file-name-display">اضغط لاختيار ملف</p>
+                <p class="text-gray-500 text-sm" id="file-hint">أو اسحب الملف هنا</p>
             </div>
             
             <input type="file" id="pdf-input" accept=".pdf" hidden onchange="handleFileSelect(event)">
-            <input type="file" id="folder-input" accept="image/*" multiple hidden onchange="handleImagesSelect(event)">
+            <input type="file" id="folder-input" webkitdirectory multiple hidden onchange="handleFolderSelect(event)">
             
-            <!-- Quick Stats After Loading -->
-            <div id="quick-stats" class="hidden mt-5">
-                <div class="grid grid-cols-3 gap-3 mb-4">
-                    <div class="stats-card">
-                        <div class="stats-value text-xl" id="stat-total">0</div>
-                        <div class="text-gray-400 text-xs">إجمالي</div>
+            <div id="extraction-log-container" class="hidden">
+                <div class="extraction-log" id="extraction-log"></div>
+            </div>
+            
+            <div id="analysis-section" class="hidden mt-5">
+                <h3 class="font-bold text-base mb-3 flex items-center gap-2">
+                    <span class="material-icons-round text-green-400">analytics</span>
+                    نتائج التحليل
+                </h3>
+                
+                <div class="analysis-box">
+                    <div class="analysis-item">
+                        <span class="flex items-center gap-2">
+                            <span class="material-icons-round text-blue-400 text-lg">image</span>
+                            إجمالي المستخرج
+                        </span>
+                        <span class="badge badge-info" id="total-extracted">0</span>
                     </div>
-                    <div class="stats-card">
-                        <div class="stats-value text-xl text-green-400" id="stat-valid">0</div>
-                        <div class="text-gray-400 text-xs">صالحة</div>
+                    <div class="analysis-item">
+                        <span class="flex items-center gap-2">
+                            <span class="material-icons-round text-green-400 text-lg">check_circle</span>
+                            صور صالحة
+                        </span>
+                        <span class="badge badge-success" id="valid-images">0</span>
                     </div>
-                    <div class="stats-card">
-                        <div class="stats-value text-xl text-amber-400" id="stat-filtered">0</div>
-                        <div class="text-gray-400 text-xs">مستبعدة</div>
+                    <div class="analysis-item">
+                        <span class="flex items-center gap-2">
+                            <span class="material-icons-round text-amber-400 text-lg">content_copy</span>
+                            مكررة
+                        </span>
+                        <span class="badge badge-warning" id="duplicate-count">0</span>
+                    </div>
+                    <div class="analysis-item">
+                        <span class="flex items-center gap-2">
+                            <span class="material-icons-round text-red-400 text-lg">logo_dev</span>
+                            شعارات
+                        </span>
+                        <span class="badge badge-error" id="logo-count">0</span>
                     </div>
                 </div>
                 
-                <button onclick="goToPage('gallery')" class="btn-primary w-full">
-                    <span class="material-icons-round">visibility</span>
-                    معاينة وتخصيص الصور
-                </button>
+                <div id="images-preview" class="mt-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="font-semibold text-xs text-gray-400">معاينة</h4>
+                        <span class="text-blue-400 text-xs" id="images-count">0 صورة</span>
+                    </div>
+                    <div class="image-preview card" id="preview-grid"></div>
+                </div>
             </div>
+        </div>
+        
+        <div id="file-bottom-action" class="bottom-action hidden">
+            <button id="next-to-filter" onclick="goToPage('filter')" class="btn-primary">
+                التالي - خيارات التصفية
+                <span class="material-icons-round">arrow_back</span>
+            </button>
         </div>
         
         <div class="step-indicator">
@@ -802,70 +753,107 @@
             <div class="step-dot active"></div>
             <div class="step-dot"></div>
             <div class="step-dot"></div>
+            <div class="step-dot"></div>
         </div>
     </div>
 
-    <!-- صفحة معرض الصور والتخصيص -->
-    <div id="page-gallery" class="page">
-        <div class="gradient-bg p-5 pb-3">
-            <div class="flex justify-between items-center mb-3">
-                <button onclick="goToPage('file')" class="flex items-center gap-2 text-white/70">
-                    <span class="material-icons-round">arrow_forward</span>
-                    رجوع
-                </button>
-                <div class="text-white text-sm">
-                    <span id="selected-count">0</span> صورة محددة
+    <!-- صفحة خيارات التصفية -->
+    <div id="page-filter" class="page">
+        <div class="gradient-bg p-5 pb-10">
+            <button onclick="goToPage('file')" class="flex items-center gap-2 text-white/70 mb-3">
+                <span class="material-icons-round">arrow_forward</span>
+                رجوع
+            </button>
+            <h2 class="text-xl font-bold text-white">خيارات التصفية</h2>
+            <p class="text-white/70 text-sm mt-1">اختر مستوى التصفية</p>
+        </div>
+        
+        <div class="flex-1 p-5 -mt-5 space-y-3 overflow-auto scroll-container content-with-bottom">
+            <div class="radio-option selected" data-filter="1" onclick="selectFilter(1)">
+                <div class="radio-circle"></div>
+                <div class="flex-1">
+                    <h3 class="font-semibold">🔰 تصفية كاملة (موصى)</h3>
+                    <p class="text-gray-400 text-xs mt-1">إزالة الشعارات + المكررات</p>
+                    <p class="text-green-400 text-xs mt-1" id="filter1-stats"></p>
                 </div>
             </div>
-            <h2 class="text-lg font-bold text-white">معاينة وتخصيص</h2>
-        </div>
-        
-        <!-- Filter Tabs -->
-        <div class="filter-tabs bg-[var(--surface)]">
-            <button class="filter-tab active" data-filter="all" onclick="filterGallery('all')">
-                <span class="material-icons-round text-sm">apps</span>
-                الكل
-                <span id="filter-count-all" class="text-xs opacity-70">0</span>
-            </button>
-            <button class="filter-tab" data-filter="valid" onclick="filterGallery('valid')">
-                <span class="material-icons-round text-sm">check_circle</span>
-                صالحة
-                <span id="filter-count-valid" class="text-xs opacity-70">0</span>
-            </button>
-            <button class="filter-tab" data-filter="duplicate" onclick="filterGallery('duplicate')">
-                <span class="material-icons-round text-sm">content_copy</span>
-                مكررة
-                <span id="filter-count-duplicate" class="text-xs opacity-70">0</span>
-            </button>
-            <button class="filter-tab" data-filter="logo" onclick="filterGallery('logo')">
-                <span class="material-icons-round text-sm">logo_dev</span>
-                شعارات
-                <span id="filter-count-logo" class="text-xs opacity-70">0</span>
-            </button>
-        </div>
-        
-        <!-- Gallery -->
-        <div class="flex-1 overflow-auto pb-20">
-            <div id="image-gallery" class="image-gallery"></div>
-            <div id="empty-gallery" class="hidden text-center py-12 text-gray-500">
-                <span class="material-icons-round text-4xl mb-2">image_not_supported</span>
-                <p>لا توجد صور في هذا التصنيف</p>
+            
+            <div class="radio-option" data-filter="2" onclick="selectFilter(2)">
+                <div class="radio-circle"></div>
+                <div class="flex-1">
+                    <h3 class="font-semibold">🔄 تكرارات فقط</h3>
+                    <p class="text-gray-400 text-xs mt-1">إزالة المكررات، الاحتفاظ بالشعارات</p>
+                    <p class="text-amber-400 text-xs mt-1" id="filter2-stats"></p>
+                </div>
+            </div>
+            
+            <div class="radio-option" data-filter="3" onclick="selectFilter(3)">
+                <div class="radio-circle"></div>
+                <div class="flex-1">
+                    <h3 class="font-semibold">❌ بدون تصفية</h3>
+                    <p class="text-gray-400 text-xs mt-1">جميع الصور كما هي</p>
+                    <p class="text-blue-400 text-xs mt-1" id="filter3-stats"></p>
+                </div>
+            </div>
+            
+            <div class="glass rounded-xl p-4 mt-4">
+                <div class="flex items-start gap-3">
+                    <span class="material-icons-round text-amber-400">lightbulb</span>
+                    <p class="text-xs text-gray-400">
+                        <span class="text-white font-semibold">نصيحة:</span>
+                        التصفية الكاملة تعطي أفضل نتائج للدروس المستخرجة من فيديوهات.
+                    </p>
+                </div>
             </div>
         </div>
         
-        <!-- Action Bar -->
-        <div class="action-bar fixed-bottom">
-            <button onclick="selectAllVisible()" class="btn-secondary flex-1 py-3 text-sm">
-                <span class="material-icons-round text-lg">select_all</span>
-                تحديد الكل
-            </button>
-            <button onclick="goToPage('layout')" class="btn-primary flex-1 py-3 text-sm">
-                التالي
-                <span class="material-icons-round text-lg">arrow_back</span>
+        <div class="bottom-action">
+            <button onclick="goToPage('layout')" class="btn-primary">
+                التالي - اختيار التخطيط
+                <span class="material-icons-round">arrow_back</span>
             </button>
         </div>
         
-        <div class="step-indicator" style="margin-bottom: 70px;">
+        <div class="step-indicator">
+            <div class="step-dot done"></div>
+            <div class="step-dot done"></div>
+            <div class="step-dot active"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
+        </div>
+    </div>
+
+    <!-- صفحة اختيار التخطيط -->
+    <div id="page-layout" class="page">
+        <div class="gradient-bg p-5 pb-10">
+            <button onclick="goToPage('filter')" class="flex items-center gap-2 text-white/70 mb-3">
+                <span class="material-icons-round">arrow_forward</span>
+                رجوع
+            </button>
+            <h2 class="text-xl font-bold text-white">تخطيط الصفحة</h2>
+            <p class="text-white/70 text-sm mt-1">عدد الصور في كل صفحة</p>
+        </div>
+        
+        <div class="flex-1 p-5 -mt-5 overflow-auto scroll-container content-with-bottom">
+            <div class="grid grid-cols-3 gap-3" id="layout-grid"></div>
+            
+            <div class="mt-5 p-4 glass rounded-xl">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400 text-sm">عدد الصفحات المتوقع:</span>
+                    <span class="font-bold text-xl text-blue-400" id="expected-pages">0</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bottom-action">
+            <button onclick="goToPage('settings')" class="btn-primary">
+                التالي - الإعدادات النهائية
+                <span class="material-icons-round">arrow_back</span>
+            </button>
+        </div>
+        
+        <div class="step-indicator">
+            <div class="step-dot done"></div>
             <div class="step-dot done"></div>
             <div class="step-dot done"></div>
             <div class="step-dot active"></div>
@@ -873,71 +861,73 @@
         </div>
     </div>
 
-    <!-- صفحة التخطيط والإعدادات -->
-    <div id="page-layout" class="page">
+    <!-- صفحة الإعدادات النهائية -->
+    <div id="page-settings" class="page">
         <div class="gradient-bg p-5 pb-10">
-            <button onclick="goToPage('gallery')" class="flex items-center gap-2 text-white/70 mb-3">
+            <button onclick="goToPage('layout')" class="flex items-center gap-2 text-white/70 mb-3">
                 <span class="material-icons-round">arrow_forward</span>
                 رجوع
             </button>
-            <h2 class="text-xl font-bold text-white">التخطيط والإعدادات</h2>
-            <p class="text-white/70 text-sm mt-1">اختر شكل الصفحات</p>
+            <h2 class="text-xl font-bold text-white">الإعدادات النهائية</h2>
+            <p class="text-white/70 text-sm mt-1">تخصيص الملف</p>
         </div>
         
-        <div class="flex-1 p-5 -mt-5 overflow-auto pb-32">
-            <!-- Layout Options -->
-            <h3 class="font-semibold mb-3 text-sm text-gray-400">عدد الصور في الصفحة</h3>
-            <div class="grid grid-cols-4 gap-2 mb-6" id="layout-grid"></div>
-            
-            <!-- Expected Pages -->
-            <div class="card mb-5">
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-400">الصفحات المتوقعة:</span>
-                    <span class="font-bold text-2xl text-blue-400" id="expected-pages">0</span>
-                </div>
-            </div>
-            
-            <!-- File Name -->
-            <div class="mb-5">
+        <div class="flex-1 p-5 -mt-5 space-y-5 overflow-auto scroll-container content-with-bottom">
+            <div>
                 <label class="block text-sm font-medium mb-2 text-gray-400">اسم الملف</label>
-                <input type="text" id="output-name" placeholder="lesson_output">
+                <input type="text" id="output-name" placeholder="اسم الملف">
             </div>
             
-            <!-- Auto Download -->
-            <div class="custom-checkbox checked" id="auto-download-checkbox" onclick="toggleAutoDownload()">
-                <div class="check-box">
+            <div class="checkbox-wrapper" onclick="toggleAutoOpen()">
+                <div class="checkbox checked" id="auto-open-checkbox">
                     <span class="material-icons-round text-white text-sm">check</span>
                 </div>
-                <span>تحميل تلقائي بعد الانتهاء</span>
+                <span class="text-sm">تحميل تلقائي بعد الانتهاء</span>
             </div>
             
-            <!-- Summary -->
-            <div class="card mt-5">
+            <div class="card">
                 <h3 class="font-semibold mb-3 flex items-center gap-2 text-sm">
                     <span class="material-icons-round text-blue-400">summarize</span>
-                    الملخص
+                    ملخص الإعدادات
                 </h3>
                 <div class="space-y-2 text-sm">
                     <div class="flex justify-between">
-                        <span class="text-gray-400">الصور المحددة:</span>
-                        <span class="font-medium text-green-400" id="summary-selected">0</span>
+                        <span class="text-gray-400">الصور الأصلية:</span>
+                        <span class="font-medium" id="summary-total">0</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-400">المستبعدة:</span>
-                        <span class="font-medium text-gray-500" id="summary-excluded">0</span>
+                        <span class="text-gray-400">بعد التصفية:</span>
+                        <span class="font-medium text-green-400" id="summary-filtered">0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">مستبعدة (تكرار):</span>
+                        <span class="font-medium text-amber-400" id="summary-duplicates">0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">مستبعدة (شعارات):</span>
+                        <span class="font-medium text-red-400" id="summary-logos">0</span>
+                    </div>
+                    <div class="flex justify-between border-t border-gray-700 pt-2 mt-2">
+                        <span class="text-gray-400">التخطيط:</span>
+                        <span class="font-medium" id="summary-layout">6/صفحة</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">عدد الصفحات:</span>
+                        <span class="font-medium text-blue-400" id="summary-pages">0</span>
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="action-bar fixed-bottom">
-            <button onclick="startProcessing()" class="btn-success flex-1">
+        <div class="bottom-action">
+            <button onclick="startProcessing()" class="btn-success">
                 <span class="material-icons-round">play_arrow</span>
-                إنشاء PDF
+                بدء التحويل
             </button>
         </div>
         
-        <div class="step-indicator" style="margin-bottom: 70px;">
+        <div class="step-indicator">
+            <div class="step-dot done"></div>
             <div class="step-dot done"></div>
             <div class="step-dot done"></div>
             <div class="step-dot done"></div>
@@ -967,16 +957,16 @@
                 </div>
             </div>
             
-            <h2 class="text-lg font-bold mb-2" id="progress-title">جاري الإنشاء...</h2>
-            <p class="text-gray-400 text-center text-sm" id="progress-status">يرجى الانتظار</p>
+            <h2 class="text-lg font-bold mb-2" id="progress-title">جاري المعالجة...</h2>
+            <p class="text-gray-400 text-sm text-center" id="progress-status">يرجى الانتظار</p>
             
             <div class="grid grid-cols-2 gap-4 w-full max-w-xs mt-6">
                 <div class="stats-card">
-                    <div class="stats-value text-xl" id="proc-stat-images">0</div>
-                    <div class="text-gray-400 text-xs">صورة</div>
+                    <div class="stats-value" id="stat-processed">0</div>
+                    <div class="text-gray-400 text-xs">صورة معالجة</div>
                 </div>
                 <div class="stats-card">
-                    <div class="stats-value text-xl" id="proc-stat-pages">0</div>
+                    <div class="stats-value" id="stat-pages">0</div>
                     <div class="text-gray-400 text-xs">صفحة</div>
                 </div>
             </div>
@@ -985,51 +975,83 @@
 
     <!-- صفحة النتائج -->
     <div id="page-result" class="page">
-        <div class="flex-1 p-6 overflow-auto">
+        <div class="flex-1 p-5 overflow-auto scroll-container">
             <div class="text-center mb-6">
                 <div class="icon-circle mb-4" style="width: 80px; height: 80px; background: linear-gradient(135deg, #00C853 0%, #00E676 100%);">
                     <span class="material-icons-round text-white" style="font-size: 40px;">check_circle</span>
                 </div>
                 <h1 class="text-xl font-bold mb-1">تم بنجاح! 🎉</h1>
-                <p class="text-gray-400 text-sm">ملف PDF جاهز للتحميل</p>
+                <p class="text-gray-400 text-sm">تم إنشاء ملف PDF</p>
             </div>
             
-            <div class="grid grid-cols-2 gap-3 mb-6">
+            <div class="grid grid-cols-2 gap-3 mb-5">
                 <div class="stats-card">
-                    <div class="stats-value text-xl" id="result-images">0</div>
+                    <div class="stats-value" id="result-images">0</div>
                     <div class="text-gray-400 text-xs">صورة</div>
                 </div>
                 <div class="stats-card">
-                    <div class="stats-value text-xl" id="result-pages">0</div>
+                    <div class="stats-value" id="result-pages">0</div>
                     <div class="text-gray-400 text-xs">صفحة</div>
+                </div>
+                <div class="stats-card">
+                    <div class="stats-value" id="result-duplicates">0</div>
+                    <div class="text-gray-400 text-xs">تكرار محذوف</div>
+                </div>
+                <div class="stats-card">
+                    <div class="stats-value" id="result-logos">0</div>
+                    <div class="text-gray-400 text-xs">شعار محذوف</div>
                 </div>
             </div>
             
             <div class="space-y-3">
-                <button onclick="downloadPDF()" class="btn-primary w-full">
+                <button onclick="downloadPDF()" class="btn-primary">
                     <span class="material-icons-round">download</span>
                     تحميل PDF
                 </button>
                 
-                <button onclick="sharePDF()" class="btn-secondary w-full">
+                <button onclick="sharePDF()" class="btn-secondary">
                     <span class="material-icons-round">share</span>
                     مشاركة
                 </button>
                 
-                <button onclick="openPDFInBrowser()" class="btn-secondary w-full" style="border-color: #00C853; color: #00C853;">
-                    <span class="material-icons-round">open_in_new</span>
-                    فتح في المتصفح
-                </button>
+                <div id="duplicates-review" class="hidden">
+                    <button onclick="reviewDuplicates()" class="btn-secondary border-amber-500 text-amber-500">
+                        <span class="material-icons-round">visibility</span>
+                        مراجعة التكرارات (<span id="dup-review-count">0</span>)
+                    </button>
+                </div>
                 
-                <button onclick="startNew()" class="btn-secondary w-full">
+                <button onclick="startNew()" class="btn-secondary">
                     <span class="material-icons-round">refresh</span>
                     بدء جديد
                 </button>
             </div>
             
-            <div class="mt-8 text-center text-gray-500 text-xs">
-                <p>محول صور الدروس v6.0</p>
+            <div class="mt-6 text-center text-gray-600 text-xs">
                 <p>Created by Mohamed Elherd</p>
+                <p>Version 5.1</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal لمراجعة التكرارات -->
+    <div id="duplicates-modal" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[var(--surface)] rounded-2xl max-w-lg w-full max-h-[80vh] overflow-hidden">
+            <div class="p-5 border-b border-gray-700">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-bold">الصور المكررة</h3>
+                    <button onclick="closeDuplicatesModal()" class="text-gray-400 p-2">
+                        <span class="material-icons-round">close</span>
+                    </button>
+                </div>
+            </div>
+            <div class="p-5 overflow-auto max-h-[50vh] scroll-container">
+                <div class="grid grid-cols-3 gap-2" id="duplicates-grid"></div>
+            </div>
+            <div class="p-5 border-t border-gray-700">
+                <button onclick="closeDuplicatesModal()" class="btn-primary">
+                    حسناً
+                </button>
             </div>
         </div>
     </div>
@@ -1045,50 +1067,51 @@
         // Configuration
         // =====================================================
         const Config = {
-            MIN_WIDTH: 80,
-            MIN_HEIGHT: 80,
-            MAX_LOGO_SIZE: 40000,
-            HASH_SIZE: 16,
-            SIMILARITY_THRESHOLD: 0.92,
-            MAX_IMAGE_SIZE: 1500,
-            JPEG_QUALITY: 0.85,
+            MIN_WIDTH: 100,
+            MIN_HEIGHT: 100,
+            MAX_LOGO_SIZE: 50000,
+            HASH_SIZE: 64,
             LAYOUTS: {
-                2: { cols: 1, rows: 2, name: '2', images: 2 },
-                4: { cols: 2, rows: 2, name: '4', images: 4 },
-                6: { cols: 2, rows: 3, name: '6', images: 6 },
-                9: { cols: 3, rows: 3, name: '9', images: 9 },
-                12: { cols: 3, rows: 4, name: '12', images: 12 },
-                16: { cols: 4, rows: 4, name: '16', images: 16 },
-                20: { cols: 4, rows: 5, name: '20', images: 20 },
-                24: { cols: 4, rows: 6, name: '24', images: 24 }
+                1: { cols: 1, rows: 2, name: '2/صفحة', images: 2 },
+                2: { cols: 2, rows: 2, name: '4/صفحة', images: 4 },
+                3: { cols: 2, rows: 3, name: '6/صفحة', images: 6 },
+                4: { cols: 3, rows: 3, name: '9/صفحة', images: 9 },
+                5: { cols: 3, rows: 4, name: '12/صفحة', images: 12 },
+                6: { cols: 4, rows: 4, name: '16/صفحة', images: 16 },
+                7: { cols: 4, rows: 6, name: '24/صفحة', images: 24 }
             }
         };
 
         // =====================================================
-        // Global State
+        // Global Variables
         // =====================================================
-        let state = {
-            mode: 'pdf',
-            allImages: [],
-            selectedImages: new Set(),
-            imageCategories: {
-                valid: [],
-                duplicate: [],
-                logo: []
-            },
-            layoutOption: 6,
-            autoDownload: true,
-            currentFilter: 'all',
-            viewerIndex: 0,
-            generatedPDF: null,
-            baseName: 'lesson'
+        let mode = 'pdf';
+        let selectedFile = null;
+        let allExtractedImages = [];
+        let validImages = [];
+        let uniqueImages = [];
+        let duplicateImages = [];
+        let logoImages = [];
+        let filterOption = 1;
+        let layoutOption = 3;
+        let autoOpen = true;
+        let generatedPDF = null;
+        let pdfBlob = null;
+        let baseName = 'lesson';
+        let deferredPrompt = null;
+        
+        let analysisResults = {
+            total: 0,
+            valid: 0,
+            duplicates: 0,
+            logos: 0
         };
+
+        const __version__ = '5.1';
 
         // =====================================================
         // PWA Support
         // =====================================================
-        let deferredPrompt = null;
-        
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js').catch(() => {});
@@ -1122,7 +1145,62 @@
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
             initLayoutGrid();
             loadSettings();
+            setupDragDrop();
         });
+
+        function setupDragDrop() {
+            const dropZone = document.getElementById('file-drop-zone');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'));
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'));
+            });
+            
+            dropZone.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    if (mode === 'pdf' && files[0].type === 'application/pdf') {
+                        document.getElementById('pdf-input').files = files;
+                        handleFileSelect({ target: { files } });
+                    } else if (mode === 'folder') {
+                        handleFolderSelect({ target: { files } });
+                    }
+                }
+            });
+        }
+
+        // =====================================================
+        // Logging
+        // =====================================================
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('extraction-log');
+            const entry = document.createElement('div');
+            entry.className = type;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function showLog() {
+            document.getElementById('extraction-log-container').classList.remove('hidden');
+            document.getElementById('extraction-log').innerHTML = '';
+        }
+
+        function hideLog() {
+            document.getElementById('extraction-log-container').classList.add('hidden');
+        }
 
         // =====================================================
         // Navigation
@@ -1131,47 +1209,51 @@
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(`page-${pageId}`).classList.add('active');
             
-            if (pageId === 'gallery') {
-                renderGallery();
-                updateSelectedCount();
+            if (pageId === 'filter') {
+                updateFilterStats();
             } else if (pageId === 'layout') {
-                updateLayoutSummary();
+                updateExpectedPages();
+            } else if (pageId === 'settings') {
+                updateSummary();
             }
         }
 
         function startWithPDF() {
-            state.mode = 'pdf';
+            mode = 'pdf';
             document.getElementById('file-page-title').textContent = 'اختر ملف PDF';
-            document.getElementById('file-page-subtitle').textContent = 'سيتم استخراج الصور تلقائياً';
+            document.getElementById('file-page-subtitle').textContent = 'سيتم استخراج جميع الصور';
             document.getElementById('file-icon').textContent = 'picture_as_pdf';
-            resetState();
+            resetFileState();
             goToPage('file');
         }
 
         function startWithFolder() {
-            state.mode = 'images';
-            document.getElementById('file-page-title').textContent = 'اختر الصور';
-            document.getElementById('file-page-subtitle').textContent = 'اختر صور متعددة';
-            document.getElementById('file-icon').textContent = 'photo_library';
-            resetState();
+            mode = 'folder';
+            document.getElementById('file-page-title').textContent = 'اختر مجلد الصور';
+            document.getElementById('file-page-subtitle').textContent = 'سيتم استخدام جميع الصور';
+            document.getElementById('file-icon').textContent = 'folder_open';
+            resetFileState();
             goToPage('file');
         }
 
-        function resetState() {
-            state.allImages = [];
-            state.selectedImages = new Set();
-            state.imageCategories = { valid: [], duplicate: [], logo: [] };
-            state.generatedPDF = null;
-            document.getElementById('quick-stats').classList.add('hidden');
-            document.getElementById('file-name-display').textContent = 'اضغط للاختيار';
-            document.getElementById('file-hint').textContent = 'PDF أو صور';
+        function resetFileState() {
+            allExtractedImages = [];
+            validImages = [];
+            uniqueImages = [];
+            duplicateImages = [];
+            logoImages = [];
+            document.getElementById('analysis-section').classList.add('hidden');
+            document.getElementById('file-bottom-action').classList.add('hidden');
+            document.getElementById('file-name-display').textContent = 'اضغط لاختيار ملف';
+            document.getElementById('file-hint').textContent = 'أو اسحب الملف هنا';
+            hideLog();
         }
 
         // =====================================================
         // File Selection
         // =====================================================
         function triggerFileInput() {
-            if (state.mode === 'pdf') {
+            if (mode === 'pdf') {
                 document.getElementById('pdf-input').click();
             } else {
                 document.getElementById('folder-input').click();
@@ -1182,161 +1264,228 @@
             const file = event.target.files[0];
             if (!file) return;
             
-            state.baseName = file.name.replace('.pdf', '');
+            selectedFile = file;
+            baseName = file.name.replace('.pdf', '');
+            
             document.getElementById('file-name-display').textContent = file.name;
             document.getElementById('file-hint').textContent = formatFileSize(file.size);
             document.getElementById('file-drop-zone').classList.add('processing');
             
-            showLoading('جاري استخراج الصور...');
+            showLog();
+            showLoading('جاري استخراج الصور من PDF...');
             
             try {
-                let images = await extractImagesFromPDF(file);
+                log(`فتح الملف: ${file.name}`, 'info');
+                allExtractedImages = await extractImagesFromPDF(file);
                 
-                if (images.length === 0) {
-                    updateLoadingText('جاري التحويل البديل...');
-                    images = await extractPagesAsImages(file);
+                if (allExtractedImages.length === 0) {
+                    log('لم يتم العثور على صور مضمنة، جاري تجربة تحويل الصفحات...', 'warning');
+                    updateLoadingText('جاري تحويل الصفحات إلى صور...');
+                    allExtractedImages = await extractPagesAsImages(file);
                 }
                 
-                if (images.length === 0) {
+                if (allExtractedImages.length === 0) {
                     hideLoading();
-                    showSnackbar('لم يتم العثور على صور', 'error');
+                    showSnackbar('لم يتم العثور على صور في الملف', 'error');
                     document.getElementById('file-drop-zone').classList.remove('processing');
                     return;
                 }
                 
-                state.allImages = images;
+                log(`تم استخراج ${allExtractedImages.length} صورة`, 'success');
                 updateLoadingText('جاري تحليل الصور...');
                 await analyzeImages();
                 
                 hideLoading();
-                showQuickStats();
+                displayAnalysisResults();
                 document.getElementById('file-drop-zone').classList.remove('processing');
-                document.getElementById('output-name').value = state.baseName + '_output';
+                
+                // تعيين اسم الملف تلقائياً
+                document.getElementById('output-name').value = baseName + '_images';
                 
             } catch (error) {
                 console.error('Error:', error);
+                log(`خطأ: ${error.message}`, 'error');
                 hideLoading();
-                showSnackbar('خطأ: ' + error.message, 'error');
+                showSnackbar('خطأ في قراءة ملف PDF: ' + error.message, 'error');
                 document.getElementById('file-drop-zone').classList.remove('processing');
             }
         }
 
-        async function handleImagesSelect(event) {
-            const files = Array.from(event.target.files).filter(f => f.type.startsWith('image/'));
+        async function handleFolderSelect(event) {
+            const files = Array.from(event.target.files).filter(f => 
+                f.type.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|bmp|tiff)$/i.test(f.name)
+            );
             
             if (files.length === 0) {
-                showSnackbar('لا توجد صور', 'error');
+                showSnackbar('لا توجد صور في المجلد', 'error');
                 return;
             }
             
             files.sort((a, b) => a.name.localeCompare(b.name, 'ar', { numeric: true }));
             
-            state.baseName = 'images';
+            const folderPath = files[0].webkitRelativePath?.split('/')[0] || 'images';
+            baseName = folderPath;
+            
             document.getElementById('file-name-display').textContent = `${files.length} صورة`;
-            document.getElementById('file-hint').textContent = 'جاري التحميل...';
+            document.getElementById('file-hint').textContent = `من مجلد: ${folderPath}`;
             document.getElementById('file-drop-zone').classList.add('processing');
             
+            showLog();
             showLoading('جاري تحميل الصور...');
             
             try {
-                state.allImages = [];
+                allExtractedImages = [];
+                let counter = 0;
                 
-                for (let i = 0; i < files.length; i++) {
-                    updateLoadingText(`تحميل ${i + 1}/${files.length}...`);
-                    updateLoadingBar((i / files.length) * 100);
+                for (const file of files) {
+                    counter++;
+                    log(`تحميل: ${file.name}`, 'info');
                     
-                    const file = files[i];
                     const dataUrl = await readFileAsDataURL(file);
-                    const optimized = await optimizeImage(dataUrl);
+                    const dims = await getImageDimensions(dataUrl);
                     
-                    state.allImages.push({
-                        id: i,
-                        data: optimized.data,
-                        name: file.name,
-                        width: optimized.width,
-                        height: optimized.height,
+                    allExtractedImages.push({
+                        data: dataUrl,
+                        name: `img_${String(counter).padStart(4, '0')}_${file.name}`,
+                        width: dims.width,
+                        height: dims.height,
                         size: file.size,
-                        category: 'valid'
+                        loaded: true
                     });
+                    
+                    updateLoadingText(`جاري تحميل الصور... ${counter}/${files.length}`);
                 }
                 
+                log(`تم تحميل ${allExtractedImages.length} صورة`, 'success');
                 updateLoadingText('جاري تحليل الصور...');
                 await analyzeImages();
                 
                 hideLoading();
-                showQuickStats();
+                displayAnalysisResults();
                 document.getElementById('file-drop-zone').classList.remove('processing');
-                document.getElementById('output-name').value = state.baseName + '_output';
+                
+                document.getElementById('output-name').value = baseName + '_images';
                 
             } catch (error) {
                 console.error('Error:', error);
+                log(`خطأ: ${error.message}`, 'error');
                 hideLoading();
-                showSnackbar('خطأ في التحميل', 'error');
+                showSnackbar('خطأ في تحميل الصور', 'error');
                 document.getElementById('file-drop-zone').classList.remove('processing');
             }
         }
 
         // =====================================================
-        // PDF Extraction - Method 1
+        // PDF Image Extraction - Method 1: Extract embedded images
         // =====================================================
         async function extractImagesFromPDF(file) {
             const arrayBuffer = await file.arrayBuffer();
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
             const images = [];
-            let idCounter = 0;
+            let globalCounter = 0;
             
+            log(`عدد الصفحات: ${pdf.numPages}`, 'info');
             showLoadingProgress(true);
             
             for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
                 try {
-                    updateLoadingText(`صفحة ${pageNum}/${pdf.numPages}...`);
+                    updateLoadingText(`استخراج من صفحة ${pageNum}/${pdf.numPages}...`);
                     updateLoadingBar((pageNum / pdf.numPages) * 100);
                     
                     const page = await pdf.getPage(pageNum);
                     const ops = await page.getOperatorList();
                     
                     const pageImages = new Set();
+                    
                     for (let i = 0; i < ops.fnArray.length; i++) {
-                        if ([82, 83, 85].includes(ops.fnArray[i])) {
+                        const fn = ops.fnArray[i];
+                        if (fn === 85 || fn === 82 || fn === 83) {
                             const imgName = ops.argsArray[i][0];
                             if (imgName) pageImages.add(imgName);
                         }
                     }
                     
+                    log(`صفحة ${pageNum}: ${pageImages.size} صورة`, pageImages.size > 0 ? 'success' : 'warning');
+                    
+                    let imgIndex = 0;
                     for (const imgName of pageImages) {
                         try {
                             const imgObj = await Promise.race([
                                 new Promise((resolve, reject) => {
-                                    page.objs.get(imgName, (img) => img ? resolve(img) : reject());
+                                    page.objs.get(imgName, (img) => {
+                                        if (img) resolve(img);
+                                        else reject(new Error('Image not found'));
+                                    });
                                 }),
-                                new Promise((_, reject) => setTimeout(() => reject(), 3000))
+                                new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
                             ]);
                             
-                            if (imgObj && imgObj.width > 30 && imgObj.height > 30) {
-                                const dataUrl = await renderImageObject(imgObj);
-                                if (dataUrl) {
-                                    const optimized = await optimizeImage(dataUrl);
-                                    images.push({
-                                        id: idCounter++,
-                                        data: optimized.data,
-                                        name: `p${pageNum}_${images.length}.png`,
-                                        width: optimized.width,
-                                        height: optimized.height,
-                                        size: optimized.data.length * 0.75,
-                                        pageNum,
-                                        category: 'valid'
-                                    });
+                            if (imgObj && imgObj.width && imgObj.height && imgObj.width > 50 && imgObj.height > 50) {
+                                globalCounter++;
+                                imgIndex++;
+                                
+                                const canvas = document.createElement('canvas');
+                                canvas.width = imgObj.width;
+                                canvas.height = imgObj.height;
+                                const ctx = canvas.getContext('2d');
+                                
+                                if (imgObj.data) {
+                                    const imageData = ctx.createImageData(imgObj.width, imgObj.height);
+                                    const srcData = imgObj.data;
+                                    const dstData = imageData.data;
+                                    const pixelCount = imgObj.width * imgObj.height;
+                                    
+                                    if (srcData.length === pixelCount * 4) {
+                                        dstData.set(srcData);
+                                    } else if (srcData.length === pixelCount * 3) {
+                                        for (let j = 0; j < pixelCount; j++) {
+                                            dstData[j * 4] = srcData[j * 3];
+                                            dstData[j * 4 + 1] = srcData[j * 3 + 1];
+                                            dstData[j * 4 + 2] = srcData[j * 3 + 2];
+                                            dstData[j * 4 + 3] = 255;
+                                        }
+                                    } else if (srcData.length === pixelCount) {
+                                        for (let j = 0; j < pixelCount; j++) {
+                                            const gray = srcData[j];
+                                            dstData[j * 4] = gray;
+                                            dstData[j * 4 + 1] = gray;
+                                            dstData[j * 4 + 2] = gray;
+                                            dstData[j * 4 + 3] = 255;
+                                        }
+                                    } else {
+                                        continue;
+                                    }
+                                    
+                                    ctx.putImageData(imageData, 0, 0);
+                                } else if (imgObj.bitmap) {
+                                    ctx.drawImage(imgObj.bitmap, 0, 0);
+                                } else {
+                                    continue;
                                 }
+                                
+                                const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+                                const base64 = dataUrl.split(',')[1];
+                                const estimatedSize = Math.round(base64.length * 0.75);
+                                
+                                images.push({
+                                    data: dataUrl,
+                                    name: `img_${String(globalCounter).padStart(4, '0')}_p${String(pageNum).padStart(3, '0')}_${String(imgIndex).padStart(2, '0')}.jpg`,
+                                    width: imgObj.width,
+                                    height: imgObj.height,
+                                    size: estimatedSize,
+                                    pageNum: pageNum,
+                                    loaded: true
+                                });
                             }
-                        } catch (e) {}
+                        } catch (e) {
+                            // Skip this image
+                        }
                     }
                     
-                    // Memory cleanup
-                    page.cleanup();
-                    await new Promise(r => setTimeout(r, 5));
+                    await new Promise(r => setTimeout(r, 10));
                     
                 } catch (e) {
-                    console.warn(`Page ${pageNum} error:`, e);
+                    log(`خطأ في صفحة ${pageNum}: ${e.message}`, 'error');
                 }
             }
             
@@ -1344,69 +1493,18 @@
             return images;
         }
 
-        async function renderImageObject(imgObj) {
-            try {
-                const canvas = document.createElement('canvas');
-                canvas.width = Math.min(imgObj.width, Config.MAX_IMAGE_SIZE);
-                canvas.height = Math.min(imgObj.height, Config.MAX_IMAGE_SIZE);
-                const ctx = canvas.getContext('2d');
-                
-                if (imgObj.bitmap) {
-                    ctx.drawImage(imgObj.bitmap, 0, 0, canvas.width, canvas.height);
-                } else if (imgObj.data) {
-                    const imageData = ctx.createImageData(imgObj.width, imgObj.height);
-                    const srcData = imgObj.data;
-                    const dstData = imageData.data;
-                    const pixelCount = imgObj.width * imgObj.height;
-                    
-                    if (srcData.length === pixelCount * 4) {
-                        dstData.set(srcData);
-                    } else if (srcData.length === pixelCount * 3) {
-                        for (let j = 0; j < pixelCount; j++) {
-                            dstData[j * 4] = srcData[j * 3];
-                            dstData[j * 4 + 1] = srcData[j * 3 + 1];
-                            dstData[j * 4 + 2] = srcData[j * 3 + 2];
-                            dstData[j * 4 + 3] = 255;
-                        }
-                    } else if (srcData.length === pixelCount) {
-                        for (let j = 0; j < pixelCount; j++) {
-                            dstData[j * 4] = dstData[j * 4 + 1] = dstData[j * 4 + 2] = srcData[j];
-                            dstData[j * 4 + 3] = 255;
-                        }
-                    } else {
-                        return null;
-                    }
-                    
-                    // Scale if needed
-                    if (imgObj.width !== canvas.width || imgObj.height !== canvas.height) {
-                        const tempCanvas = document.createElement('canvas');
-                        tempCanvas.width = imgObj.width;
-                        tempCanvas.height = imgObj.height;
-                        tempCanvas.getContext('2d').putImageData(imageData, 0, 0);
-                        ctx.drawImage(tempCanvas, 0, 0, canvas.width, canvas.height);
-                    } else {
-                        ctx.putImageData(imageData, 0, 0);
-                    }
-                } else {
-                    return null;
-                }
-                
-                return canvas.toDataURL('image/jpeg', Config.JPEG_QUALITY);
-            } catch (e) {
-                return null;
-            }
-        }
-
         // =====================================================
-        // PDF Extraction - Method 2 (Fallback)
+        // PDF Image Extraction - Method 2: Render pages as images
         // =====================================================
         async function extractPagesAsImages(file) {
             const arrayBuffer = await file.arrayBuffer();
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
             const images = [];
             
+            log(`تحويل ${pdf.numPages} صفحة إلى صور...`, 'info');
             showLoadingProgress(true);
-            const scale = 1.5;
+            
+            const scale = 2;
             
             for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
                 try {
@@ -1417,8 +1515,8 @@
                     const viewport = page.getViewport({ scale });
                     
                     const canvas = document.createElement('canvas');
-                    canvas.width = Math.min(viewport.width, Config.MAX_IMAGE_SIZE);
-                    canvas.height = Math.min(viewport.height, Config.MAX_IMAGE_SIZE);
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
                     const ctx = canvas.getContext('2d');
                     
                     ctx.fillStyle = 'white';
@@ -1426,30 +1524,29 @@
                     
                     await page.render({
                         canvasContext: ctx,
-                        viewport: page.getViewport({ 
-                            scale: scale * Math.min(1, Config.MAX_IMAGE_SIZE / viewport.width) 
-                        })
+                        viewport: viewport
                     }).promise;
                     
-                    const dataUrl = canvas.toDataURL('image/jpeg', Config.JPEG_QUALITY);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+                    const base64 = dataUrl.split(',')[1];
+                    const estimatedSize = Math.round(base64.length * 0.75);
                     
                     images.push({
-                        id: pageNum - 1,
                         data: dataUrl,
-                        name: `page_${pageNum}.jpg`,
-                        width: canvas.width,
-                        height: canvas.height,
-                        size: dataUrl.length * 0.75,
-                        pageNum,
-                        category: 'valid'
+                        name: `img_${String(pageNum).padStart(4, '0')}_p${String(pageNum).padStart(3, '0')}_01.jpg`,
+                        width: viewport.width,
+                        height: viewport.height,
+                        size: estimatedSize,
+                        pageNum: pageNum,
+                        loaded: true
                     });
                     
-                    page.cleanup();
-                    canvas.width = canvas.height = 0;
+                    log(`صفحة ${pageNum}: تم (${Math.round(viewport.width)}x${Math.round(viewport.height)})`, 'success');
+                    
                     await new Promise(r => setTimeout(r, 10));
                     
                 } catch (e) {
-                    console.warn(`Page ${pageNum} render error:`, e);
+                    log(`خطأ في صفحة ${pageNum}: ${e.message}`, 'error');
                 }
             }
             
@@ -1461,49 +1558,59 @@
         // Image Analysis
         // =====================================================
         async function analyzeImages() {
-            state.imageCategories = { valid: [], duplicate: [], logo: [] };
-            state.selectedImages = new Set();
+            validImages = [];
+            uniqueImages = [];
+            duplicateImages = [];
+            logoImages = [];
             
             const hashes = new Map();
             
-            for (let i = 0; i < state.allImages.length; i++) {
-                const img = state.allImages[i];
+            log('بدء تحليل الصور...', 'info');
+            
+            for (let i = 0; i < allExtractedImages.length; i++) {
+                const img = allExtractedImages[i];
                 
-                // Check logo
                 if (isLogo(img)) {
-                    img.category = 'logo';
-                    state.imageCategories.logo.push(img.id);
+                    logoImages.push(img);
+                    log(`[شعار] ${img.name} (${img.width}x${img.height})`, 'warning');
                     continue;
                 }
                 
-                // Check duplicate
+                validImages.push(img);
+                
                 const hash = await getImageHash(img.data);
-                img.hash = hash;
                 
-                let isDuplicate = false;
-                for (const [existingHash, existingId] of hashes) {
-                    if (calculateSimilarity(hash, existingHash) > Config.SIMILARITY_THRESHOLD) {
-                        isDuplicate = true;
-                        img.duplicateOf = existingId;
-                        break;
-                    }
-                }
-                
-                if (isDuplicate) {
-                    img.category = 'duplicate';
-                    state.imageCategories.duplicate.push(img.id);
+                if (hashes.has(hash)) {
+                    duplicateImages.push({
+                        ...img,
+                        originalName: hashes.get(hash)
+                    });
+                    log(`[مكرر] ${img.name}`, 'warning');
                 } else {
-                    hashes.set(hash, img.id);
-                    img.category = 'valid';
-                    state.imageCategories.valid.push(img.id);
-                    state.selectedImages.add(img.id);
+                    hashes.set(hash, img.name);
+                    uniqueImages.push(img);
+                    log(`[صالح] ${img.name}`, 'success');
                 }
             }
+            
+            analysisResults = {
+                total: allExtractedImages.length,
+                valid: validImages.length,
+                logos: logoImages.length,
+                duplicates: duplicateImages.length,
+                unique: uniqueImages.length
+            };
+            
+            log(`التحليل مكتمل: ${analysisResults.unique} صالحة، ${analysisResults.duplicates} مكررة، ${analysisResults.logos} شعارات`, 'success');
         }
 
         function isLogo(img) {
-            if (img.width < Config.MIN_WIDTH || img.height < Config.MIN_HEIGHT) return true;
-            if (img.size < Config.MAX_LOGO_SIZE && img.width < 150 && img.height < 150) return true;
+            if (img.width < Config.MIN_WIDTH || img.height < Config.MIN_HEIGHT) {
+                return true;
+            }
+            if (img.size < Config.MAX_LOGO_SIZE && img.width < 200 && img.height < 200) {
+                return true;
+            }
             return false;
         }
 
@@ -1512,376 +1619,256 @@
                 const img = new Image();
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    canvas.width = canvas.height = Config.HASH_SIZE;
+                    canvas.width = Config.HASH_SIZE;
+                    canvas.height = Config.HASH_SIZE;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, Config.HASH_SIZE, Config.HASH_SIZE);
                     
-                    const data = ctx.getImageData(0, 0, Config.HASH_SIZE, Config.HASH_SIZE).data;
+                    const imageData = ctx.getImageData(0, 0, Config.HASH_SIZE, Config.HASH_SIZE).data;
+                    
                     let hash = '';
-                    let sum = 0;
+                    let total = 0;
                     const grays = [];
                     
-                    for (let i = 0; i < data.length; i += 4) {
-                        const gray = (data[i] + data[i+1] + data[i+2]) / 3;
+                    for (let i = 0; i < imageData.length; i += 4) {
+                        const gray = Math.round((imageData[i] + imageData[i+1] + imageData[i+2]) / 3);
                         grays.push(gray);
-                        sum += gray;
+                        total += gray;
                     }
                     
-                    const avg = sum / grays.length;
-                    grays.forEach(g => hash += g > avg ? '1' : '0');
+                    const avg = total / grays.length;
+                    
+                    for (const gray of grays) {
+                        hash += gray > avg ? '1' : '0';
+                    }
                     
                     resolve(hash);
                 };
-                img.onerror = () => resolve(Math.random().toString(36));
-                img.src = dataUrl;
-            });
-        }
-
-        function calculateSimilarity(hash1, hash2) {
-            if (hash1.length !== hash2.length) return 0;
-            let matches = 0;
-            for (let i = 0; i < hash1.length; i++) {
-                if (hash1[i] === hash2[i]) matches++;
-            }
-            return matches / hash1.length;
-        }
-
-        // =====================================================
-        // Image Optimization
-        // =====================================================
-        async function optimizeImage(dataUrl) {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = () => {
-                    let w = img.width;
-                    let h = img.height;
-                    
-                    if (w > Config.MAX_IMAGE_SIZE || h > Config.MAX_IMAGE_SIZE) {
-                        const ratio = Math.min(Config.MAX_IMAGE_SIZE / w, Config.MAX_IMAGE_SIZE / h);
-                        w = Math.round(w * ratio);
-                        h = Math.round(h * ratio);
-                    }
-                    
-                    const canvas = document.createElement('canvas');
-                    canvas.width = w;
-                    canvas.height = h;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, w, h);
-                    
-                    resolve({
-                        data: canvas.toDataURL('image/jpeg', Config.JPEG_QUALITY),
-                        width: w,
-                        height: h
-                    });
-                };
-                img.onerror = () => resolve({ data: dataUrl, width: 100, height: 100 });
+                img.onerror = () => resolve(Math.random().toString());
                 img.src = dataUrl;
             });
         }
 
         // =====================================================
-        // Quick Stats Display
+        // Display Analysis Results
         // =====================================================
-        function showQuickStats() {
-            const total = state.allImages.length;
-            const valid = state.imageCategories.valid.length;
-            const filtered = state.imageCategories.duplicate.length + state.imageCategories.logo.length;
+        function displayAnalysisResults() {
+            document.getElementById('analysis-section').classList.remove('hidden');
             
-            document.getElementById('stat-total').textContent = total;
-            document.getElementById('stat-valid').textContent = valid;
-            document.getElementById('stat-filtered').textContent = filtered;
-            document.getElementById('quick-stats').classList.remove('hidden');
+            document.getElementById('total-extracted').textContent = analysisResults.total;
+            document.getElementById('valid-images').textContent = analysisResults.unique;
+            document.getElementById('duplicate-count').textContent = analysisResults.duplicates;
+            document.getElementById('logo-count').textContent = analysisResults.logos;
+            document.getElementById('images-count').textContent = `${analysisResults.unique} صورة`;
             
-            showSnackbar(`تم استخراج ${total} صورة، ${valid} صالحة`, 'success');
-        }
-
-        // =====================================================
-        // Gallery Rendering
-        // =====================================================
-        function renderGallery() {
-            const gallery = document.getElementById('image-gallery');
-            const filter = state.currentFilter;
+            const grid = document.getElementById('preview-grid');
+            const previewImages = uniqueImages.slice(0, 12);
             
-            let imagesToShow = [];
+            grid.innerHTML = previewImages.map((img, i) => 
+                `<img src="${img.data}" alt="صورة ${i + 1}" loading="lazy">`
+            ).join('');
             
-            if (filter === 'all') {
-                imagesToShow = state.allImages;
-            } else {
-                const ids = state.imageCategories[filter] || [];
-                imagesToShow = state.allImages.filter(img => ids.includes(img.id));
-            }
-            
-            // Update filter counts
-            document.getElementById('filter-count-all').textContent = state.allImages.length;
-            document.getElementById('filter-count-valid').textContent = state.imageCategories.valid.length;
-            document.getElementById('filter-count-duplicate').textContent = state.imageCategories.duplicate.length;
-            document.getElementById('filter-count-logo').textContent = state.imageCategories.logo.length;
-            
-            if (imagesToShow.length === 0) {
-                gallery.innerHTML = '';
-                document.getElementById('empty-gallery').classList.remove('hidden');
-                return;
-            }
-            
-            document.getElementById('empty-gallery').classList.add('hidden');
-            
-            gallery.innerHTML = imagesToShow.map((img, idx) => `
-                <div class="image-item ${state.selectedImages.has(img.id) ? 'selected' : ''} ${!state.selectedImages.has(img.id) ? 'excluded' : ''}" 
-                     data-id="${img.id}" 
-                     data-index="${idx}"
-                     onclick="toggleImage(${img.id})"
-                     oncontextmenu="openViewer(${idx}); return false;">
-                    <img src="${img.data}" alt="${img.name}" loading="lazy">
-                    ${img.category === 'duplicate' ? '<span class="badge badge-duplicate">مكرر</span>' : ''}
-                    ${img.category === 'logo' ? '<span class="badge badge-logo">شعار</span>' : ''}
-                    <div class="checkbox">
-                        <span class="material-icons-round text-white text-xs">${state.selectedImages.has(img.id) ? 'check' : ''}</span>
+            if (uniqueImages.length > 12) {
+                grid.innerHTML += `
+                    <div class="w-full aspect-square bg-gray-700 rounded-lg flex items-center justify-center text-gray-400 text-xs">
+                        +${uniqueImages.length - 12}
                     </div>
-                </div>
-            `).join('');
-            
-            // Add long press for mobile
-            gallery.querySelectorAll('.image-item').forEach(item => {
-                let pressTimer;
-                item.addEventListener('touchstart', (e) => {
-                    pressTimer = setTimeout(() => {
-                        openViewer(parseInt(item.dataset.index));
-                    }, 500);
-                });
-                item.addEventListener('touchend', () => clearTimeout(pressTimer));
-                item.addEventListener('touchmove', () => clearTimeout(pressTimer));
-            });
-        }
-
-        function filterGallery(filter) {
-            state.currentFilter = filter;
-            
-            document.querySelectorAll('.filter-tab').forEach(tab => {
-                tab.classList.toggle('active', tab.dataset.filter === filter);
-            });
-            
-            renderGallery();
-        }
-
-        function toggleImage(id) {
-            if (state.selectedImages.has(id)) {
-                state.selectedImages.delete(id);
-            } else {
-                state.selectedImages.add(id);
+                `;
             }
             
-            const item = document.querySelector(`.image-item[data-id="${id}"]`);
-            if (item) {
-                item.classList.toggle('selected', state.selectedImages.has(id));
-                item.classList.toggle('excluded', !state.selectedImages.has(id));
-                const checkbox = item.querySelector('.checkbox span');
-                checkbox.textContent = state.selectedImages.has(id) ? 'check' : '';
-            }
+            document.getElementById('file-bottom-action').classList.remove('hidden');
             
-            updateSelectedCount();
+            showSnackbar(`تم استخراج ${analysisResults.total} صورة، ${analysisResults.unique} صالحة`, 'success');
         }
 
-        function selectAllVisible() {
-            const filter = state.currentFilter;
-            let ids = [];
-            
-            if (filter === 'all') {
-                ids = state.allImages.map(img => img.id);
-            } else {
-                ids = state.imageCategories[filter] || [];
-            }
-            
-            // Check if all are selected
-            const allSelected = ids.every(id => state.selectedImages.has(id));
-            
-            ids.forEach(id => {
-                if (allSelected) {
-                    state.selectedImages.delete(id);
-                } else {
-                    state.selectedImages.add(id);
+        // =====================================================
+        // Filter Options
+        // =====================================================
+        function selectFilter(option) {
+            filterOption = option;
+            document.querySelectorAll('.radio-option').forEach(el => {
+                el.classList.remove('selected');
+                if (parseInt(el.dataset.filter) === option) {
+                    el.classList.add('selected');
                 }
             });
-            
-            renderGallery();
-            updateSelectedCount();
+            updateExpectedPages();
         }
 
-        function updateSelectedCount() {
-            document.getElementById('selected-count').textContent = state.selectedImages.size;
+        function updateFilterStats() {
+            const fullFilter = uniqueImages.length;
+            const dupOnly = validImages.length;
+            const noFilter = allExtractedImages.length;
+            
+            document.getElementById('filter1-stats').textContent = 
+                `← ${fullFilter} صورة`;
+            document.getElementById('filter2-stats').textContent = 
+                `← ${dupOnly} صورة`;
+            document.getElementById('filter3-stats').textContent = 
+                `← ${noFilter} صورة`;
         }
 
-        // =====================================================
-        // Image Viewer
-        // =====================================================
-        function openViewer(index) {
-            const filter = state.currentFilter;
-            let images = filter === 'all' ? state.allImages : 
-                state.allImages.filter(img => (state.imageCategories[filter] || []).includes(img.id));
-            
-            if (index < 0 || index >= images.length) return;
-            
-            state.viewerIndex = index;
-            state.viewerImages = images;
-            
-            updateViewer();
-            document.getElementById('image-viewer').classList.add('show');
-        }
-
-        function updateViewer() {
-            const img = state.viewerImages[state.viewerIndex];
-            document.getElementById('viewer-image').src = img.data;
-            document.getElementById('viewer-counter').textContent = 
-                `${state.viewerIndex + 1} / ${state.viewerImages.length}`;
-            document.getElementById('viewer-info').textContent = 
-                `${img.width}×${img.height} - ${img.name}`;
-            
-            const isSelected = state.selectedImages.has(img.id);
-            const btn = document.getElementById('viewer-toggle-btn');
-            btn.className = `btn-icon ${isSelected ? 'bg-green-500' : 'bg-red-500'}`;
-            document.getElementById('viewer-toggle-icon').textContent = isSelected ? 'check' : 'close';
-        }
-
-        function closeImageViewer() {
-            document.getElementById('image-viewer').classList.remove('show');
-            renderGallery();
-        }
-
-        function viewerPrev() {
-            if (state.viewerIndex > 0) {
-                state.viewerIndex--;
-                updateViewer();
+        function getFilteredImages() {
+            switch (filterOption) {
+                case 1:
+                    return uniqueImages;
+                case 2:
+                    return allExtractedImages.filter(img => 
+                        !duplicateImages.find(d => d.name === img.name)
+                    );
+                case 3:
+                    return allExtractedImages;
+                default:
+                    return uniqueImages;
             }
         }
 
-        function viewerNext() {
-            if (state.viewerIndex < state.viewerImages.length - 1) {
-                state.viewerIndex++;
-                updateViewer();
-            }
-        }
-
-        function toggleImageSelection() {
-            const img = state.viewerImages[state.viewerIndex];
-            toggleImage(img.id);
-            updateViewer();
-        }
-
-        // Touch swipe for viewer
-        let touchStartX = 0;
-        document.getElementById('image-viewer').addEventListener('touchstart', (e) => {
-            touchStartX = e.touches[0].clientX;
-        });
-        document.getElementById('image-viewer').addEventListener('touchend', (e) => {
-            const diff = touchStartX - e.changedTouches[0].clientX;
-            if (Math.abs(diff) > 50) {
-                if (diff > 0) viewerNext();
-                else viewerPrev();
-            }
-        });
-
         // =====================================================
-        // Layout Options
+        // Layout Selection
         // =====================================================
         function initLayoutGrid() {
             const grid = document.getElementById('layout-grid');
             grid.innerHTML = Object.entries(Config.LAYOUTS).map(([key, layout]) => `
-                <div class="layout-option ${parseInt(key) === state.layoutOption ? 'selected' : ''}" 
+                <div class="card cursor-pointer ${key === '3' ? 'selected' : ''}" 
                      data-layout="${key}" 
                      onclick="selectLayout(${key})">
-                    <div class="layout-preview" style="grid-template-columns: repeat(${layout.cols}, 1fr);">
-                        ${Array(Math.min(layout.images, 12)).fill('<div class="layout-preview-dot"></div>').join('')}
+                    <div class="layout-grid" style="grid-template-columns: repeat(${layout.cols}, 1fr);">
+                        ${Array(Math.min(layout.images, 12)).fill('<div class="layout-dot"></div>').join('')}
                     </div>
-                    <p class="text-center text-xs mt-1 font-medium">${layout.name}</p>
+                    <p class="text-center mt-2 text-xs font-medium">${layout.name}</p>
                 </div>
             `).join('');
         }
 
         function selectLayout(key) {
-            state.layoutOption = key;
-            document.querySelectorAll('.layout-option').forEach(el => {
-                el.classList.toggle('selected', parseInt(el.dataset.layout) === key);
+            layoutOption = key;
+            document.querySelectorAll('#layout-grid .card').forEach(el => {
+                el.classList.remove('selected');
+                if (parseInt(el.dataset.layout) === key) {
+                    el.classList.add('selected');
+                }
             });
-            updateLayoutSummary();
+            updateExpectedPages();
         }
 
-        function updateLayoutSummary() {
-            const layout = Config.LAYOUTS[state.layoutOption];
-            const selected = state.selectedImages.size;
-            const excluded = state.allImages.length - selected;
-            const pages = Math.ceil(selected / layout.images);
-            
+        function updateExpectedPages() {
+            const images = getFilteredImages();
+            const layout = Config.LAYOUTS[layoutOption];
+            const perPage = layout.cols * layout.rows;
+            const pages = Math.ceil(images.length / perPage);
             document.getElementById('expected-pages').textContent = pages;
-            document.getElementById('summary-selected').textContent = selected;
-            document.getElementById('summary-excluded').textContent = excluded;
-        }
-
-        function toggleAutoDownload() {
-            state.autoDownload = !state.autoDownload;
-            document.getElementById('auto-download-checkbox').classList.toggle('checked', state.autoDownload);
         }
 
         // =====================================================
-        // PDF Creation
+        // Settings
         // =====================================================
-        async function startProcessing() {
-            if (state.selectedImages.size === 0) {
-                showSnackbar('اختر صوراً أولاً', 'warning');
-                return;
+        function toggleAutoOpen() {
+            autoOpen = !autoOpen;
+            const checkbox = document.getElementById('auto-open-checkbox');
+            checkbox.classList.toggle('checked', autoOpen);
+        }
+
+        function updateSummary() {
+            const images = getFilteredImages();
+            const layout = Config.LAYOUTS[layoutOption];
+            const perPage = layout.cols * layout.rows;
+            const pages = Math.ceil(images.length / perPage);
+            
+            let removedDuplicates = 0;
+            let removedLogos = 0;
+            
+            if (filterOption === 1) {
+                removedDuplicates = analysisResults.duplicates;
+                removedLogos = analysisResults.logos;
+            } else if (filterOption === 2) {
+                removedDuplicates = analysisResults.duplicates;
             }
             
+            document.getElementById('summary-total').textContent = analysisResults.total;
+            document.getElementById('summary-filtered').textContent = images.length;
+            document.getElementById('summary-duplicates').textContent = removedDuplicates;
+            document.getElementById('summary-logos').textContent = removedLogos;
+            document.getElementById('summary-layout').textContent = `${layout.images}/صفحة`;
+            document.getElementById('summary-pages').textContent = pages;
+        }
+
+        function loadSettings() {
+            try {
+                const saved = localStorage.getItem('lesson_converter_settings');
+                if (saved) {
+                    const settings = JSON.parse(saved);
+                    filterOption = settings.filterOption || 1;
+                    layoutOption = settings.layoutOption || 3;
+                    autoOpen = settings.autoOpen !== false;
+                }
+            } catch (e) {}
+        }
+
+        function saveSettings() {
+            try {
+                localStorage.setItem('lesson_converter_settings', JSON.stringify({
+                    filterOption,
+                    layoutOption,
+                    autoOpen
+                }));
+            } catch (e) {}
+        }
+
+        // =====================================================
+        // PDF Creation - Fixed Version
+        // =====================================================
+        async function startProcessing() {
             saveSettings();
             goToPage('processing');
             
+            const images = getFilteredImages();
+            const layout = Config.LAYOUTS[layoutOption];
+            
             try {
-                await createPDF();
+                await createPDF(images, layout);
                 
                 setTimeout(() => {
                     showResults();
-                    if (state.autoDownload) {
-                        setTimeout(downloadPDF, 300);
+                    if (autoOpen) {
+                        setTimeout(downloadPDF, 500);
                     }
-                }, 300);
+                }, 500);
                 
             } catch (error) {
-                console.error('PDF Error:', error);
+                console.error('Error creating PDF:', error);
                 showSnackbar('خطأ في إنشاء PDF: ' + error.message, 'error');
-                goToPage('layout');
+                goToPage('settings');
             }
         }
 
-        async function createPDF() {
+        async function createPDF(images, layout) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({
                 orientation: 'portrait',
                 unit: 'mm',
-                format: 'a4',
-                compress: true
+                format: 'a4'
             });
             
             const pageWidth = 210;
             const pageHeight = 297;
-            const margin = 4;
+            const margin = 5;
             const padding = 2;
             
-            const layout = Config.LAYOUTS[state.layoutOption];
             const usableWidth = pageWidth - (margin * 2);
             const usableHeight = pageHeight - (margin * 2);
+            
             const cellWidth = usableWidth / layout.cols;
             const cellHeight = usableHeight / layout.rows;
-            
-            const images = state.allImages
-                .filter(img => state.selectedImages.has(img.id))
-                .sort((a, b) => a.id - b.id);
             
             const perPage = layout.cols * layout.rows;
             const totalImages = images.length;
             const totalPages = Math.ceil(totalImages / perPage);
             
-            console.log(`Creating PDF: ${totalImages} images, ${totalPages} pages`);
+            // ترتيب الصور
+            images.sort((a, b) => a.name.localeCompare(b.name, 'ar', { numeric: true }));
             
             let pageCount = 0;
-            let addedImages = 0;
-            let errors = [];
+            let successfulImages = 0;
             
             for (let i = 0; i < totalImages; i++) {
                 const pos = i % perPage;
@@ -1892,30 +1879,32 @@
                     doc.addPage();
                 }
                 
-                if (pos === 0) pageCount++;
+                if (pos === 0) {
+                    pageCount++;
+                }
                 
                 const img = images[i];
                 const x = margin + (col * cellWidth);
                 const y = margin + (row * cellHeight);
                 
-                // First ensure we have valid image data
-                if (!img.data || !img.data.startsWith('data:image')) {
-                    console.error(`Invalid image data for image ${i}`);
-                    errors.push(`Image ${i}: Invalid data`);
-                    continue;
-                }
-                
                 try {
+                    // التحقق من صحة الصورة
+                    if (!img.data || !img.data.startsWith('data:image')) {
+                        console.warn(`Invalid image data for ${img.name}`);
+                        continue;
+                    }
+                    
                     const maxW = cellWidth - (padding * 2);
                     const maxH = cellHeight - (padding * 2);
                     
-                    // Ensure valid dimensions
-                    const imgWidth = img.width || 100;
-                    const imgHeight = img.height || 100;
+                    // استخدام الأبعاد الفعلية أو افتراضية
+                    const imgWidth = img.width || 400;
+                    const imgHeight = img.height || 300;
                     const imgRatio = imgWidth / imgHeight;
                     const cellRatio = maxW / maxH;
                     
                     let drawWidth, drawHeight;
+                    
                     if (imgRatio > cellRatio) {
                         drawWidth = maxW;
                         drawHeight = maxW / imgRatio;
@@ -1927,115 +1916,65 @@
                     const drawX = x + padding + (maxW - drawWidth) / 2;
                     const drawY = y + padding + (maxH - drawHeight) / 2;
                     
-                    // Draw border
+                    // رسم الإطار
                     doc.setDrawColor(220, 220, 220);
-                    doc.setLineWidth(0.1);
-                    doc.rect(x + padding, y + padding, maxW, maxH);
+                    doc.setLineWidth(0.2);
+                    doc.rect(x + padding, y + padding, cellWidth - padding * 2, cellHeight - padding * 2);
                     
-                    // Always convert to JPEG for consistency
-                    let imageData = img.data;
+                    // تحديد نوع الصورة
+                    let imgFormat = 'JPEG';
                     if (img.data.includes('data:image/png')) {
-                        try {
-                            imageData = await convertToJPEG(img.data);
-                        } catch (convErr) {
-                            console.warn('PNG to JPEG conversion failed, using original');
-                        }
+                        imgFormat = 'PNG';
                     }
                     
-                    // Add image
-                    doc.addImage(
-                        imageData, 
-                        'JPEG', 
-                        drawX, 
-                        drawY, 
-                        drawWidth, 
-                        drawHeight
-                    );
-                    
-                    addedImages++;
-                    console.log(`Added image ${i + 1}/${totalImages}`);
+                    // إضافة الصورة
+                    doc.addImage(img.data, imgFormat, drawX, drawY, drawWidth, drawHeight, undefined, 'FAST');
+                    successfulImages++;
                     
                 } catch (e) {
-                    console.error('Image add error:', i, e.message);
-                    errors.push(`Image ${i}: ${e.message}`);
-                    
-                    // Try simpler approach
-                    try {
-                        const simpleData = await convertToJPEG(img.data);
-                        doc.addImage(
-                            simpleData, 
-                            'JPEG', 
-                            x + padding, 
-                            y + padding, 
-                            cellWidth - (padding * 2), 
-                            cellHeight - (padding * 2)
-                        );
-                        addedImages++;
-                        console.log(`Added image ${i + 1} (fallback)`);
-                    } catch (e2) {
-                        console.error('Fallback failed:', e2.message);
-                    }
+                    console.warn(`Error adding image ${img.name}:`, e);
+                    // رسم placeholder للصورة الفاشلة
+                    doc.setFillColor(240, 240, 240);
+                    doc.rect(x + padding, y + padding, cellWidth - padding * 2, cellHeight - padding * 2, 'F');
+                    doc.setFontSize(8);
+                    doc.setTextColor(150);
+                    doc.text('خطأ', x + cellWidth/2, y + cellHeight/2, { align: 'center' });
                 }
                 
-                // Update progress
                 const percent = ((i + 1) / totalImages) * 100;
-                updateProgress(percent, `صفحة ${pageCount}/${totalPages}`);
-                document.getElementById('proc-stat-images').textContent = addedImages;
-                document.getElementById('proc-stat-pages').textContent = pageCount;
+                updateProgress(percent, `إنشاء صفحة ${pageCount}/${totalPages}...`);
+                document.getElementById('stat-processed').textContent = i + 1;
+                document.getElementById('stat-pages').textContent = pageCount;
                 
-                // Yield to UI
+                // تحديث واجهة المستخدم
                 if (i % 3 === 0) {
-                    await new Promise(r => setTimeout(r, 5));
+                    await new Promise(r => setTimeout(r, 10));
                 }
             }
             
-            console.log(`PDF created: ${addedImages} images added, ${errors.length} errors`);
-            
-            if (addedImages === 0) {
-                const errorMsg = errors.length > 0 ? errors[0] : 'Unknown error';
-                throw new Error(`لم تتم إضافة أي صور: ${errorMsg}`);
-            }
-            
+            // إضافة معلومات الملف
             doc.setProperties({
                 title: document.getElementById('output-name').value || 'Lesson Images',
-                creator: 'محول صور الدروس v6.0 - Mohamed Elherd'
+                creator: `محول صور الدروس v${__version__} - Mohamed Elherd`,
+                author: 'Mohamed Elherd'
             });
             
-            state.generatedPDF = doc;
-            state.pdfStats = { images: addedImages, pages: pageCount };
-            updateProgress(100, `اكتمل! ${addedImages} صورة`);
-        }
-        
-        // Convert image to JPEG format
-        function convertToJPEG(dataUrl) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.onload = () => {
-                    try {
-                        const canvas = document.createElement('canvas');
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        const ctx = canvas.getContext('2d');
-                        
-                        // White background
-                        ctx.fillStyle = '#FFFFFF';
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        ctx.drawImage(img, 0, 0);
-                        
-                        resolve(canvas.toDataURL('image/jpeg', 0.85));
-                    } catch (e) {
-                        reject(e);
-                    }
-                };
-                img.onerror = reject;
-                img.src = dataUrl;
-            });
+            generatedPDF = doc;
+            
+            // إنشاء Blob للتحميل المباشر
+            pdfBlob = doc.output('blob');
+            
+            updateProgress(100, 'اكتمل!');
+            
+            console.log(`PDF created: ${successfulImages}/${totalImages} images, ${pageCount} pages`);
         }
 
         function updateProgress(percent, status) {
             const circle = document.getElementById('progress-circle');
             const circumference = 2 * Math.PI * 80;
-            circle.style.strokeDashoffset = circumference - (percent / 100) * circumference;
+            const offset = circumference - (percent / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+            
             document.getElementById('progress-percent').textContent = `${Math.round(percent)}%`;
             document.getElementById('progress-status').textContent = status;
         }
@@ -2046,150 +1985,119 @@
         function showResults() {
             goToPage('result');
             
-            const layout = Config.LAYOUTS[state.layoutOption];
-            const count = state.selectedImages.size;
-            const pages = Math.ceil(count / layout.images);
+            const images = getFilteredImages();
+            const layout = Config.LAYOUTS[layoutOption];
+            const perPage = layout.cols * layout.rows;
+            const pages = Math.ceil(images.length / perPage);
             
-            document.getElementById('result-images').textContent = count;
+            let removedDuplicates = 0;
+            let removedLogos = 0;
+            
+            if (filterOption === 1) {
+                removedDuplicates = analysisResults.duplicates;
+                removedLogos = analysisResults.logos;
+            } else if (filterOption === 2) {
+                removedDuplicates = analysisResults.duplicates;
+            }
+            
+            document.getElementById('result-images').textContent = images.length;
             document.getElementById('result-pages').textContent = pages;
+            document.getElementById('result-duplicates').textContent = removedDuplicates;
+            document.getElementById('result-logos').textContent = removedLogos;
+            
+            if (duplicateImages.length > 0 && filterOption <= 2) {
+                document.getElementById('duplicates-review').classList.remove('hidden');
+                document.getElementById('dup-review-count').textContent = duplicateImages.length;
+            } else {
+                document.getElementById('duplicates-review').classList.add('hidden');
+            }
         }
 
+        // =====================================================
+        // PDF Download - Direct without Save As dialog
+        // =====================================================
         function downloadPDF() {
-            if (!state.generatedPDF) {
-                showSnackbar('لا يوجد ملف PDF', 'error');
+            if (!pdfBlob) {
+                showSnackbar('لا يوجد ملف للتحميل', 'error');
                 return;
             }
             
-            // Get filename from input (already set automatically)
-            const fileName = (document.getElementById('output-name').value || state.baseName + '_images') + '.pdf';
+            const fileName = (document.getElementById('output-name').value || 'output') + '.pdf';
             
-            try {
-                // Create blob from PDF
-                const blob = state.generatedPDF.output('blob');
-                const url = URL.createObjectURL(blob);
-                
-                // Create download link
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = fileName;
-                link.style.cssText = 'position:fixed;left:-9999px;';
-                document.body.appendChild(link);
-                
-                // Use setTimeout to ensure the link is in DOM
-                setTimeout(() => {
-                    link.click();
-                    
-                    // Cleanup
-                    setTimeout(() => {
-                        document.body.removeChild(link);
-                        URL.revokeObjectURL(url);
-                    }, 500);
-                }, 100);
-                
-                showSnackbar('جاري التحميل...', 'success');
-                
-            } catch (error) {
-                console.error('Download error:', error);
-                // Fallback: Try opening in new tab
-                openPDFInBrowser();
-            }
-        }
-        
-        function isMobileDevice() {
-            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
-                || window.innerWidth < 768
-                || 'ontouchstart' in window;
+            // إنشاء رابط للتحميل المباشر
+            const url = URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            a.style.display = 'none';
+            
+            document.body.appendChild(a);
+            a.click();
+            
+            // تنظيف
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 100);
+            
+            showSnackbar('تم تحميل الملف بنجاح', 'success');
         }
 
         async function sharePDF() {
-            if (!state.generatedPDF) return;
+            if (!pdfBlob) return;
             
             const fileName = (document.getElementById('output-name').value || 'output') + '.pdf';
+            const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
             
-            try {
-                const blob = state.generatedPDF.output('blob');
-                const file = new File([blob], fileName, { type: 'application/pdf' });
-                
-                // Check if Web Share API is available and can share files
-                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                try {
                     await navigator.share({
                         files: [file],
-                        title: fileName.replace('.pdf', ''),
+                        title: fileName,
                         text: 'ملف PDF من محول صور الدروس'
                     });
-                    showSnackbar('تمت المشاركة بنجاح', 'success');
-                } else {
-                    // Fallback to download
-                    downloadPDF();
+                } catch (e) {
+                    if (e.name !== 'AbortError') {
+                        downloadPDF();
+                    }
                 }
-            } catch (e) {
-                if (e.name !== 'AbortError') {
-                    console.error('Share error:', e);
-                    downloadPDF();
-                }
+            } else {
+                downloadPDF();
             }
         }
-        
-        // Alternative download method for WebView apps
-        function openPDFInBrowser() {
-            if (!state.generatedPDF) return;
+
+        // =====================================================
+        // Duplicates Review
+        // =====================================================
+        function reviewDuplicates() {
+            const modal = document.getElementById('duplicates-modal');
+            const grid = document.getElementById('duplicates-grid');
             
-            try {
-                const blob = state.generatedPDF.output('blob');
-                const url = URL.createObjectURL(blob);
-                
-                // Open in new window/tab
-                const newWindow = window.open(url, '_blank');
-                
-                if (!newWindow) {
-                    // Popup blocked, try iframe method
-                    const iframe = document.createElement('iframe');
-                    iframe.style.display = 'none';
-                    iframe.src = url;
-                    document.body.appendChild(iframe);
-                    
-                    setTimeout(() => {
-                        document.body.removeChild(iframe);
-                        URL.revokeObjectURL(url);
-                    }, 5000);
-                }
-                
-                showSnackbar('تم فتح الملف', 'success');
-            } catch (e) {
-                showSnackbar('خطأ في فتح الملف', 'error');
-            }
+            grid.innerHTML = duplicateImages.slice(0, 30).map((img, i) => `
+                <div class="relative">
+                    <img src="${img.data}" alt="تكرار ${i + 1}" class="w-full aspect-square object-cover rounded-lg border border-amber-500/50">
+                </div>
+            `).join('');
+            
+            modal.classList.remove('hidden');
+        }
+
+        function closeDuplicatesModal() {
+            document.getElementById('duplicates-modal').classList.add('hidden');
         }
 
         function startNew() {
-            resetState();
+            allExtractedImages = [];
+            validImages = [];
+            uniqueImages = [];
+            duplicateImages = [];
+            logoImages = [];
+            selectedFile = null;
+            generatedPDF = null;
+            pdfBlob = null;
+            
+            resetFileState();
             goToPage('welcome');
-        }
-
-        // =====================================================
-        // Settings
-        // =====================================================
-        function loadSettings() {
-            try {
-                const saved = localStorage.getItem('pdf_converter_v6');
-                if (saved) {
-                    const s = JSON.parse(saved);
-                    state.layoutOption = s.layoutOption || 6;
-                    state.autoDownload = s.autoDownload !== false;
-                    
-                    // Update UI
-                    document.getElementById('auto-download-checkbox').classList.toggle('checked', state.autoDownload);
-                    selectLayout(state.layoutOption);
-                }
-            } catch (e) {}
-        }
-
-        function saveSettings() {
-            try {
-                localStorage.setItem('pdf_converter_v6', JSON.stringify({
-                    layoutOption: state.layoutOption,
-                    autoDownload: state.autoDownload
-                }));
-            } catch (e) {}
         }
 
         // =====================================================
@@ -2210,11 +2118,19 @@
             });
         }
 
+        function getImageDimensions(dataUrl) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve({ width: img.width, height: img.height });
+                img.onerror = () => resolve({ width: 400, height: 300 });
+                img.src = dataUrl;
+            });
+        }
+
         function showLoading(text) {
             document.getElementById('loading-text').textContent = text;
             document.getElementById('loading-detail').textContent = '';
             document.getElementById('loading-overlay').style.display = 'flex';
-            showLoadingProgress(false);
         }
 
         function updateLoadingText(text) {
@@ -2236,16 +2152,28 @@
         function showSnackbar(message, type = 'info') {
             const snackbar = document.getElementById('snackbar');
             const icon = document.getElementById('snackbar-icon');
+            const msg = document.getElementById('snackbar-message');
             
-            const icons = { info: 'info', success: 'check_circle', error: 'error', warning: 'warning' };
-            const colors = { info: 'text-blue-400', success: 'text-green-400', error: 'text-red-400', warning: 'text-amber-400' };
+            const icons = {
+                info: 'info',
+                success: 'check_circle',
+                error: 'error',
+                warning: 'warning'
+            };
+            
+            const colors = {
+                info: 'text-blue-400',
+                success: 'text-green-400',
+                error: 'text-red-400',
+                warning: 'text-amber-400'
+            };
             
             icon.textContent = icons[type];
             icon.className = `material-icons-round ${colors[type]}`;
-            document.getElementById('snackbar-message').textContent = message;
+            msg.textContent = message;
             
             snackbar.classList.add('show');
-            setTimeout(() => snackbar.classList.remove('show'), 3000);
+            setTimeout(() => snackbar.classList.remove('show'), 3500);
         }
     </script>
 </body>
