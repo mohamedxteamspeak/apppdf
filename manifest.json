@@ -1,0 +1,29 @@
+{
+  "name": "محول صور الدروس إلى PDF",
+  "short_name": "محول PDF",
+  "description": "تحويل صور الدروس إلى ملفات PDF احترافية - Created by Mohamed Elherd",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0f0f1a",
+  "theme_color": "#0D47A1",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "productivity"],
+  "lang": "ar",
+  "dir": "rtl",
+  "prefer_related_applications": false
+}

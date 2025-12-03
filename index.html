@@ -1,0 +1,2077 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0D47A1">
+    <meta name="description" content="محول صور الدروس إلى PDF - Created by Mohamed Elherd">
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <title>محول صور الدروس إلى PDF v6.0</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    
+    <style>
+        * {
+            font-family: 'Cairo', sans-serif;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+        
+        :root {
+            --primary: #0D47A1;
+            --primary-light: #1976D2;
+            --primary-dark: #002171;
+            --secondary: #00C853;
+            --surface: #1a1a2e;
+            --surface-variant: #16213e;
+            --background: #0f0f1a;
+            --on-surface: #e8e8e8;
+            --error: #CF6679;
+            --success: #00E676;
+            --warning: #FFB300;
+        }
+        
+        html, body {
+            margin: 0;
+            padding: 0;
+            overscroll-behavior: none;
+            touch-action: manipulation;
+        }
+        
+        body {
+            background: var(--background);
+            color: var(--on-surface);
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow-x: hidden;
+        }
+        
+        .install-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            padding: 16px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            z-index: 1001;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .install-banner.show {
+            display: flex;
+        }
+        
+        .page {
+            display: none;
+            min-height: 100vh;
+            min-height: 100dvh;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .page.active {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--primary-light) 100%);
+        }
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            -webkit-appearance: none;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(13, 71, 161, 0.4);
+        }
+        
+        .btn-primary:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary-light);
+            padding: 14px 28px;
+            border-radius: 16px;
+            font-weight: 600;
+            border: 2px solid var(--primary-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(25, 118, 210, 0.1);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #00C853 0%, #00E676 100%);
+            color: white;
+            padding: 18px 36px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 1.15rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 200, 83, 0.4);
+        }
+        
+        .btn-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-icon:active {
+            transform: scale(0.9);
+        }
+        
+        .card {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .card.selected {
+            border-color: var(--primary-light);
+            background: linear-gradient(135deg, rgba(13, 71, 161, 0.2) 0%, rgba(25, 118, 210, 0.1) 100%);
+        }
+        
+        .icon-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            margin: 0 auto 20px;
+        }
+        
+        .progress-ring {
+            width: 180px;
+            height: 180px;
+            position: relative;
+        }
+        
+        .progress-ring svg {
+            transform: rotate(-90deg);
+        }
+        
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 8;
+        }
+        
+        .progress-ring .bg {
+            stroke: rgba(255, 255, 255, 0.1);
+        }
+        
+        .progress-ring .progress {
+            stroke: url(#gradient);
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.3s ease;
+        }
+        
+        .file-drop-zone {
+            border: 3px dashed rgba(25, 118, 210, 0.5);
+            border-radius: 24px;
+            padding: 40px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .file-drop-zone:hover, .file-drop-zone.dragover {
+            border-color: var(--primary-light);
+            background: rgba(25, 118, 210, 0.1);
+        }
+        
+        .file-drop-zone.processing {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            background: var(--surface-variant);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 16px 20px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            background: var(--surface);
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, var(--surface) 0%, var(--surface-variant) 100%);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .stats-value {
+            font-size: 1.75rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Image Gallery Styles */
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 8px;
+            max-height: 60vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .image-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .image-item.selected {
+            border-color: var(--success);
+        }
+        
+        .image-item.excluded {
+            border-color: var(--error);
+            opacity: 0.5;
+        }
+        
+        .image-item .badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 0.65rem;
+            font-weight: 700;
+        }
+        
+        .image-item .checkbox {
+            position: absolute;
+            bottom: 4px;
+            left: 4px;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .image-item.selected .checkbox {
+            background: var(--success);
+        }
+        
+        .badge-duplicate { background: rgba(255, 179, 0, 0.9); color: #000; }
+        .badge-logo { background: rgba(207, 102, 121, 0.9); color: #fff; }
+        .badge-valid { background: rgba(0, 200, 83, 0.9); color: #fff; }
+        
+        /* Full Image Viewer */
+        .image-viewer {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+        }
+        
+        .image-viewer.show {
+            display: flex;
+        }
+        
+        .image-viewer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: rgba(0,0,0,0.5);
+        }
+        
+        .image-viewer-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: auto;
+        }
+        
+        .image-viewer-content img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        
+        .image-viewer-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .image-viewer-nav.prev { left: 10px; }
+        .image-viewer-nav.next { right: 10px; }
+        
+        /* Filter Tabs */
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        
+        .filter-tabs::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .filter-tab {
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            white-space: nowrap;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .filter-tab.active {
+            background: var(--primary-light);
+            color: white;
+        }
+        
+        .filter-tab:not(.active) {
+            background: var(--surface);
+            color: var(--on-surface);
+        }
+        
+        /* Snackbar */
+        .snackbar {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--surface);
+            color: white;
+            padding: 14px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 90%;
+            font-size: 0.9rem;
+        }
+        
+        .snackbar.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1500;
+            gap: 16px;
+            padding: 20px;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top-color: var(--primary-light);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px;
+        }
+        
+        .step-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .step-dot.active {
+            background: var(--primary-light);
+            width: 24px;
+            border-radius: 4px;
+        }
+        
+        .step-dot.done {
+            background: var(--success);
+        }
+        
+        /* Layout Grid */
+        .layout-option {
+            padding: 12px;
+            border-radius: 16px;
+            background: var(--surface);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .layout-option.selected {
+            border-color: var(--primary-light);
+            background: rgba(25, 118, 210, 0.1);
+        }
+        
+        .layout-preview {
+            display: grid;
+            gap: 3px;
+            padding: 8px;
+            aspect-ratio: 3/4;
+        }
+        
+        .layout-preview-dot {
+            background: rgba(25, 118, 210, 0.4);
+            border-radius: 2px;
+        }
+        
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 2px; }
+        
+        /* Safe areas */
+        @supports (padding: max(0px)) {
+            .page { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+            .fixed-bottom { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+        }
+        
+        /* Checkbox styles */
+        .custom-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 12px 16px;
+            background: var(--surface);
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .custom-checkbox:active {
+            background: var(--surface-variant);
+        }
+        
+        .custom-checkbox .check-box {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            border: 2px solid rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        
+        .custom-checkbox.checked .check-box {
+            background: var(--primary-light);
+            border-color: var(--primary-light);
+        }
+        
+        /* Modal */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1800;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--surface);
+            border-radius: 24px;
+            max-width: 400px;
+            width: 100%;
+            max-height: 80vh;
+            overflow: hidden;
+        }
+        
+        /* Action Bar */
+        .action-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--surface);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding: 12px 16px;
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p id="loading-text" class="text-lg text-center">جاري التحميل...</p>
+        <div id="loading-progress" class="w-64 h-2 bg-gray-700 rounded-full overflow-hidden" style="display: none;">
+            <div id="loading-bar" class="h-full bg-blue-500 transition-all duration-300" style="width: 0%"></div>
+        </div>
+        <p id="loading-detail" class="text-sm text-gray-500 text-center"></p>
+    </div>
+
+    <!-- Image Viewer -->
+    <div id="image-viewer" class="image-viewer">
+        <div class="image-viewer-header">
+            <button onclick="closeImageViewer()" class="btn-icon bg-white/10">
+                <span class="material-icons-round text-white">close</span>
+            </button>
+            <span id="viewer-counter" class="text-white font-medium">1 / 10</span>
+            <button onclick="toggleImageSelection()" id="viewer-toggle-btn" class="btn-icon bg-green-500">
+                <span class="material-icons-round text-white" id="viewer-toggle-icon">check</span>
+            </button>
+        </div>
+        <div class="image-viewer-content">
+            <img id="viewer-image" src="" alt="صورة">
+        </div>
+        <button class="image-viewer-nav prev" onclick="viewerPrev()">
+            <span class="material-icons-round">chevron_right</span>
+        </button>
+        <button class="image-viewer-nav next" onclick="viewerNext()">
+            <span class="material-icons-round">chevron_left</span>
+        </button>
+        <div class="p-4 bg-black/50 text-center">
+            <p id="viewer-info" class="text-sm text-gray-400"></p>
+        </div>
+    </div>
+
+    <!-- PWA Install Banner -->
+    <div id="install-banner" class="install-banner">
+        <div class="flex items-center gap-3">
+            <span class="material-icons-round text-white">get_app</span>
+            <div>
+                <p class="font-bold text-white text-sm">تثبيت التطبيق</p>
+                <p class="text-white/70 text-xs">للوصول السريع</p>
+            </div>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="installPWA()" class="bg-white text-blue-900 px-4 py-2 rounded-lg font-bold text-sm">تثبيت</button>
+            <button onclick="dismissInstall()" class="text-white/70 px-2">✕</button>
+        </div>
+    </div>
+
+    <!-- صفحة الترحيب -->
+    <div id="page-welcome" class="page active">
+        <div class="flex-1 flex flex-col items-center justify-center p-6">
+            <div class="text-center mb-10">
+                <div class="icon-circle mb-6" style="width: 100px; height: 100px;">
+                    <span class="material-icons-round text-white" style="font-size: 50px;">auto_awesome</span>
+                </div>
+                <h1 class="text-2xl font-bold mb-3 bg-gradient-to-l from-blue-400 to-blue-600 bg-clip-text text-transparent">
+                    محول صور الدروس
+                </h1>
+                <p class="text-gray-400 text-base mb-2">إلى ملفات PDF احترافية</p>
+                <p class="text-gray-500 text-sm">الإصدار 6.0 - Mohamed Elherd</p>
+            </div>
+            
+            <div class="w-full max-w-sm space-y-4">
+                <button onclick="startWithPDF()" class="btn-primary w-full">
+                    <span class="material-icons-round">picture_as_pdf</span>
+                    استخراج من PDF
+                </button>
+                <button onclick="startWithFolder()" class="btn-secondary w-full">
+                    <span class="material-icons-round">photo_library</span>
+                    اختيار صور
+                </button>
+            </div>
+            
+            <div class="mt-8 glass rounded-xl p-4 max-w-sm w-full">
+                <div class="flex items-start gap-3 text-sm text-gray-400">
+                    <span class="material-icons-round text-blue-400 mt-0.5">tips_and_updates</span>
+                    <div>
+                        <p class="font-semibold text-white mb-2">الجديد v6.0:</p>
+                        <ul class="space-y-1 text-xs">
+                            <li>✓ معاينة كاملة للصور بالضغط</li>
+                            <li>✓ تصفية مخصصة - اختر ما تريد</li>
+                            <li>✓ إصلاح مشاكل الأداء والذاكرة</li>
+                            <li>✓ واجهة محسنة للهاتف</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="step-indicator">
+            <div class="step-dot active"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
+        </div>
+    </div>
+
+    <!-- صفحة اختيار الملف -->
+    <div id="page-file" class="page">
+        <div class="gradient-bg p-5 pb-10">
+            <button onclick="goToPage('welcome')" class="flex items-center gap-2 text-white/70 mb-3">
+                <span class="material-icons-round">arrow_forward</span>
+                رجوع
+            </button>
+            <h2 class="text-xl font-bold text-white" id="file-page-title">اختر ملف PDF</h2>
+            <p class="text-white/70 text-sm mt-1" id="file-page-subtitle">سيتم استخراج الصور تلقائياً</p>
+        </div>
+        
+        <div class="flex-1 p-5 -mt-5 overflow-auto pb-24">
+            <div id="file-drop-zone" class="file-drop-zone" onclick="triggerFileInput()">
+                <div class="icon-circle mx-auto mb-4" style="width: 60px; height: 60px;">
+                    <span class="material-icons-round text-white" style="font-size: 28px;" id="file-icon">upload_file</span>
+                </div>
+                <p class="text-base font-semibold mb-1" id="file-name-display">اضغط للاختيار</p>
+                <p class="text-gray-500 text-sm" id="file-hint">PDF أو صور</p>
+            </div>
+            
+            <input type="file" id="pdf-input" accept=".pdf" hidden onchange="handleFileSelect(event)">
+            <input type="file" id="folder-input" accept="image/*" multiple hidden onchange="handleImagesSelect(event)">
+            
+            <!-- Quick Stats After Loading -->
+            <div id="quick-stats" class="hidden mt-5">
+                <div class="grid grid-cols-3 gap-3 mb-4">
+                    <div class="stats-card">
+                        <div class="stats-value text-xl" id="stat-total">0</div>
+                        <div class="text-gray-400 text-xs">إجمالي</div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-value text-xl text-green-400" id="stat-valid">0</div>
+                        <div class="text-gray-400 text-xs">صالحة</div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-value text-xl text-amber-400" id="stat-filtered">0</div>
+                        <div class="text-gray-400 text-xs">مستبعدة</div>
+                    </div>
+                </div>
+                
+                <button onclick="goToPage('gallery')" class="btn-primary w-full">
+                    <span class="material-icons-round">visibility</span>
+                    معاينة وتخصيص الصور
+                </button>
+            </div>
+        </div>
+        
+        <div class="step-indicator">
+            <div class="step-dot done"></div>
+            <div class="step-dot active"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
+        </div>
+    </div>
+
+    <!-- صفحة معرض الصور والتخصيص -->
+    <div id="page-gallery" class="page">
+        <div class="gradient-bg p-5 pb-3">
+            <div class="flex justify-between items-center mb-3">
+                <button onclick="goToPage('file')" class="flex items-center gap-2 text-white/70">
+                    <span class="material-icons-round">arrow_forward</span>
+                    رجوع
+                </button>
+                <div class="text-white text-sm">
+                    <span id="selected-count">0</span> صورة محددة
+                </div>
+            </div>
+            <h2 class="text-lg font-bold text-white">معاينة وتخصيص</h2>
+        </div>
+        
+        <!-- Filter Tabs -->
+        <div class="filter-tabs bg-[var(--surface)]">
+            <button class="filter-tab active" data-filter="all" onclick="filterGallery('all')">
+                <span class="material-icons-round text-sm">apps</span>
+                الكل
+                <span id="filter-count-all" class="text-xs opacity-70">0</span>
+            </button>
+            <button class="filter-tab" data-filter="valid" onclick="filterGallery('valid')">
+                <span class="material-icons-round text-sm">check_circle</span>
+                صالحة
+                <span id="filter-count-valid" class="text-xs opacity-70">0</span>
+            </button>
+            <button class="filter-tab" data-filter="duplicate" onclick="filterGallery('duplicate')">
+                <span class="material-icons-round text-sm">content_copy</span>
+                مكررة
+                <span id="filter-count-duplicate" class="text-xs opacity-70">0</span>
+            </button>
+            <button class="filter-tab" data-filter="logo" onclick="filterGallery('logo')">
+                <span class="material-icons-round text-sm">logo_dev</span>
+                شعارات
+                <span id="filter-count-logo" class="text-xs opacity-70">0</span>
+            </button>
+        </div>
+        
+        <!-- Gallery -->
+        <div class="flex-1 overflow-auto pb-20">
+            <div id="image-gallery" class="image-gallery"></div>
+            <div id="empty-gallery" class="hidden text-center py-12 text-gray-500">
+                <span class="material-icons-round text-4xl mb-2">image_not_supported</span>
+                <p>لا توجد صور في هذا التصنيف</p>
+            </div>
+        </div>
+        
+        <!-- Action Bar -->
+        <div class="action-bar fixed-bottom">
+            <button onclick="selectAllVisible()" class="btn-secondary flex-1 py-3 text-sm">
+                <span class="material-icons-round text-lg">select_all</span>
+                تحديد الكل
+            </button>
+            <button onclick="goToPage('layout')" class="btn-primary flex-1 py-3 text-sm">
+                التالي
+                <span class="material-icons-round text-lg">arrow_back</span>
+            </button>
+        </div>
+        
+        <div class="step-indicator" style="margin-bottom: 70px;">
+            <div class="step-dot done"></div>
+            <div class="step-dot done"></div>
+            <div class="step-dot active"></div>
+            <div class="step-dot"></div>
+        </div>
+    </div>
+
+    <!-- صفحة التخطيط والإعدادات -->
+    <div id="page-layout" class="page">
+        <div class="gradient-bg p-5 pb-10">
+            <button onclick="goToPage('gallery')" class="flex items-center gap-2 text-white/70 mb-3">
+                <span class="material-icons-round">arrow_forward</span>
+                رجوع
+            </button>
+            <h2 class="text-xl font-bold text-white">التخطيط والإعدادات</h2>
+            <p class="text-white/70 text-sm mt-1">اختر شكل الصفحات</p>
+        </div>
+        
+        <div class="flex-1 p-5 -mt-5 overflow-auto pb-32">
+            <!-- Layout Options -->
+            <h3 class="font-semibold mb-3 text-sm text-gray-400">عدد الصور في الصفحة</h3>
+            <div class="grid grid-cols-4 gap-2 mb-6" id="layout-grid"></div>
+            
+            <!-- Expected Pages -->
+            <div class="card mb-5">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400">الصفحات المتوقعة:</span>
+                    <span class="font-bold text-2xl text-blue-400" id="expected-pages">0</span>
+                </div>
+            </div>
+            
+            <!-- File Name -->
+            <div class="mb-5">
+                <label class="block text-sm font-medium mb-2 text-gray-400">اسم الملف</label>
+                <input type="text" id="output-name" placeholder="lesson_output">
+            </div>
+            
+            <!-- Auto Download -->
+            <div class="custom-checkbox checked" id="auto-download-checkbox" onclick="toggleAutoDownload()">
+                <div class="check-box">
+                    <span class="material-icons-round text-white text-sm">check</span>
+                </div>
+                <span>تحميل تلقائي بعد الانتهاء</span>
+            </div>
+            
+            <!-- Summary -->
+            <div class="card mt-5">
+                <h3 class="font-semibold mb-3 flex items-center gap-2 text-sm">
+                    <span class="material-icons-round text-blue-400">summarize</span>
+                    الملخص
+                </h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">الصور المحددة:</span>
+                        <span class="font-medium text-green-400" id="summary-selected">0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">المستبعدة:</span>
+                        <span class="font-medium text-gray-500" id="summary-excluded">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="action-bar fixed-bottom">
+            <button onclick="startProcessing()" class="btn-success flex-1">
+                <span class="material-icons-round">play_arrow</span>
+                إنشاء PDF
+            </button>
+        </div>
+        
+        <div class="step-indicator" style="margin-bottom: 70px;">
+            <div class="step-dot done"></div>
+            <div class="step-dot done"></div>
+            <div class="step-dot done"></div>
+            <div class="step-dot active"></div>
+        </div>
+    </div>
+
+    <!-- صفحة المعالجة -->
+    <div id="page-processing" class="page">
+        <div class="flex-1 flex flex-col items-center justify-center p-6">
+            <div class="progress-ring mb-6">
+                <svg width="180" height="180">
+                    <defs>
+                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#0D47A1"/>
+                            <stop offset="100%" stop-color="#00E676"/>
+                        </linearGradient>
+                    </defs>
+                    <circle class="bg" cx="90" cy="90" r="80"/>
+                    <circle class="progress" cx="90" cy="90" r="80" 
+                            stroke-dasharray="502.65" 
+                            stroke-dashoffset="502.65"
+                            id="progress-circle"/>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <span class="text-3xl font-bold" id="progress-percent">0%</span>
+                </div>
+            </div>
+            
+            <h2 class="text-lg font-bold mb-2" id="progress-title">جاري الإنشاء...</h2>
+            <p class="text-gray-400 text-center text-sm" id="progress-status">يرجى الانتظار</p>
+            
+            <div class="grid grid-cols-2 gap-4 w-full max-w-xs mt-6">
+                <div class="stats-card">
+                    <div class="stats-value text-xl" id="proc-stat-images">0</div>
+                    <div class="text-gray-400 text-xs">صورة</div>
+                </div>
+                <div class="stats-card">
+                    <div class="stats-value text-xl" id="proc-stat-pages">0</div>
+                    <div class="text-gray-400 text-xs">صفحة</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحة النتائج -->
+    <div id="page-result" class="page">
+        <div class="flex-1 p-6 overflow-auto">
+            <div class="text-center mb-6">
+                <div class="icon-circle mb-4" style="width: 80px; height: 80px; background: linear-gradient(135deg, #00C853 0%, #00E676 100%);">
+                    <span class="material-icons-round text-white" style="font-size: 40px;">check_circle</span>
+                </div>
+                <h1 class="text-xl font-bold mb-1">تم بنجاح! 🎉</h1>
+                <p class="text-gray-400 text-sm">ملف PDF جاهز للتحميل</p>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <div class="stats-card">
+                    <div class="stats-value text-xl" id="result-images">0</div>
+                    <div class="text-gray-400 text-xs">صورة</div>
+                </div>
+                <div class="stats-card">
+                    <div class="stats-value text-xl" id="result-pages">0</div>
+                    <div class="text-gray-400 text-xs">صفحة</div>
+                </div>
+            </div>
+            
+            <div class="space-y-3">
+                <button onclick="downloadPDF()" class="btn-primary w-full">
+                    <span class="material-icons-round">download</span>
+                    تحميل PDF
+                </button>
+                
+                <button onclick="sharePDF()" class="btn-secondary w-full">
+                    <span class="material-icons-round">share</span>
+                    مشاركة
+                </button>
+                
+                <button onclick="startNew()" class="btn-secondary w-full">
+                    <span class="material-icons-round">refresh</span>
+                    بدء جديد
+                </button>
+            </div>
+            
+            <div class="mt-8 text-center text-gray-500 text-xs">
+                <p>محول صور الدروس v6.0</p>
+                <p>Created by Mohamed Elherd</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Snackbar -->
+    <div id="snackbar" class="snackbar">
+        <span class="material-icons-round" id="snackbar-icon">info</span>
+        <span id="snackbar-message">رسالة</span>
+    </div>
+
+    <script>
+        // =====================================================
+        // Configuration
+        // =====================================================
+        const Config = {
+            MIN_WIDTH: 80,
+            MIN_HEIGHT: 80,
+            MAX_LOGO_SIZE: 40000,
+            HASH_SIZE: 16,
+            SIMILARITY_THRESHOLD: 0.92,
+            MAX_IMAGE_SIZE: 1500,
+            JPEG_QUALITY: 0.85,
+            LAYOUTS: {
+                2: { cols: 1, rows: 2, name: '2', images: 2 },
+                4: { cols: 2, rows: 2, name: '4', images: 4 },
+                6: { cols: 2, rows: 3, name: '6', images: 6 },
+                9: { cols: 3, rows: 3, name: '9', images: 9 },
+                12: { cols: 3, rows: 4, name: '12', images: 12 },
+                16: { cols: 4, rows: 4, name: '16', images: 16 },
+                20: { cols: 4, rows: 5, name: '20', images: 20 },
+                24: { cols: 4, rows: 6, name: '24', images: 24 }
+            }
+        };
+
+        // =====================================================
+        // Global State
+        // =====================================================
+        let state = {
+            mode: 'pdf',
+            allImages: [],
+            selectedImages: new Set(),
+            imageCategories: {
+                valid: [],
+                duplicate: [],
+                logo: []
+            },
+            layoutOption: 6,
+            autoDownload: true,
+            currentFilter: 'all',
+            viewerIndex: 0,
+            generatedPDF: null,
+            baseName: 'lesson'
+        };
+
+        // =====================================================
+        // PWA Support
+        // =====================================================
+        let deferredPrompt = null;
+        
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(() => {});
+            });
+        }
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('install-banner').classList.add('show');
+        });
+        
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(() => {
+                    deferredPrompt = null;
+                    document.getElementById('install-banner').classList.remove('show');
+                });
+            }
+        }
+        
+        function dismissInstall() {
+            document.getElementById('install-banner').classList.remove('show');
+        }
+
+        // =====================================================
+        // Initialize
+        // =====================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            initLayoutGrid();
+            loadSettings();
+        });
+
+        // =====================================================
+        // Navigation
+        // =====================================================
+        function goToPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(`page-${pageId}`).classList.add('active');
+            
+            if (pageId === 'gallery') {
+                renderGallery();
+                updateSelectedCount();
+            } else if (pageId === 'layout') {
+                updateLayoutSummary();
+            }
+        }
+
+        function startWithPDF() {
+            state.mode = 'pdf';
+            document.getElementById('file-page-title').textContent = 'اختر ملف PDF';
+            document.getElementById('file-page-subtitle').textContent = 'سيتم استخراج الصور تلقائياً';
+            document.getElementById('file-icon').textContent = 'picture_as_pdf';
+            resetState();
+            goToPage('file');
+        }
+
+        function startWithFolder() {
+            state.mode = 'images';
+            document.getElementById('file-page-title').textContent = 'اختر الصور';
+            document.getElementById('file-page-subtitle').textContent = 'اختر صور متعددة';
+            document.getElementById('file-icon').textContent = 'photo_library';
+            resetState();
+            goToPage('file');
+        }
+
+        function resetState() {
+            state.allImages = [];
+            state.selectedImages = new Set();
+            state.imageCategories = { valid: [], duplicate: [], logo: [] };
+            state.generatedPDF = null;
+            document.getElementById('quick-stats').classList.add('hidden');
+            document.getElementById('file-name-display').textContent = 'اضغط للاختيار';
+            document.getElementById('file-hint').textContent = 'PDF أو صور';
+        }
+
+        // =====================================================
+        // File Selection
+        // =====================================================
+        function triggerFileInput() {
+            if (state.mode === 'pdf') {
+                document.getElementById('pdf-input').click();
+            } else {
+                document.getElementById('folder-input').click();
+            }
+        }
+
+        async function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            state.baseName = file.name.replace('.pdf', '');
+            document.getElementById('file-name-display').textContent = file.name;
+            document.getElementById('file-hint').textContent = formatFileSize(file.size);
+            document.getElementById('file-drop-zone').classList.add('processing');
+            
+            showLoading('جاري استخراج الصور...');
+            
+            try {
+                let images = await extractImagesFromPDF(file);
+                
+                if (images.length === 0) {
+                    updateLoadingText('جاري التحويل البديل...');
+                    images = await extractPagesAsImages(file);
+                }
+                
+                if (images.length === 0) {
+                    hideLoading();
+                    showSnackbar('لم يتم العثور على صور', 'error');
+                    document.getElementById('file-drop-zone').classList.remove('processing');
+                    return;
+                }
+                
+                state.allImages = images;
+                updateLoadingText('جاري تحليل الصور...');
+                await analyzeImages();
+                
+                hideLoading();
+                showQuickStats();
+                document.getElementById('file-drop-zone').classList.remove('processing');
+                document.getElementById('output-name').value = state.baseName + '_output';
+                
+            } catch (error) {
+                console.error('Error:', error);
+                hideLoading();
+                showSnackbar('خطأ: ' + error.message, 'error');
+                document.getElementById('file-drop-zone').classList.remove('processing');
+            }
+        }
+
+        async function handleImagesSelect(event) {
+            const files = Array.from(event.target.files).filter(f => f.type.startsWith('image/'));
+            
+            if (files.length === 0) {
+                showSnackbar('لا توجد صور', 'error');
+                return;
+            }
+            
+            files.sort((a, b) => a.name.localeCompare(b.name, 'ar', { numeric: true }));
+            
+            state.baseName = 'images';
+            document.getElementById('file-name-display').textContent = `${files.length} صورة`;
+            document.getElementById('file-hint').textContent = 'جاري التحميل...';
+            document.getElementById('file-drop-zone').classList.add('processing');
+            
+            showLoading('جاري تحميل الصور...');
+            
+            try {
+                state.allImages = [];
+                
+                for (let i = 0; i < files.length; i++) {
+                    updateLoadingText(`تحميل ${i + 1}/${files.length}...`);
+                    updateLoadingBar((i / files.length) * 100);
+                    
+                    const file = files[i];
+                    const dataUrl = await readFileAsDataURL(file);
+                    const optimized = await optimizeImage(dataUrl);
+                    
+                    state.allImages.push({
+                        id: i,
+                        data: optimized.data,
+                        name: file.name,
+                        width: optimized.width,
+                        height: optimized.height,
+                        size: file.size,
+                        category: 'valid'
+                    });
+                }
+                
+                updateLoadingText('جاري تحليل الصور...');
+                await analyzeImages();
+                
+                hideLoading();
+                showQuickStats();
+                document.getElementById('file-drop-zone').classList.remove('processing');
+                document.getElementById('output-name').value = state.baseName + '_output';
+                
+            } catch (error) {
+                console.error('Error:', error);
+                hideLoading();
+                showSnackbar('خطأ في التحميل', 'error');
+                document.getElementById('file-drop-zone').classList.remove('processing');
+            }
+        }
+
+        // =====================================================
+        // PDF Extraction - Method 1
+        // =====================================================
+        async function extractImagesFromPDF(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            const images = [];
+            let idCounter = 0;
+            
+            showLoadingProgress(true);
+            
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                try {
+                    updateLoadingText(`صفحة ${pageNum}/${pdf.numPages}...`);
+                    updateLoadingBar((pageNum / pdf.numPages) * 100);
+                    
+                    const page = await pdf.getPage(pageNum);
+                    const ops = await page.getOperatorList();
+                    
+                    const pageImages = new Set();
+                    for (let i = 0; i < ops.fnArray.length; i++) {
+                        if ([82, 83, 85].includes(ops.fnArray[i])) {
+                            const imgName = ops.argsArray[i][0];
+                            if (imgName) pageImages.add(imgName);
+                        }
+                    }
+                    
+                    for (const imgName of pageImages) {
+                        try {
+                            const imgObj = await Promise.race([
+                                new Promise((resolve, reject) => {
+                                    page.objs.get(imgName, (img) => img ? resolve(img) : reject());
+                                }),
+                                new Promise((_, reject) => setTimeout(() => reject(), 3000))
+                            ]);
+                            
+                            if (imgObj && imgObj.width > 30 && imgObj.height > 30) {
+                                const dataUrl = await renderImageObject(imgObj);
+                                if (dataUrl) {
+                                    const optimized = await optimizeImage(dataUrl);
+                                    images.push({
+                                        id: idCounter++,
+                                        data: optimized.data,
+                                        name: `p${pageNum}_${images.length}.png`,
+                                        width: optimized.width,
+                                        height: optimized.height,
+                                        size: optimized.data.length * 0.75,
+                                        pageNum,
+                                        category: 'valid'
+                                    });
+                                }
+                            }
+                        } catch (e) {}
+                    }
+                    
+                    // Memory cleanup
+                    page.cleanup();
+                    await new Promise(r => setTimeout(r, 5));
+                    
+                } catch (e) {
+                    console.warn(`Page ${pageNum} error:`, e);
+                }
+            }
+            
+            showLoadingProgress(false);
+            return images;
+        }
+
+        async function renderImageObject(imgObj) {
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = Math.min(imgObj.width, Config.MAX_IMAGE_SIZE);
+                canvas.height = Math.min(imgObj.height, Config.MAX_IMAGE_SIZE);
+                const ctx = canvas.getContext('2d');
+                
+                if (imgObj.bitmap) {
+                    ctx.drawImage(imgObj.bitmap, 0, 0, canvas.width, canvas.height);
+                } else if (imgObj.data) {
+                    const imageData = ctx.createImageData(imgObj.width, imgObj.height);
+                    const srcData = imgObj.data;
+                    const dstData = imageData.data;
+                    const pixelCount = imgObj.width * imgObj.height;
+                    
+                    if (srcData.length === pixelCount * 4) {
+                        dstData.set(srcData);
+                    } else if (srcData.length === pixelCount * 3) {
+                        for (let j = 0; j < pixelCount; j++) {
+                            dstData[j * 4] = srcData[j * 3];
+                            dstData[j * 4 + 1] = srcData[j * 3 + 1];
+                            dstData[j * 4 + 2] = srcData[j * 3 + 2];
+                            dstData[j * 4 + 3] = 255;
+                        }
+                    } else if (srcData.length === pixelCount) {
+                        for (let j = 0; j < pixelCount; j++) {
+                            dstData[j * 4] = dstData[j * 4 + 1] = dstData[j * 4 + 2] = srcData[j];
+                            dstData[j * 4 + 3] = 255;
+                        }
+                    } else {
+                        return null;
+                    }
+                    
+                    // Scale if needed
+                    if (imgObj.width !== canvas.width || imgObj.height !== canvas.height) {
+                        const tempCanvas = document.createElement('canvas');
+                        tempCanvas.width = imgObj.width;
+                        tempCanvas.height = imgObj.height;
+                        tempCanvas.getContext('2d').putImageData(imageData, 0, 0);
+                        ctx.drawImage(tempCanvas, 0, 0, canvas.width, canvas.height);
+                    } else {
+                        ctx.putImageData(imageData, 0, 0);
+                    }
+                } else {
+                    return null;
+                }
+                
+                return canvas.toDataURL('image/jpeg', Config.JPEG_QUALITY);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // =====================================================
+        // PDF Extraction - Method 2 (Fallback)
+        // =====================================================
+        async function extractPagesAsImages(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            const images = [];
+            
+            showLoadingProgress(true);
+            const scale = 1.5;
+            
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                try {
+                    updateLoadingText(`تحويل صفحة ${pageNum}/${pdf.numPages}...`);
+                    updateLoadingBar((pageNum / pdf.numPages) * 100);
+                    
+                    const page = await pdf.getPage(pageNum);
+                    const viewport = page.getViewport({ scale });
+                    
+                    const canvas = document.createElement('canvas');
+                    canvas.width = Math.min(viewport.width, Config.MAX_IMAGE_SIZE);
+                    canvas.height = Math.min(viewport.height, Config.MAX_IMAGE_SIZE);
+                    const ctx = canvas.getContext('2d');
+                    
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    await page.render({
+                        canvasContext: ctx,
+                        viewport: page.getViewport({ 
+                            scale: scale * Math.min(1, Config.MAX_IMAGE_SIZE / viewport.width) 
+                        })
+                    }).promise;
+                    
+                    const dataUrl = canvas.toDataURL('image/jpeg', Config.JPEG_QUALITY);
+                    
+                    images.push({
+                        id: pageNum - 1,
+                        data: dataUrl,
+                        name: `page_${pageNum}.jpg`,
+                        width: canvas.width,
+                        height: canvas.height,
+                        size: dataUrl.length * 0.75,
+                        pageNum,
+                        category: 'valid'
+                    });
+                    
+                    page.cleanup();
+                    canvas.width = canvas.height = 0;
+                    await new Promise(r => setTimeout(r, 10));
+                    
+                } catch (e) {
+                    console.warn(`Page ${pageNum} render error:`, e);
+                }
+            }
+            
+            showLoadingProgress(false);
+            return images;
+        }
+
+        // =====================================================
+        // Image Analysis
+        // =====================================================
+        async function analyzeImages() {
+            state.imageCategories = { valid: [], duplicate: [], logo: [] };
+            state.selectedImages = new Set();
+            
+            const hashes = new Map();
+            
+            for (let i = 0; i < state.allImages.length; i++) {
+                const img = state.allImages[i];
+                
+                // Check logo
+                if (isLogo(img)) {
+                    img.category = 'logo';
+                    state.imageCategories.logo.push(img.id);
+                    continue;
+                }
+                
+                // Check duplicate
+                const hash = await getImageHash(img.data);
+                img.hash = hash;
+                
+                let isDuplicate = false;
+                for (const [existingHash, existingId] of hashes) {
+                    if (calculateSimilarity(hash, existingHash) > Config.SIMILARITY_THRESHOLD) {
+                        isDuplicate = true;
+                        img.duplicateOf = existingId;
+                        break;
+                    }
+                }
+                
+                if (isDuplicate) {
+                    img.category = 'duplicate';
+                    state.imageCategories.duplicate.push(img.id);
+                } else {
+                    hashes.set(hash, img.id);
+                    img.category = 'valid';
+                    state.imageCategories.valid.push(img.id);
+                    state.selectedImages.add(img.id);
+                }
+            }
+        }
+
+        function isLogo(img) {
+            if (img.width < Config.MIN_WIDTH || img.height < Config.MIN_HEIGHT) return true;
+            if (img.size < Config.MAX_LOGO_SIZE && img.width < 150 && img.height < 150) return true;
+            return false;
+        }
+
+        async function getImageHash(dataUrl) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = canvas.height = Config.HASH_SIZE;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, Config.HASH_SIZE, Config.HASH_SIZE);
+                    
+                    const data = ctx.getImageData(0, 0, Config.HASH_SIZE, Config.HASH_SIZE).data;
+                    let hash = '';
+                    let sum = 0;
+                    const grays = [];
+                    
+                    for (let i = 0; i < data.length; i += 4) {
+                        const gray = (data[i] + data[i+1] + data[i+2]) / 3;
+                        grays.push(gray);
+                        sum += gray;
+                    }
+                    
+                    const avg = sum / grays.length;
+                    grays.forEach(g => hash += g > avg ? '1' : '0');
+                    
+                    resolve(hash);
+                };
+                img.onerror = () => resolve(Math.random().toString(36));
+                img.src = dataUrl;
+            });
+        }
+
+        function calculateSimilarity(hash1, hash2) {
+            if (hash1.length !== hash2.length) return 0;
+            let matches = 0;
+            for (let i = 0; i < hash1.length; i++) {
+                if (hash1[i] === hash2[i]) matches++;
+            }
+            return matches / hash1.length;
+        }
+
+        // =====================================================
+        // Image Optimization
+        // =====================================================
+        async function optimizeImage(dataUrl) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    let w = img.width;
+                    let h = img.height;
+                    
+                    if (w > Config.MAX_IMAGE_SIZE || h > Config.MAX_IMAGE_SIZE) {
+                        const ratio = Math.min(Config.MAX_IMAGE_SIZE / w, Config.MAX_IMAGE_SIZE / h);
+                        w = Math.round(w * ratio);
+                        h = Math.round(h * ratio);
+                    }
+                    
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    
+                    resolve({
+                        data: canvas.toDataURL('image/jpeg', Config.JPEG_QUALITY),
+                        width: w,
+                        height: h
+                    });
+                };
+                img.onerror = () => resolve({ data: dataUrl, width: 100, height: 100 });
+                img.src = dataUrl;
+            });
+        }
+
+        // =====================================================
+        // Quick Stats Display
+        // =====================================================
+        function showQuickStats() {
+            const total = state.allImages.length;
+            const valid = state.imageCategories.valid.length;
+            const filtered = state.imageCategories.duplicate.length + state.imageCategories.logo.length;
+            
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-valid').textContent = valid;
+            document.getElementById('stat-filtered').textContent = filtered;
+            document.getElementById('quick-stats').classList.remove('hidden');
+            
+            showSnackbar(`تم استخراج ${total} صورة، ${valid} صالحة`, 'success');
+        }
+
+        // =====================================================
+        // Gallery Rendering
+        // =====================================================
+        function renderGallery() {
+            const gallery = document.getElementById('image-gallery');
+            const filter = state.currentFilter;
+            
+            let imagesToShow = [];
+            
+            if (filter === 'all') {
+                imagesToShow = state.allImages;
+            } else {
+                const ids = state.imageCategories[filter] || [];
+                imagesToShow = state.allImages.filter(img => ids.includes(img.id));
+            }
+            
+            // Update filter counts
+            document.getElementById('filter-count-all').textContent = state.allImages.length;
+            document.getElementById('filter-count-valid').textContent = state.imageCategories.valid.length;
+            document.getElementById('filter-count-duplicate').textContent = state.imageCategories.duplicate.length;
+            document.getElementById('filter-count-logo').textContent = state.imageCategories.logo.length;
+            
+            if (imagesToShow.length === 0) {
+                gallery.innerHTML = '';
+                document.getElementById('empty-gallery').classList.remove('hidden');
+                return;
+            }
+            
+            document.getElementById('empty-gallery').classList.add('hidden');
+            
+            gallery.innerHTML = imagesToShow.map((img, idx) => `
+                <div class="image-item ${state.selectedImages.has(img.id) ? 'selected' : ''} ${!state.selectedImages.has(img.id) ? 'excluded' : ''}" 
+                     data-id="${img.id}" 
+                     data-index="${idx}"
+                     onclick="toggleImage(${img.id})"
+                     oncontextmenu="openViewer(${idx}); return false;">
+                    <img src="${img.data}" alt="${img.name}" loading="lazy">
+                    ${img.category === 'duplicate' ? '<span class="badge badge-duplicate">مكرر</span>' : ''}
+                    ${img.category === 'logo' ? '<span class="badge badge-logo">شعار</span>' : ''}
+                    <div class="checkbox">
+                        <span class="material-icons-round text-white text-xs">${state.selectedImages.has(img.id) ? 'check' : ''}</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Add long press for mobile
+            gallery.querySelectorAll('.image-item').forEach(item => {
+                let pressTimer;
+                item.addEventListener('touchstart', (e) => {
+                    pressTimer = setTimeout(() => {
+                        openViewer(parseInt(item.dataset.index));
+                    }, 500);
+                });
+                item.addEventListener('touchend', () => clearTimeout(pressTimer));
+                item.addEventListener('touchmove', () => clearTimeout(pressTimer));
+            });
+        }
+
+        function filterGallery(filter) {
+            state.currentFilter = filter;
+            
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.filter === filter);
+            });
+            
+            renderGallery();
+        }
+
+        function toggleImage(id) {
+            if (state.selectedImages.has(id)) {
+                state.selectedImages.delete(id);
+            } else {
+                state.selectedImages.add(id);
+            }
+            
+            const item = document.querySelector(`.image-item[data-id="${id}"]`);
+            if (item) {
+                item.classList.toggle('selected', state.selectedImages.has(id));
+                item.classList.toggle('excluded', !state.selectedImages.has(id));
+                const checkbox = item.querySelector('.checkbox span');
+                checkbox.textContent = state.selectedImages.has(id) ? 'check' : '';
+            }
+            
+            updateSelectedCount();
+        }
+
+        function selectAllVisible() {
+            const filter = state.currentFilter;
+            let ids = [];
+            
+            if (filter === 'all') {
+                ids = state.allImages.map(img => img.id);
+            } else {
+                ids = state.imageCategories[filter] || [];
+            }
+            
+            // Check if all are selected
+            const allSelected = ids.every(id => state.selectedImages.has(id));
+            
+            ids.forEach(id => {
+                if (allSelected) {
+                    state.selectedImages.delete(id);
+                } else {
+                    state.selectedImages.add(id);
+                }
+            });
+            
+            renderGallery();
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            document.getElementById('selected-count').textContent = state.selectedImages.size;
+        }
+
+        // =====================================================
+        // Image Viewer
+        // =====================================================
+        function openViewer(index) {
+            const filter = state.currentFilter;
+            let images = filter === 'all' ? state.allImages : 
+                state.allImages.filter(img => (state.imageCategories[filter] || []).includes(img.id));
+            
+            if (index < 0 || index >= images.length) return;
+            
+            state.viewerIndex = index;
+            state.viewerImages = images;
+            
+            updateViewer();
+            document.getElementById('image-viewer').classList.add('show');
+        }
+
+        function updateViewer() {
+            const img = state.viewerImages[state.viewerIndex];
+            document.getElementById('viewer-image').src = img.data;
+            document.getElementById('viewer-counter').textContent = 
+                `${state.viewerIndex + 1} / ${state.viewerImages.length}`;
+            document.getElementById('viewer-info').textContent = 
+                `${img.width}×${img.height} - ${img.name}`;
+            
+            const isSelected = state.selectedImages.has(img.id);
+            const btn = document.getElementById('viewer-toggle-btn');
+            btn.className = `btn-icon ${isSelected ? 'bg-green-500' : 'bg-red-500'}`;
+            document.getElementById('viewer-toggle-icon').textContent = isSelected ? 'check' : 'close';
+        }
+
+        function closeImageViewer() {
+            document.getElementById('image-viewer').classList.remove('show');
+            renderGallery();
+        }
+
+        function viewerPrev() {
+            if (state.viewerIndex > 0) {
+                state.viewerIndex--;
+                updateViewer();
+            }
+        }
+
+        function viewerNext() {
+            if (state.viewerIndex < state.viewerImages.length - 1) {
+                state.viewerIndex++;
+                updateViewer();
+            }
+        }
+
+        function toggleImageSelection() {
+            const img = state.viewerImages[state.viewerIndex];
+            toggleImage(img.id);
+            updateViewer();
+        }
+
+        // Touch swipe for viewer
+        let touchStartX = 0;
+        document.getElementById('image-viewer').addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        });
+        document.getElementById('image-viewer').addEventListener('touchend', (e) => {
+            const diff = touchStartX - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) viewerNext();
+                else viewerPrev();
+            }
+        });
+
+        // =====================================================
+        // Layout Options
+        // =====================================================
+        function initLayoutGrid() {
+            const grid = document.getElementById('layout-grid');
+            grid.innerHTML = Object.entries(Config.LAYOUTS).map(([key, layout]) => `
+                <div class="layout-option ${parseInt(key) === state.layoutOption ? 'selected' : ''}" 
+                     data-layout="${key}" 
+                     onclick="selectLayout(${key})">
+                    <div class="layout-preview" style="grid-template-columns: repeat(${layout.cols}, 1fr);">
+                        ${Array(Math.min(layout.images, 12)).fill('<div class="layout-preview-dot"></div>').join('')}
+                    </div>
+                    <p class="text-center text-xs mt-1 font-medium">${layout.name}</p>
+                </div>
+            `).join('');
+        }
+
+        function selectLayout(key) {
+            state.layoutOption = key;
+            document.querySelectorAll('.layout-option').forEach(el => {
+                el.classList.toggle('selected', parseInt(el.dataset.layout) === key);
+            });
+            updateLayoutSummary();
+        }
+
+        function updateLayoutSummary() {
+            const layout = Config.LAYOUTS[state.layoutOption];
+            const selected = state.selectedImages.size;
+            const excluded = state.allImages.length - selected;
+            const pages = Math.ceil(selected / layout.images);
+            
+            document.getElementById('expected-pages').textContent = pages;
+            document.getElementById('summary-selected').textContent = selected;
+            document.getElementById('summary-excluded').textContent = excluded;
+        }
+
+        function toggleAutoDownload() {
+            state.autoDownload = !state.autoDownload;
+            document.getElementById('auto-download-checkbox').classList.toggle('checked', state.autoDownload);
+        }
+
+        // =====================================================
+        // PDF Creation
+        // =====================================================
+        async function startProcessing() {
+            if (state.selectedImages.size === 0) {
+                showSnackbar('اختر صوراً أولاً', 'warning');
+                return;
+            }
+            
+            saveSettings();
+            goToPage('processing');
+            
+            try {
+                await createPDF();
+                
+                setTimeout(() => {
+                    showResults();
+                    if (state.autoDownload) {
+                        setTimeout(downloadPDF, 300);
+                    }
+                }, 300);
+                
+            } catch (error) {
+                console.error('PDF Error:', error);
+                showSnackbar('خطأ في إنشاء PDF', 'error');
+                goToPage('layout');
+            }
+        }
+
+        async function createPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4',
+                compress: true
+            });
+            
+            const pageWidth = 210;
+            const pageHeight = 297;
+            const margin = 4;
+            const padding = 2;
+            
+            const layout = Config.LAYOUTS[state.layoutOption];
+            const usableWidth = pageWidth - (margin * 2);
+            const usableHeight = pageHeight - (margin * 2);
+            const cellWidth = usableWidth / layout.cols;
+            const cellHeight = usableHeight / layout.rows;
+            
+            const images = state.allImages
+                .filter(img => state.selectedImages.has(img.id))
+                .sort((a, b) => a.id - b.id);
+            
+            const perPage = layout.cols * layout.rows;
+            const totalImages = images.length;
+            const totalPages = Math.ceil(totalImages / perPage);
+            
+            let pageCount = 0;
+            
+            for (let i = 0; i < totalImages; i++) {
+                const pos = i % perPage;
+                const col = pos % layout.cols;
+                const row = Math.floor(pos / layout.cols);
+                
+                if (pos === 0 && i > 0) {
+                    doc.addPage();
+                }
+                
+                if (pos === 0) pageCount++;
+                
+                const img = images[i];
+                const x = margin + (col * cellWidth);
+                const y = margin + (row * cellHeight);
+                
+                try {
+                    const maxW = cellWidth - (padding * 2);
+                    const maxH = cellHeight - (padding * 2);
+                    const imgRatio = img.width / img.height;
+                    const cellRatio = maxW / maxH;
+                    
+                    let drawWidth, drawHeight;
+                    if (imgRatio > cellRatio) {
+                        drawWidth = maxW;
+                        drawHeight = maxW / imgRatio;
+                    } else {
+                        drawHeight = maxH;
+                        drawWidth = maxH * imgRatio;
+                    }
+                    
+                    const drawX = x + padding + (maxW - drawWidth) / 2;
+                    const drawY = y + padding + (maxH - drawHeight) / 2;
+                    
+                    doc.setDrawColor(230, 230, 230);
+                    doc.setLineWidth(0.2);
+                    doc.rect(x + padding, y + padding, maxW, maxH);
+                    
+                    doc.addImage(img.data, 'JPEG', drawX, drawY, drawWidth, drawHeight, undefined, 'FAST');
+                    
+                } catch (e) {
+                    console.warn('Image add error:', e);
+                }
+                
+                // Update progress
+                const percent = ((i + 1) / totalImages) * 100;
+                updateProgress(percent, `صفحة ${pageCount}/${totalPages}`);
+                document.getElementById('proc-stat-images').textContent = i + 1;
+                document.getElementById('proc-stat-pages').textContent = pageCount;
+                
+                // Yield to UI
+                if (i % 3 === 0) {
+                    await new Promise(r => setTimeout(r, 5));
+                }
+            }
+            
+            doc.setProperties({
+                title: document.getElementById('output-name').value || 'Lesson Images',
+                creator: 'محول صور الدروس v6.0 - Mohamed Elherd'
+            });
+            
+            state.generatedPDF = doc;
+            updateProgress(100, 'اكتمل!');
+        }
+
+        function updateProgress(percent, status) {
+            const circle = document.getElementById('progress-circle');
+            const circumference = 2 * Math.PI * 80;
+            circle.style.strokeDashoffset = circumference - (percent / 100) * circumference;
+            document.getElementById('progress-percent').textContent = `${Math.round(percent)}%`;
+            document.getElementById('progress-status').textContent = status;
+        }
+
+        // =====================================================
+        // Results
+        // =====================================================
+        function showResults() {
+            goToPage('result');
+            
+            const layout = Config.LAYOUTS[state.layoutOption];
+            const count = state.selectedImages.size;
+            const pages = Math.ceil(count / layout.images);
+            
+            document.getElementById('result-images').textContent = count;
+            document.getElementById('result-pages').textContent = pages;
+        }
+
+        function downloadPDF() {
+            if (!state.generatedPDF) return;
+            const fileName = document.getElementById('output-name').value || 'output';
+            state.generatedPDF.save(`${fileName}.pdf`);
+            showSnackbar('تم التحميل', 'success');
+        }
+
+        async function sharePDF() {
+            if (!state.generatedPDF) return;
+            
+            const fileName = document.getElementById('output-name').value || 'output';
+            const blob = state.generatedPDF.output('blob');
+            const file = new File([blob], `${fileName}.pdf`, { type: 'application/pdf' });
+            
+            if (navigator.share && navigator.canShare?.({ files: [file] })) {
+                try {
+                    await navigator.share({ files: [file], title: fileName });
+                } catch (e) {
+                    if (e.name !== 'AbortError') downloadPDF();
+                }
+            } else {
+                downloadPDF();
+            }
+        }
+
+        function startNew() {
+            resetState();
+            goToPage('welcome');
+        }
+
+        // =====================================================
+        // Settings
+        // =====================================================
+        function loadSettings() {
+            try {
+                const saved = localStorage.getItem('pdf_converter_v6');
+                if (saved) {
+                    const s = JSON.parse(saved);
+                    state.layoutOption = s.layoutOption || 6;
+                    state.autoDownload = s.autoDownload !== false;
+                    
+                    // Update UI
+                    document.getElementById('auto-download-checkbox').classList.toggle('checked', state.autoDownload);
+                    selectLayout(state.layoutOption);
+                }
+            } catch (e) {}
+        }
+
+        function saveSettings() {
+            try {
+                localStorage.setItem('pdf_converter_v6', JSON.stringify({
+                    layoutOption: state.layoutOption,
+                    autoDownload: state.autoDownload
+                }));
+            } catch (e) {}
+        }
+
+        // =====================================================
+        // Utilities
+        // =====================================================
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        function readFileAsDataURL(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function showLoading(text) {
+            document.getElementById('loading-text').textContent = text;
+            document.getElementById('loading-detail').textContent = '';
+            document.getElementById('loading-overlay').style.display = 'flex';
+            showLoadingProgress(false);
+        }
+
+        function updateLoadingText(text) {
+            document.getElementById('loading-text').textContent = text;
+        }
+
+        function showLoadingProgress(show) {
+            document.getElementById('loading-progress').style.display = show ? 'block' : 'none';
+        }
+
+        function updateLoadingBar(percent) {
+            document.getElementById('loading-bar').style.width = percent + '%';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-overlay').style.display = 'none';
+        }
+
+        function showSnackbar(message, type = 'info') {
+            const snackbar = document.getElementById('snackbar');
+            const icon = document.getElementById('snackbar-icon');
+            
+            const icons = { info: 'info', success: 'check_circle', error: 'error', warning: 'warning' };
+            const colors = { info: 'text-blue-400', success: 'text-green-400', error: 'text-red-400', warning: 'text-amber-400' };
+            
+            icon.textContent = icons[type];
+            icon.className = `material-icons-round ${colors[type]}`;
+            document.getElementById('snackbar-message').textContent = message;
+            
+            snackbar.classList.add('show');
+            setTimeout(() => snackbar.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>
