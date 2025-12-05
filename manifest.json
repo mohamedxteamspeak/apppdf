@@ -3,67 +3,71 @@
   "short_name": "PDF Maker",
   "description": "محول صور الدروس إلى PDF احترافي - استخراج الصور من PDF وتحويلها بسهولة",
   "version": "7.0.0",
-  "start_url": "./index.html",
-  "scope": "./",
   "id": "/",
+  "start_url": "/index.html",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "window-controls-overlay"],
   "orientation": "portrait",
   "theme_color": "#667eea",
   "background_color": "#0f0f23",
   "lang": "ar",
   "dir": "rtl",
   "categories": ["utilities", "productivity"],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "iarc_rating_id": "",
   "icons": [
     {
-      "src": "./icons/icon-72.png",
+      "src": "/icons/icon-72.png",
       "sizes": "72x72",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-96.png",
+      "src": "/icons/icon-96.png",
       "sizes": "96x96",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-128.png",
+      "src": "/icons/icon-128.png",
       "sizes": "128x128",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-144.png",
+      "src": "/icons/icon-144.png",
       "sizes": "144x144",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-152.png",
+      "src": "/icons/icon-152.png",
       "sizes": "152x152",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-192.png",
+      "src": "/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-384.png",
+      "src": "/icons/icon-384.png",
       "sizes": "384x384",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/icon-512.png",
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/maskable-512.png",
+      "src": "/icons/maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -71,14 +75,14 @@
   ],
   "screenshots": [
     {
-      "src": "./screenshots/screenshot1.png",
+      "src": "/screenshots/screenshot1.png",
       "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "الشاشة الرئيسية"
     },
     {
-      "src": "./screenshots/screenshot2.png",
+      "src": "/screenshots/screenshot2.png",
       "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow",
@@ -90,10 +94,10 @@
       "name": "استخراج من PDF",
       "short_name": "PDF",
       "description": "استخراج الصور من ملف PDF",
-      "url": "./index.html?mode=pdf",
+      "url": "/index.html?mode=pdf",
       "icons": [
         {
-          "src": "./icons/icon-96.png",
+          "src": "/icons/icon-96.png",
           "sizes": "96x96",
           "type": "image/png"
         }
@@ -103,10 +107,10 @@
       "name": "تحويل صور",
       "short_name": "صور",
       "description": "تحويل الصور إلى PDF",
-      "url": "./index.html?mode=images",
+      "url": "/index.html?mode=images",
       "icons": [
         {
-          "src": "./icons/icon-96.png",
+          "src": "/icons/icon-96.png",
           "sizes": "96x96",
           "type": "image/png"
         }
@@ -115,7 +119,7 @@
   ],
   "file_handlers": [
     {
-      "action": "./index.html",
+      "action": "/index.html",
       "accept": {
         "application/pdf": [".pdf"],
         "image/jpeg": [".jpg", ".jpeg"],
@@ -126,7 +130,7 @@
     }
   ],
   "share_target": {
-    "action": "./index.html",
+    "action": "/index.html",
     "method": "POST",
     "enctype": "multipart/form-data",
     "params": {
@@ -139,8 +143,17 @@
     }
   },
   "launch_handler": {
-    "client_mode": "navigate-existing"
+    "client_mode": ["navigate-existing", "auto"]
   },
-  "display_override": ["standalone", "minimal-ui"],
-  "prefer_related_applications": false
+  "handle_links": "preferred",
+  "scope_extensions": [],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+pdfmaker",
+      "url": "/index.html?file=%s"
+    }
+  ]
 }
