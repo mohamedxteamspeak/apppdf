@@ -3,22 +3,25 @@
  * Mohamed Elherd
  */
 
-const CACHE_NAME = 'pdf-maker-pro-v7.0';
-const RUNTIME_CACHE = 'pdf-maker-runtime-v7.0';
+const CACHE_NAME = 'pdf-maker-pro-v7.0.0';
+const RUNTIME_CACHE = 'pdf-maker-runtime-v7.0.0';
 
 // الملفات الأساسية للتخزين المؤقت
 const PRECACHE_ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icons/icon-72.png',
-  '/icons/icon-96.png',
-  '/icons/icon-128.png',
-  '/icons/icon-144.png',
-  '/icons/icon-152.png',
-  '/icons/icon-192.png',
-  '/icons/icon-384.png',
-  '/icons/icon-512.png'
+  './',
+  './index.html',
+  './manifest.json',
+  './icons/icon-72.png',
+  './icons/icon-96.png',
+  './icons/icon-128.png',
+  './icons/icon-144.png',
+  './icons/icon-152.png',
+  './icons/icon-192.png',
+  './icons/icon-384.png',
+  './icons/icon-512.png',
+  './icons/maskable-512.png',
+  './screenshots/screenshot1.png',
+  './screenshots/screenshot2.png'
 ];
 
 // المكتبات الخارجية
@@ -34,46 +37,48 @@ const CDN_ASSETS = [
 // INSTALL EVENT
 // =====================================================
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing Service Worker v7.0...');
+  console.log('[SW] Installing PDF Maker Pro v7.0...');
   
   event.waitUntil(
     (async () => {
-      const cache = await caches.open(CACHE_NAME);
-      
-      // تخزين الملفات المحلية
-      console.log('[SW] Caching local assets...');
       try {
-        await cache.addAll(PRECACHE_ASSETS);
-        console.log('[SW] Local assets cached successfully');
-      } catch (error) {
-        console.warn('[SW] Some local assets failed to cache:', error);
-        // محاولة تخزين كل ملف على حدة
+        const cache = await caches.open(CACHE_NAME);
+        
+        // تخزين الملفات المحلية واحداً تلو الآخر
+        console.log('[SW] Caching local assets...');
         for (const asset of PRECACHE_ASSETS) {
           try {
-            await cache.add(asset);
+            const response = await fetch(asset);
+            if (response.ok) {
+              await cache.put(asset, response);
+              console.log('[SW] ✓ Cached:', asset);
+            }
           } catch (e) {
-            console.warn('[SW] Failed to cache:', asset);
+            console.warn('[SW] ✗ Failed to cache:', asset);
           }
         }
-      }
-      
-      // تخزين مكتبات CDN
-      console.log('[SW] Caching CDN assets...');
-      for (const url of CDN_ASSETS) {
-        try {
-          const response = await fetch(url, { mode: 'cors' });
-          if (response.ok) {
-            await cache.put(url, response);
-            console.log('[SW] Cached:', url);
+        
+        // تخزين مكتبات CDN
+        console.log('[SW] Caching CDN assets...');
+        for (const url of CDN_ASSETS) {
+          try {
+            const response = await fetch(url, { mode: 'cors' });
+            if (response.ok) {
+              await cache.put(url, response);
+              console.log('[SW] ✓ Cached CDN:', url.split('/').pop());
+            }
+          } catch (e) {
+            console.warn('[SW] ✗ Failed to cache CDN:', url);
           }
-        } catch (error) {
-          console.warn('[SW] Failed to cache CDN asset:', url);
         }
+        
+        console.log('[SW] Installation complete!');
+      } catch (error) {
+        console.error('[SW] Installation failed:', error);
       }
       
       // تفعيل فوري
       await self.skipWaiting();
-      console.log('[SW] Service Worker installed successfully');
     })()
   );
 });
@@ -82,24 +87,24 @@ self.addEventListener('install', (event) => {
 // ACTIVATE EVENT
 // =====================================================
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating Service Worker v7.0...');
+  console.log('[SW] Activating PDF Maker Pro v7.0...');
   
   event.waitUntil(
     (async () => {
       // حذف الكاش القديم
       const cacheNames = await caches.keys();
-      await Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME && name !== RUNTIME_CACHE)
-          .map((name) => {
-            console.log('[SW] Deleting old cache:', name);
-            return caches.delete(name);
-          })
+      const oldCaches = cacheNames.filter(
+        name => name !== CACHE_NAME && name !== RUNTIME_CACHE
       );
+      
+      for (const name of oldCaches) {
+        console.log('[SW] Deleting old cache:', name);
+        await caches.delete(name);
+      }
       
       // التحكم في جميع الصفحات
       await self.clients.claim();
-      console.log('[SW] Service Worker activated successfully');
+      console.log('[SW] Activation complete!');
     })()
   );
 });
@@ -116,44 +121,42 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // تجاهل طلبات chrome-extension وغيرها
-  if (url.protocol === 'chrome-extension:' || url.protocol === 'moz-extension:') {
+  // تجاهل الإضافات
+  if (url.protocol.includes('extension')) {
     return;
   }
   
-  event.respondWith(handleFetch(request));
+  // تجاهل طلبات analytics و tracking
+  if (url.hostname.includes('google-analytics') || 
+      url.hostname.includes('analytics') ||
+      url.hostname.includes('tracking')) {
+    return;
+  }
+  
+  event.respondWith(handleFetch(request, url));
 });
 
-async function handleFetch(request) {
-  const url = new URL(request.url);
-  
-  // استراتيجية للملفات المحلية: Cache First
+async function handleFetch(request, url) {
+  // استراتيجية للملفات المحلية
   if (url.origin === self.location.origin) {
     return cacheFirst(request);
   }
   
-  // استراتيجية لـ CDN: Stale While Revalidate
-  if (isCDNRequest(url)) {
-    return staleWhileRevalidate(request);
-  }
-  
-  // استراتيجية للخطوط: Cache First with long TTL
+  // استراتيجية للخطوط
   if (url.hostname.includes('fonts.googleapis.com') || 
       url.hostname.includes('fonts.gstatic.com')) {
     return cacheFirst(request);
   }
   
-  // للطلبات الأخرى: Network First
+  // استراتيجية لـ CDN
+  if (url.hostname.includes('cdnjs.cloudflare.com') ||
+      url.hostname.includes('unpkg.com') ||
+      url.hostname.includes('jsdelivr.net')) {
+    return staleWhileRevalidate(request);
+  }
+  
+  // للطلبات الأخرى
   return networkFirst(request);
-}
-
-function isCDNRequest(url) {
-  const cdnHosts = [
-    'cdnjs.cloudflare.com',
-    'unpkg.com',
-    'cdn.jsdelivr.net'
-  ];
-  return cdnHosts.some(host => url.hostname.includes(host));
 }
 
 // =====================================================
@@ -162,8 +165,7 @@ function isCDNRequest(url) {
 
 // Cache First - للملفات الثابتة
 async function cacheFirst(request) {
-  const cache = await caches.open(CACHE_NAME);
-  const cachedResponse = await cache.match(request);
+  const cachedResponse = await caches.match(request);
   
   if (cachedResponse) {
     return cachedResponse;
@@ -171,50 +173,55 @@ async function cacheFirst(request) {
   
   try {
     const networkResponse = await fetch(request);
+    
     if (networkResponse.ok) {
+      const cache = await caches.open(CACHE_NAME);
       cache.put(request, networkResponse.clone());
     }
+    
     return networkResponse;
   } catch (error) {
-    console.warn('[SW] Network request failed:', request.url);
     return createOfflineResponse(request);
   }
 }
 
 // Network First - للمحتوى الديناميكي
 async function networkFirst(request) {
-  const cache = await caches.open(RUNTIME_CACHE);
-  
   try {
     const networkResponse = await fetch(request);
+    
     if (networkResponse.ok) {
+      const cache = await caches.open(RUNTIME_CACHE);
       cache.put(request, networkResponse.clone());
     }
+    
     return networkResponse;
   } catch (error) {
-    const cachedResponse = await cache.match(request);
+    const cachedResponse = await caches.match(request);
+    
     if (cachedResponse) {
       return cachedResponse;
     }
+    
     return createOfflineResponse(request);
   }
 }
 
 // Stale While Revalidate - للـ CDN
 async function staleWhileRevalidate(request) {
-  const cache = await caches.open(CACHE_NAME);
-  const cachedResponse = await cache.match(request);
+  const cachedResponse = await caches.match(request);
   
   const fetchPromise = fetch(request)
-    .then((networkResponse) => {
+    .then(async (networkResponse) => {
       if (networkResponse.ok) {
+        const cache = await caches.open(CACHE_NAME);
         cache.put(request, networkResponse.clone());
       }
       return networkResponse;
     })
     .catch(() => null);
   
-  return cachedResponse || fetchPromise || createOfflineResponse(request);
+  return cachedResponse || (await fetchPromise) || createOfflineResponse(request);
 }
 
 // =====================================================
@@ -224,42 +231,47 @@ function createOfflineResponse(request) {
   const url = new URL(request.url);
   
   // للصفحات HTML
-  if (request.destination === 'document' || url.pathname.endsWith('.html')) {
-    return caches.match('/index.html');
+  if (request.destination === 'document' || 
+      url.pathname.endsWith('.html') ||
+      url.pathname === '/' ||
+      url.pathname === '') {
+    return caches.match('./index.html');
   }
   
   // للصور
   if (request.destination === 'image') {
     return new Response(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
-        <rect fill="#1a1a2e" width="100" height="100"/>
-        <text fill="#667eea" font-family="sans-serif" font-size="12" x="50" y="50" text-anchor="middle">Offline</text>
+      `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+        <rect fill="#1a1a2e" width="200" height="200" rx="20"/>
+        <circle cx="100" cy="80" r="30" fill="#667eea" opacity="0.5"/>
+        <path d="M40 140 L80 100 L120 130 L160 90 L160 160 L40 160 Z" fill="#667eea" opacity="0.3"/>
+        <text fill="#a0aec0" font-family="sans-serif" font-size="14" x="100" y="180" text-anchor="middle">غير متصل</text>
       </svg>`,
-      {
-        headers: { 'Content-Type': 'image/svg+xml' }
-      }
+      { headers: { 'Content-Type': 'image/svg+xml' } }
     );
   }
   
   // للـ JavaScript
   if (request.destination === 'script') {
-    return new Response('console.log("Offline mode");', {
-      headers: { 'Content-Type': 'application/javascript' }
-    });
+    return new Response(
+      '/* Offline Mode - PDF Maker Pro */', 
+      { headers: { 'Content-Type': 'application/javascript' } }
+    );
   }
   
   // للـ CSS
   if (request.destination === 'style') {
-    return new Response('/* Offline */', {
-      headers: { 'Content-Type': 'text/css' }
-    });
+    return new Response(
+      '/* Offline Mode */', 
+      { headers: { 'Content-Type': 'text/css' } }
+    );
   }
   
   // استجابة افتراضية
-  return new Response('Offline', {
+  return new Response('غير متصل بالإنترنت', {
     status: 503,
-    statusText: 'Service Unavailable',
-    headers: { 'Content-Type': 'text/plain' }
+    statusText: 'Offline',
+    headers: { 'Content-Type': 'text/plain; charset=utf-8' }
   });
 }
 
@@ -267,7 +279,7 @@ function createOfflineResponse(request) {
 // MESSAGE HANDLER
 // =====================================================
 self.addEventListener('message', (event) => {
-  const { type, payload } = event.data || {};
+  const { type } = event.data || {};
   
   switch (type) {
     case 'SKIP_WAITING':
@@ -279,100 +291,54 @@ self.addEventListener('message', (event) => {
       break;
       
     case 'CLEAR_CACHE':
-      caches.keys().then((names) => {
-        names.forEach((name) => caches.delete(name));
-        event.ports[0]?.postMessage({ success: true });
+      caches.keys().then(names => {
+        Promise.all(names.map(name => caches.delete(name)))
+          .then(() => {
+            event.ports[0]?.postMessage({ success: true });
+          });
       });
       break;
       
-    case 'CACHE_URLS':
-      if (payload?.urls) {
-        caches.open(RUNTIME_CACHE).then((cache) => {
-          cache.addAll(payload.urls);
-          event.ports[0]?.postMessage({ success: true });
-        });
-      }
+    case 'UPDATE':
+      self.registration.update();
       break;
   }
 });
 
 // =====================================================
-// BACKGROUND SYNC (للتحميلات المؤجلة)
+// PERIODIC BACKGROUND SYNC
 // =====================================================
-self.addEventListener('sync', (event) => {
-  console.log('[SW] Background sync:', event.tag);
-  
-  if (event.tag === 'pdf-download') {
-    event.waitUntil(handlePDFSync());
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'update-cache') {
+    event.waitUntil(updateCache());
   }
 });
 
-async function handlePDFSync() {
-  // معالجة التحميلات المؤجلة
-  console.log('[SW] Processing pending PDF downloads...');
+async function updateCache() {
+  const cache = await caches.open(CACHE_NAME);
+  
+  for (const asset of PRECACHE_ASSETS) {
+    try {
+      const response = await fetch(asset);
+      if (response.ok) {
+        await cache.put(asset, response);
+      }
+    } catch (e) {
+      // تجاهل الأخطاء
+    }
+  }
 }
-
-// =====================================================
-// PUSH NOTIFICATIONS (اختياري)
-// =====================================================
-self.addEventListener('push', (event) => {
-  if (!event.data) return;
-  
-  const data = event.data.json();
-  
-  const options = {
-    body: data.body || 'إشعار جديد',
-    icon: '/icons/icon-192.png',
-    badge: '/icons/icon-72.png',
-    vibrate: [100, 50, 100],
-    dir: 'rtl',
-    lang: 'ar',
-    data: {
-      url: data.url || '/'
-    },
-    actions: [
-      { action: 'open', title: 'فتح' },
-      { action: 'close', title: 'إغلاق' }
-    ]
-  };
-  
-  event.waitUntil(
-    self.registration.showNotification(data.title || 'PDF Maker Pro', options)
-  );
-});
-
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  
-  if (event.action === 'close') return;
-  
-  const url = event.notification.data?.url || '/';
-  
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      // البحث عن نافذة مفتوحة
-      for (const client of clientList) {
-        if (client.url.includes(self.location.origin) && 'focus' in client) {
-          return client.focus();
-        }
-      }
-      // فتح نافذة جديدة
-      if (clients.openWindow) {
-        return clients.openWindow(url);
-      }
-    })
-  );
-});
 
 // =====================================================
 // ERROR HANDLING
 // =====================================================
 self.addEventListener('error', (event) => {
-  console.error('[SW] Error:', event.error);
+  console.error('[SW] Error:', event.message);
 });
 
 self.addEventListener('unhandledrejection', (event) => {
-  console.error('[SW] Unhandled rejection:', event.reason);
+  console.error('[SW] Unhandled Promise Rejection:', event.reason);
+  event.preventDefault();
 });
 
-console.log('[SW] Service Worker script loaded - v7.0');
+console.log('[SW] PDF Maker Pro Service Worker Loaded - v7.0.0');
