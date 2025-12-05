@@ -3,386 +3,292 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- PWA Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#6366f1">
-    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
+    <meta name="apple-mobile-web-app-title" content="PDF Maker Pro">
+    <meta name="application-name" content="PDF Maker Pro">
+    <meta name="theme-color" content="#667eea">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="msapplication-TileColor" content="#667eea">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="format-detection" content="telephone=no">
     
+    <!-- SEO -->
+    <meta name="description" content="محول صور الدروس إلى PDF احترافي - استخراج الصور من PDF وتحويلها بسهولة">
+    <meta name="keywords" content="PDF, converter, images, محول, صور, دروس">
+    <meta name="author" content="Mohamed Elherd">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="PDF Maker Pro">
+    <meta property="og:description" content="محول صور الدروس إلى PDF احترافي">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="icons/icon-512.png">
+    
+    <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon-192.png">
     
-    <title>PDF Studio Pro v7.0</title>
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-72.png">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="icons/icon-192.png">
     
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    <!-- Splash Screens for iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    
+    <title>PDF Maker Pro</title>
+    
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     
     <style>
         :root {
-            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-            --gradient-5: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-            --gradient-dark: linear-gradient(135deg, #0c0c1e 0%, #1a1a3e 50%, #0c0c1e 100%);
-            
-            --primary: #6366f1;
-            --primary-light: #818cf8;
-            --secondary: #22d3ee;
-            --accent: #f472b6;
+            --primary: #667eea;
+            --primary-dark: #5a67d8;
+            --secondary: #764ba2;
+            --accent: #f093fb;
             --success: #10b981;
             --warning: #f59e0b;
             --error: #ef4444;
-            
-            --bg-dark: #0a0a1a;
-            --bg-card: rgba(255,255,255,0.03);
-            --bg-card-hover: rgba(255,255,255,0.08);
-            --text: #f1f5f9;
-            --text-muted: #94a3b8;
-            
-            --glow: 0 0 40px rgba(99, 102, 241, 0.3);
-            --glow-strong: 0 0 60px rgba(99, 102, 241, 0.5);
+            --bg: #0f0f23;
+            --bg-card: #1a1a2e;
+            --bg-elevated: #252542;
+            --text: #ffffff;
+            --text-muted: #a0aec0;
+            --glass: rgba(255,255,255,0.05);
+            --border: rgba(255,255,255,0.1);
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-left: env(safe-area-inset-left, 0px);
+            --safe-right: env(safe-area-inset-right, 0px);
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Tajawal', sans-serif;
+            font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, sans-serif;
             -webkit-tap-highlight-color: transparent;
             -webkit-touch-callout: none;
+            -webkit-user-select: none;
             user-select: none;
         }
-        
-        html, body {
-            background: var(--bg-dark);
+
+        html {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            background: var(--bg);
             color: var(--text);
             min-height: 100vh;
             min-height: 100dvh;
             overflow-x: hidden;
             overscroll-behavior: none;
+            position: fixed;
+            width: 100%;
+            height: 100%;
         }
-        
-        /* Animated Background */
-        .bg-animation {
+
+        #app {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .bg-pattern {
             position: fixed;
             inset: 0;
-            z-index: -1;
-            overflow: hidden;
-        }
-        
-        .bg-animation::before {
-            content: '';
-            position: absolute;
-            width: 150%;
-            height: 150%;
-            top: -25%;
-            left: -25%;
             background: 
-                radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(244, 114, 182, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(34, 211, 238, 0.1) 0%, transparent 40%);
-            animation: bgFloat 20s ease-in-out infinite;
+                radial-gradient(circle at 20% 80%, rgba(102,126,234,0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(118,75,162,0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(240,147,251,0.08) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
         }
-        
-        @keyframes bgFloat {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            33% { transform: translate(30px, -30px) rotate(5deg); }
-            66% { transform: translate(-20px, 20px) rotate(-5deg); }
-        }
-        
-        /* Floating Orbs */
-        .orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(60px);
-            opacity: 0.5;
-            animation: orbFloat 15s ease-in-out infinite;
-        }
-        
-        .orb-1 {
-            width: 300px;
-            height: 300px;
-            background: var(--primary);
-            top: -100px;
-            right: -100px;
-            animation-delay: 0s;
-        }
-        
-        .orb-2 {
-            width: 200px;
-            height: 200px;
-            background: var(--accent);
-            bottom: 20%;
-            left: -50px;
-            animation-delay: -5s;
-        }
-        
-        .orb-3 {
-            width: 150px;
-            height: 150px;
-            background: var(--secondary);
-            top: 40%;
-            right: -50px;
-            animation-delay: -10s;
-        }
-        
-        @keyframes orbFloat {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(50px, 50px) scale(1.1); }
-        }
-        
-        /* Page System */
+
         .page {
             display: none;
-            min-height: 100vh;
-            min-height: 100dvh;
-            flex-direction: column;
-            position: relative;
-            animation: pageIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            animation: pageIn 0.35s ease-out;
+            overflow: hidden;
+            padding-top: var(--safe-top);
         }
         
-        .page.active {
-            display: flex;
+        .page.active { 
+            display: flex; 
+            flex-direction: column; 
         }
-        
+
         @keyframes pageIn {
-            from { 
-                opacity: 0; 
-                transform: translateY(30px) scale(0.98);
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0) scale(1);
-            }
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
         }
-        
-        /* Glass Morphism */
-        .glass {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
         }
-        
-        .glass-strong {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
-        
-        /* Buttons */
-        .btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            padding: 18px 32px;
-            border-radius: 16px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 1; }
+            100% { transform: scale(1.3); opacity: 0; }
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            padding: 20px;
+            padding-top: calc(20px + var(--safe-top));
+            border-radius: 0 0 28px 28px;
             position: relative;
             overflow: hidden;
+            flex-shrink: 0;
         }
         
-        .btn::before {
+        .header::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-            transform: translateX(-100%);
-            transition: transform 0.6s;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 16px 24px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
         }
         
-        .btn:active::before {
-            transform: translateX(100%);
-        }
-        
-        .btn:active {
-            transform: scale(0.96);
-        }
-        
+        .btn:active { transform: scale(0.97); }
+        .btn:disabled { opacity: 0.5; pointer-events: none; }
+
         .btn-primary {
-            background: var(--gradient-1);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
-            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.4);
-        }
-        
-        .btn-primary:active {
-            box-shadow: 0 5px 20px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 8px 24px rgba(102,126,234,0.4);
         }
         
         .btn-secondary {
-            background: transparent;
-            color: var(--primary-light);
-            border: 2px solid rgba(99, 102, 241, 0.5);
-        }
-        
-        .btn-secondary:active {
-            background: rgba(99, 102, 241, 0.1);
-        }
-        
-        .btn-success {
-            background: var(--gradient-4);
-            color: #0a0a1a;
-            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.4);
-        }
-        
-        .btn-glass {
-            background: rgba(255,255,255,0.1);
-            color: white;
+            background: var(--glass);
+            color: var(--primary);
+            border: 2px solid var(--primary);
             backdrop-filter: blur(10px);
         }
         
-        .btn-icon {
-            width: 52px;
-            height: 52px;
-            padding: 0;
-            border-radius: 16px;
+        .btn-success {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 8px 24px rgba(16,185,129,0.4);
         }
         
-        /* Cards */
+        .btn-icon {
+            width: 48px;
+            height: 48px;
+            padding: 0;
+            border-radius: 14px;
+        }
+
         .card {
             background: var(--bg-card);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 24px;
-            padding: 24px;
-            transition: all 0.3s ease;
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid var(--border);
         }
         
-        .card:active {
-            transform: scale(0.98);
-            background: var(--bg-card-hover);
+        .card-glass {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
         }
         
-        .card.selected {
-            border-color: var(--primary);
-            background: rgba(99, 102, 241, 0.1);
-            box-shadow: var(--glow);
+        .card-gradient {
+            background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
+            border-color: rgba(102,126,234,0.2);
         }
-        
-        /* Hero Section */
-        .hero-icon {
-            width: 120px;
-            height: 120px;
-            border-radius: 40px;
-            background: var(--gradient-1);
+
+        .icon-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 24px;
-            box-shadow: var(--glow-strong);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            box-shadow: 0 10px 40px rgba(102,126,234,0.5);
+            animation: float 3s ease-in-out infinite;
+            margin: 0 auto;
             position: relative;
         }
         
-        .hero-icon::before {
+        .icon-circle::before {
             content: '';
             position: absolute;
-            inset: -3px;
-            border-radius: 43px;
-            background: var(--gradient-1);
-            z-index: -1;
-            opacity: 0.5;
-            filter: blur(15px);
+            inset: -4px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.2);
+            animation: pulse-ring 2s ease-out infinite;
         }
         
-        .hero-icon .material-icons-round {
-            font-size: 60px;
-            color: white;
+        .icon-circle.success {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            box-shadow: 0 10px 40px rgba(16,185,129,0.5);
         }
-        
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-        }
-        
-        .stat-card {
-            background: rgba(255,255,255,0.03);
-            border-radius: 20px;
-            padding: 16px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        
-        .stat-value {
-            font-size: 1.8rem;
-            font-weight: 900;
-            background: var(--gradient-3);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .stat-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-        
-        /* File Drop Zone */
+
         .drop-zone {
-            border: 3px dashed rgba(99, 102, 241, 0.4);
-            border-radius: 32px;
-            padding: 48px 24px;
+            border: 3px dashed rgba(102,126,234,0.5);
+            border-radius: 24px;
+            padding: 40px 20px;
             text-align: center;
+            background: rgba(102,126,234,0.05);
             transition: all 0.3s ease;
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
         }
         
-        .drop-zone::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: var(--gradient-1);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .drop-zone:active::before,
-        .drop-zone.dragover::before {
-            opacity: 0.1;
-        }
-        
-        .drop-zone:active,
-        .drop-zone.dragover {
+        .drop-zone:active, .drop-zone.dragover {
             border-color: var(--primary);
+            background: rgba(102,126,234,0.15);
             transform: scale(0.99);
         }
         
-        .drop-zone.processing {
-            pointer-events: none;
-            opacity: 0.6;
-        }
-        
-        .drop-zone-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 16px;
-            border-radius: 24px;
-            background: rgba(99, 102, 241, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        /* Image Gallery */
+        .drop-zone.processing { opacity: 0.6; pointer-events: none; }
+
         .gallery {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
-            padding: 12px;
-            max-height: 50vh;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+            padding: 10px;
         }
         
         .gallery-item {
@@ -393,6 +299,7 @@
             border: 3px solid transparent;
             transition: all 0.2s ease;
             cursor: pointer;
+            background: var(--bg-card);
         }
         
         .gallery-item img {
@@ -403,12 +310,12 @@
         
         .gallery-item.selected {
             border-color: var(--success);
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 0 20px rgba(16,185,129,0.4);
         }
         
         .gallery-item.excluded {
             opacity: 0.4;
-            border-color: rgba(239, 68, 68, 0.5);
+            border-color: var(--error);
         }
         
         .gallery-item .badge {
@@ -418,7 +325,7 @@
             padding: 3px 8px;
             border-radius: 8px;
             font-size: 0.6rem;
-            font-weight: 800;
+            font-weight: 700;
         }
         
         .gallery-item .check {
@@ -427,57 +334,17 @@
             left: 6px;
             width: 26px;
             height: 26px;
-            border-radius: 8px;
+            border-radius: 50%;
             background: rgba(0,0,0,0.5);
             display: flex;
             align-items: center;
             justify-content: center;
         }
         
-        .gallery-item.selected .check {
-            background: var(--success);
-        }
-        
-        .badge-dup { background: rgba(245, 158, 11, 0.9); color: #000; }
-        .badge-logo { background: rgba(239, 68, 68, 0.9); color: #fff; }
-        
-        /* Filter Tabs */
-        .tabs {
-            display: flex;
-            gap: 8px;
-            padding: 12px 16px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-        }
-        
-        .tabs::-webkit-scrollbar { display: none; }
-        
-        .tab {
-            padding: 10px 18px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            white-space: nowrap;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .tab.active {
-            background: var(--gradient-1);
-            color: white;
-        }
-        
-        .tab:not(.active) {
-            background: rgba(255,255,255,0.05);
-            color: var(--text-muted);
-        }
-        
-        /* Layout Grid */
+        .gallery-item.selected .check { background: var(--success); }
+        .badge-dup { background: var(--warning); color: #000; }
+        .badge-logo { background: var(--error); color: #fff; }
+
         .layout-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -485,76 +352,50 @@
         }
         
         .layout-item {
-            aspect-ratio: 3/4;
-            border-radius: 16px;
-            background: rgba(255,255,255,0.03);
+            background: var(--bg-card);
+            border-radius: 14px;
+            padding: 10px;
             border: 2px solid transparent;
-            padding: 8px;
             cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
+            transition: all 0.2s ease;
         }
         
         .layout-item.selected {
             border-color: var(--primary);
-            background: rgba(99, 102, 241, 0.15);
+            background: rgba(102,126,234,0.15);
         }
         
         .layout-preview {
-            flex: 1;
             display: grid;
-            gap: 3px;
+            gap: 2px;
+            aspect-ratio: 3/4;
+            padding: 6px;
         }
         
         .layout-dot {
-            background: rgba(99, 102, 241, 0.4);
-            border-radius: 3px;
+            background: rgba(102,126,234,0.5);
+            border-radius: 2px;
         }
-        
-        .layout-label {
-            text-align: center;
-            font-size: 0.8rem;
-            font-weight: 700;
-            margin-top: 6px;
-            color: var(--text-muted);
-        }
-        
-        .layout-item.selected .layout-label {
-            color: var(--primary-light);
-        }
-        
-        /* Progress Ring */
+
         .progress-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 24px;
-        }
-        
-        .progress-ring {
+            position: relative;
             width: 200px;
             height: 200px;
-            position: relative;
+            margin: 0 auto;
         }
         
-        .progress-ring svg {
-            transform: rotate(-90deg);
-            filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.5));
-        }
+        .progress-ring { transform: rotate(-90deg); }
         
         .progress-ring circle {
             fill: none;
-            stroke-width: 10;
-        }
-        
-        .progress-ring .bg {
-            stroke: rgba(255,255,255,0.1);
-        }
-        
-        .progress-ring .bar {
-            stroke: url(#progressGradient);
+            stroke-width: 12;
             stroke-linecap: round;
+        }
+        
+        .progress-ring .bg { stroke: rgba(255,255,255,0.1); }
+        
+        .progress-ring .progress {
+            stroke: url(#grad);
             transition: stroke-dashoffset 0.3s ease;
         }
         
@@ -566,110 +407,157 @@
             align-items: center;
             justify-content: center;
         }
-        
-        .progress-percent {
-            font-size: 3rem;
-            font-weight: 900;
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
         }
         
-        .progress-label {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-        
-        /* Input */
-        input[type="text"] {
-            width: 100%;
-            background: rgba(255,255,255,0.05);
-            border: 2px solid rgba(255,255,255,0.1);
+        .stat-card {
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-elevated) 100%);
             border-radius: 16px;
-            padding: 16px 20px;
+            padding: 16px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            flex-shrink: 0;
+        }
+        
+        .tabs::-webkit-scrollbar { display: none; }
+        
+        .tab {
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .tab.active { background: var(--primary); color: white; }
+        .tab:not(.active) { background: var(--bg-card); color: var(--text-muted); }
+
+        .input {
+            width: 100%;
+            background: var(--bg-elevated);
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            padding: 16px 18px;
             color: white;
             font-size: 1rem;
-            font-weight: 500;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             -webkit-appearance: none;
         }
         
-        input[type="text"]:focus {
+        .input:focus {
             outline: none;
             border-color: var(--primary);
-            background: rgba(99, 102, 241, 0.1);
-            box-shadow: var(--glow);
+            box-shadow: 0 0 20px rgba(102,126,234,0.2);
         }
-        
-        /* Checkbox */
-        .checkbox-row {
+
+        .toggle-item {
             display: flex;
             align-items: center;
-            gap: 14px;
+            justify-content: space-between;
             padding: 16px;
-            background: rgba(255,255,255,0.03);
-            border-radius: 16px;
+            background: var(--bg-card);
+            border-radius: 14px;
             cursor: pointer;
-            transition: all 0.2s;
         }
         
-        .checkbox-row:active {
-            background: rgba(255,255,255,0.08);
-        }
-        
-        .checkbox-box {
-            width: 28px;
+        .toggle-switch {
+            width: 52px;
             height: 28px;
-            border-radius: 10px;
-            border: 2px solid rgba(255,255,255,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
+            background: var(--bg-elevated);
+            border-radius: 14px;
+            position: relative;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
         }
         
-        .checkbox-row.checked .checkbox-box {
-            background: var(--gradient-1);
-            border-color: transparent;
+        .toggle-switch.active { background: var(--primary); }
+        
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: all 0.3s ease;
         }
         
-        /* Snackbar */
-        .snackbar {
+        .toggle-switch.active::after { left: 27px; }
+
+        .toast {
             position: fixed;
-            bottom: 100px;
+            bottom: calc(100px + var(--safe-bottom));
             left: 50%;
             transform: translateX(-50%) translateY(100px);
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(20px);
+            background: var(--bg-elevated);
             color: white;
-            padding: 16px 24px;
-            border-radius: 16px;
-            z-index: 2000;
+            padding: 14px 20px;
+            border-radius: 14px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            z-index: 9999;
             opacity: 0;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             max-width: 90%;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid var(--border);
         }
         
-        .snackbar.show {
+        .toast.show {
             transform: translateX(-50%) translateY(0);
             opacity: 1;
         }
-        
-        /* Loading */
-        .loading-overlay {
+
+        .loading {
             position: fixed;
             inset: 0;
-            background: rgba(10, 10, 26, 0.98);
+            background: rgba(15,15,35,0.98);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 3000;
+            z-index: 9998;
             gap: 20px;
         }
         
-        .loader {
+        .spinner {
             width: 60px;
             height: 60px;
             border: 4px solid rgba(255,255,255,0.1);
@@ -678,29 +566,79 @@
             animation: spin 1s linear infinite;
         }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .loading-bar {
+            width: 80%;
+            max-width: 300px;
+            height: 6px;
+            background: var(--bg-elevated);
+            border-radius: 3px;
+            overflow: hidden;
         }
         
-        /* Image Viewer */
+        .loading-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+            background-size: 200% 100%;
+            animation: gradient 2s ease infinite;
+            transition: width 0.3s ease;
+        }
+
+        .action-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px;
+            padding-bottom: calc(16px + var(--safe-bottom));
+            background: linear-gradient(to top, var(--bg) 0%, var(--bg) 80%, transparent 100%);
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
+        .steps {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px;
+            flex-shrink: 0;
+        }
+        
+        .step {
+            width: 8px;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .step.active {
+            width: 28px;
+            background: var(--primary);
+        }
+        
+        .step.done { background: var(--success); }
+
         .viewer {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.98);
-            z-index: 2500;
+            background: rgba(0,0,0,0.95);
+            z-index: 9997;
             display: none;
             flex-direction: column;
         }
         
-        .viewer.show {
-            display: flex;
-        }
+        .viewer.show { display: flex; }
         
         .viewer-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 16px;
+            padding-top: calc(16px + var(--safe-top));
+            background: rgba(0,0,0,0.5);
+            flex-shrink: 0;
         }
         
         .viewer-content {
@@ -708,7 +646,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 16px;
+            padding: 20px;
+            overflow: hidden;
         }
         
         .viewer-content img {
@@ -729,1010 +668,859 @@
             border-radius: 50%;
             color: white;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
         }
         
         .viewer-nav.prev { left: 12px; }
         .viewer-nav.next { right: 12px; }
-        
-        /* Action Bar */
-        .action-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 16px;
-            padding-bottom: max(16px, env(safe-area-inset-bottom));
-            background: linear-gradient(to top, var(--bg-dark) 0%, var(--bg-dark) 80%, transparent 100%);
-            display: flex;
-            gap: 12px;
-            z-index: 100;
-        }
-        
-        /* Step Dots */
-        .steps {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            padding: 20px;
-        }
-        
-        .step {
-            width: 8px;
-            height: 8px;
-            border-radius: 4px;
-            background: rgba(255,255,255,0.2);
-            transition: all 0.3s;
-        }
-        
-        .step.active {
-            background: var(--gradient-1);
-            width: 28px;
-        }
-        
-        .step.done {
-            background: var(--success);
-        }
-        
-        /* Debug Console */
-        .console {
-            background: rgba(0,0,0,0.8);
-            border-radius: 12px;
-            padding: 12px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.7rem;
-            color: #0f0;
-            max-height: 120px;
-            overflow-y: auto;
-            margin-top: 12px;
-            border: 1px solid rgba(0,255,0,0.2);
-        }
-        
-        .console .error { color: #f55; }
-        .console .warn { color: #fa0; }
-        .console .info { color: #0af; }
-        
-        /* Header */
-        .header {
-            padding: 16px 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .header-back {
-            width: 44px;
-            height: 44px;
-            border-radius: 14px;
-            background: rgba(255,255,255,0.05);
-            border: none;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-        
-        .header-title {
+
+        .scroll-area {
             flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
-        .header-title h2 {
-            font-size: 1.2rem;
-            font-weight: 700;
-        }
-        
-        .header-title p {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-        
-        /* Scrollbar */
+        .flex-1 { flex: 1; }
+        .w-full { width: 100%; }
+        .text-center { text-align: center; }
+        .font-bold { font-weight: 700; }
+        .text-xs { font-size: 0.75rem; }
+        .text-sm { font-size: 0.875rem; }
+        .text-lg { font-size: 1.125rem; }
+        .text-xl { font-size: 1.25rem; }
+        .text-2xl { font-size: 1.5rem; }
+        .text-3xl { font-size: 1.875rem; }
+        .text-muted { color: var(--text-muted); }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 0.75rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-4 { margin-top: 1rem; }
+        .mt-6 { margin-top: 1.5rem; }
+        .p-4 { padding: 1rem; }
+        .p-6 { padding: 1.5rem; }
+        .px-4 { padding-left: 1rem; padding-right: 1rem; }
+        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-3 { gap: 0.75rem; }
+        .gap-4 { gap: 1rem; }
+        .space-y-3 > * + * { margin-top: 0.75rem; }
+        .space-y-4 > * + * { margin-top: 1rem; }
+        .hidden { display: none !important; }
+        .pb-24 { padding-bottom: 6rem; }
+        .pb-32 { padding-bottom: 8rem; }
+
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
-        
-        /* Content spacing */
-        .content {
-            flex: 1;
-            padding: 0 20px 120px;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+
+        @media (max-width: 360px) {
+            .gallery { grid-template-columns: repeat(2, 1fr); }
+            .layout-grid { grid-template-columns: repeat(3, 1fr); }
+            .btn { padding: 14px 20px; font-size: 0.95rem; }
         }
-        
-        .section-title {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        /* Confetti Animation */
-        @keyframes confetti {
-            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-        }
-        
-        .confetti {
-            position: fixed;
-            width: 10px;
-            height: 10px;
-            top: -10px;
-            animation: confetti 3s ease-out forwards;
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Background Animation -->
-    <div class="bg-animation">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
-    </div>
+    <div id="app">
+        <div class="bg-pattern"></div>
 
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
-        <div class="loader"></div>
-        <p id="loadingText" class="text-lg">جاري التحميل...</p>
-        <div id="loadingBar" class="w-64 h-2 bg-white/10 rounded-full overflow-hidden" style="display: none;">
-            <div id="loadingProgress" class="h-full rounded-full transition-all" style="width: 0%; background: var(--gradient-1);"></div>
+        <!-- Loading Overlay -->
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p id="loading-text" class="text-lg">جاري التحميل...</p>
+            <div class="loading-bar">
+                <div id="loading-fill" class="loading-bar-fill" style="width: 0%"></div>
+            </div>
         </div>
-        <p id="loadingDetail" class="text-sm text-white/50"></p>
-    </div>
 
-    <!-- Image Viewer -->
-    <div id="imageViewer" class="viewer">
-        <div class="viewer-header">
-            <button onclick="closeViewer()" class="btn btn-glass btn-icon">
-                <span class="material-icons-round">close</span>
+        <!-- Image Viewer -->
+        <div id="viewer" class="viewer">
+            <div class="viewer-header">
+                <button onclick="closeViewer()" class="btn btn-icon" style="background:rgba(255,255,255,0.1)">
+                    <span class="material-icons-round">close</span>
+                </button>
+                <span id="viewer-count" class="text-sm font-bold">1/10</span>
+                <button onclick="toggleViewerSel()" id="viewer-btn" class="btn btn-icon" style="background:var(--success)">
+                    <span class="material-icons-round" id="viewer-icon">check</span>
+                </button>
+            </div>
+            <div class="viewer-content">
+                <img id="viewer-img" src="" alt="Preview">
+            </div>
+            <button class="viewer-nav prev" onclick="viewerPrev()">
+                <span class="material-icons-round">chevron_right</span>
             </button>
-            <span id="viewerCounter" class="font-medium">1/10</span>
-            <button onclick="toggleViewerSelect()" id="viewerToggle" class="btn btn-icon" style="background: var(--success);">
-                <span class="material-icons-round" id="viewerToggleIcon">check</span>
+            <button class="viewer-nav next" onclick="viewerNext()">
+                <span class="material-icons-round">chevron_left</span>
             </button>
         </div>
-        <div class="viewer-content">
-            <img id="viewerImage" src="" alt="">
-        </div>
-        <button class="viewer-nav prev" onclick="viewerPrev()">
-            <span class="material-icons-round">chevron_right</span>
-        </button>
-        <button class="viewer-nav next" onclick="viewerNext()">
-            <span class="material-icons-round">chevron_left</span>
-        </button>
-        <div class="p-4 text-center">
-            <p id="viewerInfo" class="text-sm text-white/50"></p>
-        </div>
-    </div>
 
-    <!-- Snackbar -->
-    <div id="snackbar" class="snackbar">
-        <span class="material-icons-round" id="snackbarIcon">info</span>
-        <span id="snackbarText">رسالة</span>
-    </div>
+        <!-- Toast -->
+        <div id="toast" class="toast">
+            <span class="material-icons-round" id="toast-icon">info</span>
+            <span id="toast-text">رسالة</span>
+        </div>
 
-    <!-- ========== PAGE: WELCOME ========== -->
-    <div id="pageWelcome" class="page active">
-        <div class="flex-1 flex flex-col items-center justify-center p-6">
-            <div class="text-center mb-10">
-                <div class="hero-icon">
-                    <span class="material-icons-round">auto_fix_high</span>
+        <!-- Page: Welcome -->
+        <div id="page-welcome" class="page active">
+            <div class="scroll-area" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
+                <div class="icon-circle mb-6">
+                    <span class="material-icons-round" style="font-size:50px;color:white;">auto_awesome</span>
                 </div>
-                <h1 class="text-3xl font-black mb-2">
-                    <span style="background: var(--gradient-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">PDF Studio</span>
-                </h1>
-                <p class="text-lg text-white/60 mb-1">محول الصور الذكي</p>
-                <p class="text-sm text-white/40">الإصدار 7.0 Pro</p>
+                
+                <h1 class="text-2xl font-bold mb-2 text-gradient">PDF Maker Pro</h1>
+                <p class="text-muted mb-2">تحويل الصور إلى PDF احترافي</p>
+                <p class="text-xs text-muted mb-6">الإصدار 7.0 - Mohamed Elherd</p>
+                
+                <div class="w-full space-y-3" style="max-width:320px;">
+                    <button onclick="startPDF()" class="btn btn-primary w-full">
+                        <span class="material-icons-round">picture_as_pdf</span>
+                        استخراج من PDF
+                    </button>
+                    <button onclick="startImages()" class="btn btn-secondary w-full">
+                        <span class="material-icons-round">photo_library</span>
+                        اختيار صور
+                    </button>
+                </div>
+                
+                <div class="card card-gradient mt-6 w-full" style="max-width:320px;">
+                    <div style="display:flex;gap:12px;align-items:flex-start;">
+                        <span class="material-icons-round" style="color:var(--primary);flex-shrink:0;">tips_and_updates</span>
+                        <div>
+                            <p class="font-bold text-sm mb-2">المميزات:</p>
+                            <ul class="text-xs text-muted" style="list-style:none;display:flex;flex-direction:column;gap:4px;">
+                                <li>✓ استخراج الصور من ملفات PDF</li>
+                                <li>✓ إزالة التكرارات والشعارات تلقائياً</li>
+                                <li>✓ 6 تخطيطات مختلفة للصفحة</li>
+                                <li>✓ حفظ ومشاركة مباشرة</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <p id="platform-info" class="text-xs text-muted mt-4"></p>
             </div>
             
-            <div class="w-full max-w-sm space-y-4">
-                <button onclick="startPDF()" class="btn btn-primary w-full">
+            <div class="steps">
+                <div class="step active"></div>
+                <div class="step"></div>
+                <div class="step"></div>
+                <div class="step"></div>
+            </div>
+        </div>
+
+        <!-- Page: File -->
+        <div id="page-file" class="page">
+            <div class="header">
+                <button onclick="goTo('welcome')" style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.8);background:none;border:none;cursor:pointer;font-size:1rem;">
+                    <span class="material-icons-round">arrow_forward</span>
+                    رجوع
+                </button>
+                <h2 class="text-xl font-bold mt-4" id="file-title">اختر ملف PDF</h2>
+                <p class="text-sm" style="color:rgba(255,255,255,0.7);" id="file-subtitle">سيتم استخراج الصور تلقائياً</p>
+            </div>
+            
+            <div class="scroll-area p-4 pb-32" style="margin-top:-20px;">
+                <div id="drop-zone" class="drop-zone" onclick="pickFile()">
+                    <div class="icon-circle mb-4" style="width:70px;height:70px;animation:none;">
+                        <span class="material-icons-round" style="font-size:32px;color:white;" id="file-icon">upload_file</span>
+                    </div>
+                    <p class="font-bold" id="file-name">اضغط للاختيار</p>
+                    <p class="text-sm text-muted" id="file-size">PDF أو صور</p>
+                </div>
+                
+                <input type="file" id="input-pdf" accept=".pdf,application/pdf" hidden>
+                <input type="file" id="input-images" accept="image/*" multiple hidden>
+                
+                <div id="stats-section" class="hidden mt-6">
+                    <div class="stats-grid mb-4">
+                        <div class="stat-card">
+                            <div class="stat-value" id="s-total">0</div>
+                            <div class="stat-label">إجمالي الصور</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color:var(--success)" id="s-valid">0</div>
+                            <div class="stat-label">صور صالحة</div>
+                        </div>
+                    </div>
+                    <button onclick="goTo('gallery')" class="btn btn-primary w-full">
+                        <span class="material-icons-round">visibility</span>
+                        معاينة وتخصيص
+                    </button>
+                </div>
+            </div>
+            
+            <div class="steps">
+                <div class="step done"></div>
+                <div class="step active"></div>
+                <div class="step"></div>
+                <div class="step"></div>
+            </div>
+        </div>
+
+        <!-- Page: Gallery -->
+        <div id="page-gallery" class="page">
+            <div class="header" style="padding-bottom:12px;border-radius:0;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <button onclick="goTo('file')" style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.8);background:none;border:none;cursor:pointer;">
+                        <span class="material-icons-round">arrow_forward</span>
+                    </button>
+                    <span id="sel-count" class="text-sm font-bold">0 صورة محددة</span>
+                </div>
+            </div>
+            
+            <div class="tabs" style="background:var(--bg-card);">
+                <button class="tab active" data-f="all" onclick="filter('all')">الكل <span id="f-all">0</span></button>
+                <button class="tab" data-f="valid" onclick="filter('valid')">صالحة <span id="f-valid">0</span></button>
+                <button class="tab" data-f="dup" onclick="filter('dup')">مكررة <span id="f-dup">0</span></button>
+                <button class="tab" data-f="logo" onclick="filter('logo')">شعارات <span id="f-logo">0</span></button>
+            </div>
+            
+            <div class="scroll-area pb-24">
+                <div id="gallery" class="gallery"></div>
+                <div id="gallery-empty" class="hidden text-center p-6 text-muted">
+                    <span class="material-icons-round" style="font-size:48px;">image_not_supported</span>
+                    <p class="mt-4">لا توجد صور في هذا التصنيف</p>
+                </div>
+            </div>
+            
+            <div class="action-bar">
+                <button onclick="selectAll()" class="btn btn-secondary flex-1">
+                    <span class="material-icons-round">select_all</span>
+                    تحديد الكل
+                </button>
+                <button onclick="goTo('settings')" class="btn btn-primary flex-1">
+                    التالي
+                    <span class="material-icons-round">arrow_back</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Page: Settings -->
+        <div id="page-settings" class="page">
+            <div class="header">
+                <button onclick="goTo('gallery')" style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.8);background:none;border:none;cursor:pointer;font-size:1rem;">
+                    <span class="material-icons-round">arrow_forward</span>
+                    رجوع
+                </button>
+                <h2 class="text-xl font-bold mt-4">الإعدادات النهائية</h2>
+            </div>
+            
+            <div class="scroll-area p-4 pb-32" style="margin-top:-20px;">
+                <p class="text-sm text-muted mb-3">عدد الصور في كل صفحة</p>
+                <div class="layout-grid mb-6" id="layouts"></div>
+                
+                <div class="card mb-4">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span class="text-muted">عدد الصفحات المتوقع:</span>
+                        <span class="text-2xl font-bold text-gradient" id="pages-count">0</span>
+                    </div>
+                </div>
+                
+                <p class="text-sm text-muted mb-2">اسم الملف</p>
+                <input type="text" id="filename" class="input mb-4" placeholder="lesson_images">
+                
+                <div class="toggle-item mb-4" onclick="toggleAuto()">
+                    <span>تحميل تلقائي بعد الإنشاء</span>
+                    <div id="auto-toggle" class="toggle-switch active"></div>
+                </div>
+                
+                <div class="card card-gradient">
+                    <p class="font-bold text-sm mb-3">ملخص العملية</p>
+                    <div class="space-y-2 text-sm">
+                        <div style="display:flex;justify-content:space-between;">
+                            <span class="text-muted">الصور المحددة:</span>
+                            <span style="color:var(--success)" id="sum-sel">0</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;">
+                            <span class="text-muted">الصور المستبعدة:</span>
+                            <span class="text-muted" id="sum-exc">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-bar">
+                <button onclick="createPDF()" class="btn btn-success flex-1" id="create-btn">
                     <span class="material-icons-round">picture_as_pdf</span>
-                    استخراج من PDF
-                </button>
-                <button onclick="startImages()" class="btn btn-secondary w-full">
-                    <span class="material-icons-round">photo_library</span>
-                    اختيار صور
+                    إنشاء PDF
                 </button>
             </div>
-            
-            <div class="glass mt-10 p-5 max-w-sm w-full">
-                <div class="flex gap-4">
-                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style="background: var(--gradient-5);">
-                        <span class="material-icons-round text-white">bolt</span>
-                    </div>
-                    <div>
-                        <h3 class="font-bold mb-2">مميزات v7.0</h3>
-                        <ul class="text-sm text-white/60 space-y-1">
-                            <li>⚡ محرك جديد كلياً</li>
-                            <li>🔥 حل مشكلة الصفحات الفارغة</li>
-                            <li>📱 متوافق مع جميع الأجهزة</li>
-                            <li>✨ تصميم عصري</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            
-            <p id="deviceInfo" class="text-xs text-white/30 mt-6"></p>
         </div>
-        
-        <div class="steps">
-            <div class="step active"></div>
-            <div class="step"></div>
-            <div class="step"></div>
-            <div class="step"></div>
-        </div>
-    </div>
 
-    <!-- ========== PAGE: FILE SELECT ========== -->
-    <div id="pageFile" class="page">
-        <div class="header" style="background: var(--gradient-1); border-radius: 0 0 32px 32px; padding-bottom: 32px;">
-            <button class="header-back" onclick="goTo('Welcome')">
-                <span class="material-icons-round">arrow_forward</span>
-            </button>
-            <div class="header-title">
-                <h2 id="fileTitle">اختر ملف PDF</h2>
-                <p id="fileSubtitle">سيتم استخراج الصور</p>
-            </div>
-        </div>
-        
-        <div class="content" style="margin-top: -20px;">
-            <div id="dropZone" class="drop-zone glass" onclick="triggerInput()">
-                <div class="drop-zone-icon">
-                    <span class="material-icons-round text-3xl" style="color: var(--primary-light);" id="dropIcon">cloud_upload</span>
-                </div>
-                <p class="font-bold text-lg mb-1" id="dropLabel">اضغط للاختيار</p>
-                <p class="text-sm text-white/50" id="dropHint">أو اسحب الملف هنا</p>
-            </div>
-            
-            <input type="file" id="inputPDF" accept=".pdf,application/pdf" hidden>
-            <input type="file" id="inputImages" accept="image/*" multiple hidden>
-            
-            <!-- Stats after file load -->
-            <div id="statsSection" class="hidden mt-6">
-                <div class="stats-grid mb-5">
-                    <div class="stat-card">
-                        <div class="stat-value" id="statTotal">0</div>
-                        <div class="stat-label">إجمالي</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="statValid">0</div>
-                        <div class="stat-label">صالحة</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="statFiltered">0</div>
-                        <div class="stat-label">مستبعدة</div>
-                    </div>
-                </div>
-                
-                <button onclick="goTo('Gallery')" class="btn btn-primary w-full">
-                    <span class="material-icons-round">visibility</span>
-                    معاينة الصور
-                </button>
-                
-                <div id="debugConsole" class="console hidden"></div>
-            </div>
-        </div>
-        
-        <div class="steps">
-            <div class="step done"></div>
-            <div class="step active"></div>
-            <div class="step"></div>
-            <div class="step"></div>
-        </div>
-    </div>
-
-    <!-- ========== PAGE: GALLERY ========== -->
-    <div id="pageGallery" class="page">
-        <div class="header" style="background: var(--gradient-1); border-radius: 0 0 32px 32px;">
-            <button class="header-back" onclick="goTo('File')">
-                <span class="material-icons-round">arrow_forward</span>
-            </button>
-            <div class="header-title">
-                <h2>معاينة الصور</h2>
-                <p><span id="selectedCount">0</span> صورة محددة</p>
-            </div>
-        </div>
-        
-        <div class="tabs" style="margin-top: -16px;">
-            <button class="tab active" data-f="all" onclick="filterBy('all')">الكل <span id="cAll">0</span></button>
-            <button class="tab" data-f="valid" onclick="filterBy('valid')">صالحة <span id="cValid">0</span></button>
-            <button class="tab" data-f="dup" onclick="filterBy('dup')">مكررة <span id="cDup">0</span></button>
-            <button class="tab" data-f="logo" onclick="filterBy('logo')">شعارات <span id="cLogo">0</span></button>
-        </div>
-        
-        <div class="flex-1 overflow-auto">
-            <div id="gallery" class="gallery"></div>
-            <div id="emptyGallery" class="hidden text-center py-16 text-white/40">
-                <span class="material-icons-round text-5xl mb-3">image_not_supported</span>
-                <p>لا توجد صور</p>
-            </div>
-        </div>
-        
-        <div class="action-bar">
-            <button onclick="selectAll()" class="btn btn-glass flex-1">
-                <span class="material-icons-round">select_all</span>
-                تحديد الكل
-            </button>
-            <button onclick="goTo('Layout')" class="btn btn-primary flex-1">
-                التالي
-                <span class="material-icons-round">arrow_back</span>
-            </button>
-        </div>
-        
-        <div class="steps" style="margin-bottom: 80px;">
-            <div class="step done"></div>
-            <div class="step done"></div>
-            <div class="step active"></div>
-            <div class="step"></div>
-        </div>
-    </div>
-
-    <!-- ========== PAGE: LAYOUT & SETTINGS ========== -->
-    <div id="pageLayout" class="page">
-        <div class="header" style="background: var(--gradient-1); border-radius: 0 0 32px 32px; padding-bottom: 32px;">
-            <button class="header-back" onclick="goTo('Gallery')">
-                <span class="material-icons-round">arrow_forward</span>
-            </button>
-            <div class="header-title">
-                <h2>الإعدادات</h2>
-                <p>اختر التخطيط والاسم</p>
-            </div>
-        </div>
-        
-        <div class="content" style="margin-top: -20px;">
-            <p class="section-title">
-                <span class="material-icons-round text-sm">grid_view</span>
-                صور في الصفحة
-            </p>
-            <div class="layout-grid mb-6" id="layoutGrid"></div>
-            
-            <div class="card mb-5">
-                <div class="flex justify-between items-center">
-                    <span class="text-white/60">عدد الصفحات</span>
-                    <span class="text-3xl font-black" style="background: var(--gradient-3); -webkit-background-clip: text; -webkit-text-fill-color: transparent;" id="pagesCount">0</span>
-                </div>
-            </div>
-            
-            <p class="section-title">
-                <span class="material-icons-round text-sm">edit</span>
-                اسم الملف
-            </p>
-            <input type="text" id="fileName" placeholder="lesson_images" class="mb-5">
-            
-            <div class="checkbox-row checked" id="autoDownload" onclick="toggleAuto()">
-                <div class="checkbox-box">
-                    <span class="material-icons-round text-white text-sm">check</span>
-                </div>
-                <span>تحميل تلقائي</span>
-            </div>
-            
-            <div class="card mt-5">
-                <p class="section-title mb-3">
-                    <span class="material-icons-round text-sm">summarize</span>
-                    ملخص
-                </p>
-                <div class="flex justify-between text-sm mb-2">
-                    <span class="text-white/50">صور محددة</span>
-                    <span class="font-bold text-green-400" id="sumSelected">0</span>
-                </div>
-                <div class="flex justify-between text-sm">
-                    <span class="text-white/50">مستبعدة</span>
-                    <span class="font-bold text-white/40" id="sumExcluded">0</span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="action-bar">
-            <button onclick="createPDF()" class="btn btn-success flex-1" id="createBtn">
-                <span class="material-icons-round">auto_awesome</span>
-                إنشاء PDF
-            </button>
-        </div>
-        
-        <div class="steps" style="margin-bottom: 80px;">
-            <div class="step done"></div>
-            <div class="step done"></div>
-            <div class="step done"></div>
-            <div class="step active"></div>
-        </div>
-    </div>
-
-    <!-- ========== PAGE: PROCESSING ========== -->
-    <div id="pageProcessing" class="page">
-        <div class="flex-1 flex flex-col items-center justify-center p-6">
-            <div class="progress-container">
-                <div class="progress-ring">
-                    <svg width="200" height="200">
+        <!-- Page: Processing -->
+        <div id="page-processing" class="page">
+            <div class="scroll-area" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
+                <div class="progress-container mb-6">
+                    <svg class="progress-ring" width="200" height="200" viewBox="0 0 200 200">
                         <defs>
-                            <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" stop-color="#667eea"/>
                                 <stop offset="50%" stop-color="#764ba2"/>
                                 <stop offset="100%" stop-color="#f093fb"/>
                             </linearGradient>
                         </defs>
-                        <circle class="bg" cx="100" cy="100" r="90"/>
-                        <circle class="bar" cx="100" cy="100" r="90" 
-                                stroke-dasharray="565.48" 
-                                stroke-dashoffset="565.48"
-                                id="progressCircle"/>
+                        <circle class="bg" cx="100" cy="100" r="88"/>
+                        <circle class="progress" cx="100" cy="100" r="88" stroke-dasharray="553" stroke-dashoffset="553" id="prog-circle"/>
                     </svg>
                     <div class="progress-text">
-                        <span class="progress-percent" id="progressPercent">0%</span>
-                        <span class="progress-label" id="progressLabel">جاري الإنشاء</span>
+                        <span class="text-3xl font-bold" id="prog-pct">0%</span>
+                        <span class="text-xs text-muted" id="prog-status">جاري الإعداد...</span>
+                    </div>
+                </div>
+                
+                <h2 class="text-lg font-bold mb-4">جاري إنشاء PDF</h2>
+                
+                <div class="stats-grid w-full" style="max-width:280px;">
+                    <div class="stat-card">
+                        <div class="stat-value text-xl" id="p-images">0</div>
+                        <div class="stat-label">صورة</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value text-xl" id="p-pages">0</div>
+                        <div class="stat-label">صفحة</div>
                     </div>
                 </div>
             </div>
-            
-            <div class="stats-grid w-full max-w-xs mt-8">
-                <div class="stat-card">
-                    <div class="stat-value" id="procImages">0</div>
-                    <div class="stat-label">صورة</div>
+        </div>
+
+        <!-- Page: Result -->
+        <div id="page-result" class="page">
+            <div class="scroll-area p-6">
+                <div class="text-center mb-6">
+                    <div class="icon-circle success mb-4" style="width:90px;height:90px;">
+                        <span class="material-icons-round" style="font-size:45px;color:white;">check_circle</span>
+                    </div>
+                    <h1 class="text-xl font-bold mb-2">تم بنجاح! 🎉</h1>
+                    <p class="text-muted text-sm">ملف PDF جاهز للتحميل</p>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="procPages">0</div>
-                    <div class="stat-label">صفحة</div>
+                
+                <div class="stats-grid mb-6">
+                    <div class="stat-card">
+                        <div class="stat-value" id="r-images">0</div>
+                        <div class="stat-label">صورة</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="r-pages">0</div>
+                        <div class="stat-label">صفحة</div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="procErrors">0</div>
-                    <div class="stat-label">أخطاء</div>
+                
+                <div class="space-y-3">
+                    <button onclick="download()" class="btn btn-primary w-full">
+                        <span class="material-icons-round">download</span>
+                        تحميل PDF
+                    </button>
+                    
+                    <button onclick="share()" class="btn btn-secondary w-full">
+                        <span class="material-icons-round">share</span>
+                        مشاركة
+                    </button>
+                    
+                    <button onclick="preview()" class="btn btn-secondary w-full" style="border-color:var(--success);color:var(--success);">
+                        <span class="material-icons-round">visibility</span>
+                        معاينة في المتصفح
+                    </button>
+                    
+                    <button onclick="restart()" class="btn btn-secondary w-full">
+                        <span class="material-icons-round">refresh</span>
+                        بدء عملية جديدة
+                    </button>
                 </div>
+                
+                <p class="text-center text-xs text-muted mt-6">
+                    PDF Maker Pro v7.0<br>
+                    صُنع بـ ❤️ بواسطة Mohamed Elherd
+                </p>
             </div>
-            
-            <div id="procConsole" class="console w-full max-w-xs mt-6"></div>
         </div>
     </div>
 
-    <!-- ========== PAGE: RESULT ========== -->
-    <div id="pageResult" class="page">
-        <div class="flex-1 flex flex-col items-center justify-center p-6">
-            <div class="text-center mb-8">
-                <div class="hero-icon mb-6" style="background: var(--gradient-4);">
-                    <span class="material-icons-round">task_alt</span>
-                </div>
-                <h1 class="text-2xl font-black mb-2">تم بنجاح! 🎉</h1>
-                <p class="text-white/60">ملف PDF جاهز للتحميل</p>
-            </div>
-            
-            <div class="stats-grid w-full max-w-xs mb-8">
-                <div class="stat-card">
-                    <div class="stat-value" id="resImages">0</div>
-                    <div class="stat-label">صورة</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="resPages">0</div>
-                    <div class="stat-label">صفحة</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="resSize">0</div>
-                    <div class="stat-label">حجم MB</div>
-                </div>
-            </div>
-            
-            <div class="w-full max-w-sm space-y-3">
-                <button onclick="downloadResult()" class="btn btn-primary w-full">
-                    <span class="material-icons-round">download</span>
-                    تحميل PDF
-                </button>
-                
-                <button onclick="shareResult()" class="btn btn-secondary w-full">
-                    <span class="material-icons-round">share</span>
-                    مشاركة
-                </button>
-                
-                <button onclick="previewResult()" class="btn btn-glass w-full">
-                    <span class="material-icons-round">visibility</span>
-                    معاينة
-                </button>
-                
-                <button onclick="startOver()" class="btn btn-glass w-full">
-                    <span class="material-icons-round">refresh</span>
-                    بدء جديد
-                </button>
-            </div>
-            
-            <p class="text-xs text-white/30 mt-10">PDF Studio v7.0 • Mohamed Elherd</p>
-        </div>
-    </div>
-
-    <!-- jsPDF Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    
     <script>
-        // ============================================================
-        // CONFIGURATION
-        // ============================================================
-        const CONFIG = {
-            MAX_IMG_SIZE: 500, // Smaller for reliability
-            JPEG_QUALITY: 0.6, // Lower for smaller files
-            MIN_SIZE: 50,
-            LOGO_MAX_SIZE: 30000,
-            HASH_SIZE: 8,
-            LAYOUTS: {
-                2: { cols: 1, rows: 2 },
-                4: { cols: 2, rows: 2 },
-                6: { cols: 2, rows: 3 },
-                9: { cols: 3, rows: 3 },
-                12: { cols: 3, rows: 4 },
-                16: { cols: 4, rows: 4 }
-            }
-        };
-
-        // Device detection
-        const IS_MOBILE = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-        const IS_WEBVIEW = /(wv|WebView)/i.test(navigator.userAgent) || window.navigator.standalone;
-
-        // ============================================================
-        // STATE
-        // ============================================================
-        const state = {
-            mode: 'pdf',
-            images: [],
-            selected: new Set(),
-            categories: { valid: [], dup: [], logo: [] },
-            layout: 6,
-            autoDownload: true,
-            filter: 'all',
-            viewerIdx: 0,
-            viewerList: [],
-            pdfBlob: null,
-            fileName: 'lesson_images'
-        };
-
-        // ============================================================
-        // CONSOLE LOGGING
-        // ============================================================
-        const logs = [];
-        function log(msg, type = 'info') {
-            const entry = `[${new Date().toLocaleTimeString()}] ${msg}`;
-            logs.push({ msg: entry, type });
-            console.log(entry);
-            
-            // Update visible consoles
-            ['debugConsole', 'procConsole'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    el.innerHTML = logs.slice(-15).map(l => 
-                        `<div class="${l.type}">${l.msg}</div>`
-                    ).join('');
-                    el.scrollTop = el.scrollHeight;
+        // =====================================================
+        // SERVICE WORKER REGISTRATION
+        // =====================================================
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    const registration = await navigator.serviceWorker.register('sw.js');
+                    console.log('SW registered:', registration.scope);
+                } catch (error) {
+                    console.log('SW registration failed:', error);
                 }
             });
         }
 
-        // ============================================================
+        // =====================================================
+        // CONFIGURATION
+        // =====================================================
+        const CFG = {
+            MIN: 50,
+            MAX_LOGO: 30000,
+            HASH: 8,
+            SIM: 0.88,
+            IMG_MAX: 600,
+            QUALITY: 0.65,
+            LAYOUTS: {
+                2: {c:1, r:2},
+                4: {c:2, r:2},
+                6: {c:2, r:3},
+                9: {c:3, r:3},
+                12: {c:3, r:4},
+                16: {c:4, r:4}
+            }
+        };
+
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768;
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+        // =====================================================
+        // STATE
+        // =====================================================
+        const S = {
+            mode: 'pdf',
+            images: [],
+            selected: new Set(),
+            cats: {valid:[], dup:[], logo:[]},
+            layout: 6,
+            autoDown: true,
+            filter: 'all',
+            vIdx: 0,
+            vImgs: [],
+            blob: null,
+            name: 'images',
+            stats: {images:0, pages:0}
+        };
+
+        // =====================================================
         // INIT
-        // ============================================================
+        // =====================================================
         document.addEventListener('DOMContentLoaded', () => {
-            // PDF.js worker
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
             
-            // Setup file inputs
-            document.getElementById('inputPDF').addEventListener('change', handlePDF);
-            document.getElementById('inputImages').addEventListener('change', handleImages);
+            initLayouts();
+            setupDragDrop();
             
-            // Build layout grid
-            buildLayoutGrid();
+            document.getElementById('input-pdf').onchange = handlePDF;
+            document.getElementById('input-images').onchange = handleImages;
             
-            // Device info
-            const info = `${IS_MOBILE ? '📱' : '💻'} ${IS_WEBVIEW ? 'WebView' : 'Browser'}`;
-            document.getElementById('deviceInfo').textContent = info;
-            log(`Initialized: ${info}`);
+            // Platform info
+            let platform = isMobile ? '📱 Mobile' : '💻 Desktop';
+            if (isStandalone) platform += ' (PWA)';
+            if (isIOS) platform += ' iOS';
+            document.getElementById('platform-info').textContent = platform;
         });
 
-        // ============================================================
+        function setupDragDrop() {
+            const zone = document.getElementById('drop-zone');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(event => {
+                zone.addEventListener(event, e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                });
+            });
+            
+            ['dragenter', 'dragover'].forEach(event => {
+                zone.addEventListener(event, () => zone.classList.add('dragover'));
+            });
+            
+            ['dragleave', 'drop'].forEach(event => {
+                zone.addEventListener(event, () => zone.classList.remove('dragover'));
+            });
+            
+            zone.addEventListener('drop', e => {
+                const files = e.dataTransfer.files;
+                if (files.length) {
+                    if (S.mode === 'pdf' && files[0].type === 'application/pdf') {
+                        document.getElementById('input-pdf').files = files;
+                        handlePDF({target: {files}});
+                    } else if (S.mode === 'images') {
+                        document.getElementById('input-images').files = files;
+                        handleImages({target: {files}});
+                    }
+                }
+            });
+        }
+
+        // =====================================================
         // NAVIGATION
-        // ============================================================
+        // =====================================================
         function goTo(page) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(`page${page}`).classList.add('active');
+            document.getElementById('page-' + page).classList.add('active');
             
-            if (page === 'Gallery') {
-                renderGallery();
-                updateCounts();
-            } else if (page === 'Layout') {
-                updateLayoutInfo();
-            }
+            if (page === 'gallery') { renderGallery(); updateCount(); }
+            if (page === 'settings') updateSettings();
         }
 
         function startPDF() {
-            state.mode = 'pdf';
-            document.getElementById('fileTitle').textContent = 'اختر ملف PDF';
-            document.getElementById('fileSubtitle').textContent = 'سيتم استخراج الصور';
-            document.getElementById('dropIcon').textContent = 'picture_as_pdf';
-            resetState();
-            goTo('File');
+            S.mode = 'pdf';
+            document.getElementById('file-title').textContent = 'اختر ملف PDF';
+            document.getElementById('file-subtitle').textContent = 'سيتم استخراج الصور تلقائياً';
+            document.getElementById('file-icon').textContent = 'picture_as_pdf';
+            reset();
+            goTo('file');
         }
 
         function startImages() {
-            state.mode = 'images';
-            document.getElementById('fileTitle').textContent = 'اختر الصور';
-            document.getElementById('fileSubtitle').textContent = 'صور متعددة';
-            document.getElementById('dropIcon').textContent = 'photo_library';
-            resetState();
-            goTo('File');
+            S.mode = 'images';
+            document.getElementById('file-title').textContent = 'اختر الصور';
+            document.getElementById('file-subtitle').textContent = 'اختر صورة واحدة أو أكثر';
+            document.getElementById('file-icon').textContent = 'photo_library';
+            reset();
+            goTo('file');
         }
 
-        function resetState() {
-            state.images = [];
-            state.selected = new Set();
-            state.categories = { valid: [], dup: [], logo: [] };
-            state.pdfBlob = null;
-            document.getElementById('statsSection').classList.add('hidden');
-            document.getElementById('dropLabel').textContent = 'اضغط للاختيار';
-            document.getElementById('dropHint').textContent = 'أو اسحب الملف هنا';
-            logs.length = 0;
+        function reset() {
+            S.images = [];
+            S.selected = new Set();
+            S.cats = {valid:[], dup:[], logo:[]};
+            S.blob = null;
+            document.getElementById('stats-section').classList.add('hidden');
+            document.getElementById('file-name').textContent = 'اضغط للاختيار';
+            document.getElementById('file-size').textContent = 'PDF أو صور';
         }
 
-        // ============================================================
+        function pickFile() {
+            document.getElementById(S.mode === 'pdf' ? 'input-pdf' : 'input-images').click();
+        }
+
+        // =====================================================
         // FILE HANDLING
-        // ============================================================
-        function triggerInput() {
-            document.getElementById(state.mode === 'pdf' ? 'inputPDF' : 'inputImages').click();
-        }
-
+        // =====================================================
         async function handlePDF(e) {
             const file = e.target.files[0];
             if (!file) return;
             
-            state.fileName = file.name.replace('.pdf', '') + '_images';
-            document.getElementById('dropLabel').textContent = file.name;
-            document.getElementById('dropHint').textContent = formatSize(file.size);
-            document.getElementById('dropZone').classList.add('processing');
-            document.getElementById('debugConsole').classList.remove('hidden');
+            S.name = file.name.replace('.pdf', '');
+            document.getElementById('file-name').textContent = file.name;
+            document.getElementById('file-size').textContent = formatSize(file.size);
+            document.getElementById('drop-zone').classList.add('processing');
             
-            showLoading('جاري الاستخراج...');
-            log(`Opening: ${file.name}`);
+            showLoad('جاري استخراج الصور...');
             
             try {
-                // Try embedded images first
-                let images = await extractEmbedded(file);
+                let imgs = await extractPDF(file);
                 
-                // Fallback to page rendering
-                if (images.length === 0) {
-                    log('No embedded images, rendering pages...', 'warn');
-                    updateLoading('تحويل الصفحات...');
-                    images = await renderPages(file);
+                if (imgs.length === 0) {
+                    updateLoad('جاري تحويل الصفحات...');
+                    imgs = await renderPages(file);
                 }
                 
-                if (images.length === 0) {
-                    throw new Error('لم يتم العثور على صور');
+                if (imgs.length === 0) {
+                    hideLoad();
+                    toast('لم يتم العثور على صور', 'error');
+                    document.getElementById('drop-zone').classList.remove('processing');
+                    return;
                 }
                 
-                state.images = images;
-                log(`Extracted: ${images.length} images`);
+                S.images = imgs;
+                updateLoad('جاري تحليل الصور...');
+                await analyze();
                 
-                updateLoading('تحليل...');
-                await analyzeImages();
-                
-                hideLoading();
+                hideLoad();
                 showStats();
-                document.getElementById('dropZone').classList.remove('processing');
-                document.getElementById('fileName').value = state.fileName;
+                document.getElementById('drop-zone').classList.remove('processing');
+                document.getElementById('filename').value = S.name + '_images';
                 
             } catch (err) {
-                log(`Error: ${err.message}`, 'error');
-                hideLoading();
-                toast(err.message, 'error');
-                document.getElementById('dropZone').classList.remove('processing');
+                console.error(err);
+                hideLoad();
+                toast('خطأ: ' + err.message, 'error');
+                document.getElementById('drop-zone').classList.remove('processing');
             }
         }
 
         async function handleImages(e) {
-            const files = [...e.target.files].filter(f => f.type.startsWith('image/'));
-            if (!files.length) return;
+            const files = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
+            if (!files.length) { toast('لا توجد صور', 'error'); return; }
             
-            files.sort((a, b) => a.name.localeCompare(b.name, 'ar', { numeric: true }));
+            files.sort((a,b) => a.name.localeCompare(b.name, 'ar', {numeric: true}));
             
-            state.fileName = 'images';
-            document.getElementById('dropLabel').textContent = `${files.length} صورة`;
-            document.getElementById('dropZone').classList.add('processing');
-            document.getElementById('debugConsole').classList.remove('hidden');
+            S.name = 'images';
+            document.getElementById('file-name').textContent = files.length + ' صورة';
+            document.getElementById('file-size').textContent = 'جاري التحميل...';
+            document.getElementById('drop-zone').classList.add('processing');
             
-            showLoading('تحميل الصور...');
-            showLoadingBar(true);
-            log(`Loading ${files.length} images`);
+            showLoad('جاري تحميل الصور...', true);
             
             try {
-                state.images = [];
-                
+                S.images = [];
                 for (let i = 0; i < files.length; i++) {
-                    updateLoading(`${i + 1}/${files.length}`);
-                    updateLoadingBar((i / files.length) * 100);
+                    updateLoad(`تحميل ${i+1} من ${files.length}`);
+                    updateBar((i/files.length)*100);
                     
-                    const data = await fileToDataURL(files[i]);
-                    const compressed = await compressImage(data);
+                    const data = await readFile(files[i]);
+                    const comp = await compress(data);
                     
-                    state.images.push({
-                        id: i,
-                        data: compressed.data,
-                        w: compressed.w,
-                        h: compressed.h,
-                        name: files[i].name,
-                        cat: 'valid'
+                    S.images.push({
+                        id: i, data: comp.data, name: files[i].name,
+                        w: comp.w, h: comp.h, size: comp.data.length, cat: 'valid'
                     });
                     
                     if (i % 3 === 0) await delay(5);
                 }
                 
-                log(`Loaded: ${state.images.length} images`);
-                updateLoading('تحليل...');
-                await analyzeImages();
+                updateLoad('جاري تحليل الصور...');
+                await analyze();
                 
-                hideLoading();
+                hideLoad();
                 showStats();
-                document.getElementById('dropZone').classList.remove('processing');
-                document.getElementById('fileName').value = state.fileName;
+                document.getElementById('drop-zone').classList.remove('processing');
+                document.getElementById('filename').value = S.name + '_output';
                 
             } catch (err) {
-                log(`Error: ${err.message}`, 'error');
-                hideLoading();
+                console.error(err);
+                hideLoad();
                 toast('خطأ في التحميل', 'error');
-                document.getElementById('dropZone').classList.remove('processing');
+                document.getElementById('drop-zone').classList.remove('processing');
             }
         }
 
-        // ============================================================
-        // PDF EXTRACTION - EMBEDDED IMAGES
-        // ============================================================
-        async function extractEmbedded(file) {
-            const buffer = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
-            const images = [];
-            let counter = 0;
+        // =====================================================
+        // PDF EXTRACTION
+        // =====================================================
+        async function extractPDF(file) {
+            const arr = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({data: arr}).promise;
+            const imgs = [];
+            let id = 0;
             
-            log(`PDF has ${pdf.numPages} pages`);
-            showLoadingBar(true);
+            showBar(true);
             
             for (let p = 1; p <= pdf.numPages; p++) {
+                updateLoad(`صفحة ${p} من ${pdf.numPages}`);
+                updateBar((p/pdf.numPages)*100);
+                
                 try {
-                    updateLoading(`صفحة ${p}/${pdf.numPages}`);
-                    updateLoadingBar((p / pdf.numPages) * 100);
-                    
                     const page = await pdf.getPage(p);
                     const ops = await page.getOperatorList();
                     
-                    // Find image references
-                    const refs = new Set();
+                    const names = new Set();
                     for (let i = 0; i < ops.fnArray.length; i++) {
-                        if ([82, 83, 85].includes(ops.fnArray[i])) {
-                            const name = ops.argsArray[i][0];
-                            if (name) refs.add(name);
+                        if ([82,83,85].includes(ops.fnArray[i])) {
+                            const n = ops.argsArray[i][0];
+                            if (n) names.add(n);
                         }
                     }
                     
-                    log(`Page ${p}: ${refs.size} images`);
-                    
-                    for (const ref of refs) {
+                    for (const name of names) {
                         try {
                             const obj = await Promise.race([
-                                new Promise((res, rej) => {
-                                    page.objs.get(ref, img => img ? res(img) : rej());
-                                }),
-                                delay(2000).then(() => { throw new Error('timeout'); })
+                                new Promise((res, rej) => page.objs.get(name, o => o ? res(o) : rej())),
+                                new Promise((_, rej) => setTimeout(() => rej(), 2000))
                             ]);
                             
                             if (obj && obj.width > 30 && obj.height > 30) {
-                                const dataUrl = await imageObjToJPEG(obj);
-                                if (dataUrl) {
-                                    const comp = await compressImage(dataUrl);
-                                    images.push({
-                                        id: counter++,
-                                        data: comp.data,
-                                        w: comp.w,
-                                        h: comp.h,
-                                        name: `p${p}_${counter}.jpg`,
-                                        cat: 'valid'
+                                const data = await renderImg(obj);
+                                if (data) {
+                                    const comp = await compress(data);
+                                    imgs.push({
+                                        id: id++, data: comp.data, name: `p${p}_${imgs.length}.jpg`,
+                                        w: comp.w, h: comp.h, size: comp.data.length, page: p, cat: 'valid'
                                     });
                                 }
                             }
-                        } catch (e) { /* skip */ }
+                        } catch {}
                     }
                     
                     page.cleanup();
-                    await delay(10);
-                    
+                    await delay(5);
                 } catch (e) {
-                    log(`Page ${p} error`, 'error');
+                    console.warn('Page error:', p, e);
                 }
             }
             
-            showLoadingBar(false);
-            return images;
+            showBar(false);
+            return imgs;
         }
 
-        async function imageObjToJPEG(obj) {
+        async function renderImg(obj) {
             try {
-                const maxSize = CONFIG.MAX_IMG_SIZE;
-                let w = Math.min(obj.width, maxSize);
-                let h = Math.min(obj.height, maxSize);
+                const max = CFG.IMG_MAX;
+                let w = Math.min(obj.width, max);
+                let h = Math.min(obj.height, max);
                 
-                if (obj.width > maxSize || obj.height > maxSize) {
-                    const ratio = Math.min(maxSize / obj.width, maxSize / obj.height);
-                    w = Math.round(obj.width * ratio);
-                    h = Math.round(obj.height * ratio);
+                if (obj.width > max || obj.height > max) {
+                    const r = Math.min(max/obj.width, max/obj.height);
+                    w = Math.round(obj.width * r);
+                    h = Math.round(obj.height * r);
                 }
                 
-                const canvas = document.createElement('canvas');
-                canvas.width = w;
-                canvas.height = h;
-                const ctx = canvas.getContext('2d');
-                
+                const c = document.createElement('canvas');
+                c.width = w; c.height = h;
+                const ctx = c.getContext('2d');
                 ctx.fillStyle = '#FFFFFF';
                 ctx.fillRect(0, 0, w, h);
                 
                 if (obj.bitmap) {
                     ctx.drawImage(obj.bitmap, 0, 0, w, h);
                 } else if (obj.data) {
-                    const temp = document.createElement('canvas');
-                    temp.width = obj.width;
-                    temp.height = obj.height;
-                    const tctx = temp.getContext('2d');
+                    const tc = document.createElement('canvas');
+                    tc.width = obj.width; tc.height = obj.height;
+                    const tctx = tc.getContext('2d');
+                    const img = tctx.createImageData(obj.width, obj.height);
+                    const src = obj.data, dst = img.data;
+                    const px = obj.width * obj.height;
                     
-                    const imgData = tctx.createImageData(obj.width, obj.height);
-                    const src = obj.data;
-                    const dst = imgData.data;
-                    const pixels = obj.width * obj.height;
-                    
-                    if (src.length === pixels * 4) {
+                    if (src.length === px * 4) {
                         dst.set(src);
-                    } else if (src.length === pixels * 3) {
-                        for (let i = 0; i < pixels; i++) {
+                    } else if (src.length === px * 3) {
+                        for (let i = 0; i < px; i++) {
                             dst[i*4] = src[i*3];
                             dst[i*4+1] = src[i*3+1];
                             dst[i*4+2] = src[i*3+2];
                             dst[i*4+3] = 255;
                         }
-                    } else if (src.length === pixels) {
-                        for (let i = 0; i < pixels; i++) {
+                    } else if (src.length === px) {
+                        for (let i = 0; i < px; i++) {
                             dst[i*4] = dst[i*4+1] = dst[i*4+2] = src[i];
                             dst[i*4+3] = 255;
                         }
                     } else {
+                        tc.width = tc.height = 0;
+                        c.width = c.height = 0;
                         return null;
                     }
                     
-                    tctx.putImageData(imgData, 0, 0);
-                    ctx.drawImage(temp, 0, 0, w, h);
-                    temp.width = temp.height = 0;
+                    tctx.putImageData(img, 0, 0);
+                    ctx.drawImage(tc, 0, 0, w, h);
+                    tc.width = tc.height = 0;
                 } else {
+                    c.width = c.height = 0;
                     return null;
                 }
                 
-                const result = canvas.toDataURL('image/jpeg', CONFIG.JPEG_QUALITY);
-                canvas.width = canvas.height = 0;
-                return result;
-                
-            } catch (e) {
+                const res = c.toDataURL('image/jpeg', CFG.QUALITY);
+                c.width = c.height = 0;
+                return res;
+            } catch {
                 return null;
             }
         }
 
-        // ============================================================
-        // PDF EXTRACTION - RENDER PAGES
-        // ============================================================
         async function renderPages(file) {
-            const buffer = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
-            const images = [];
+            const arr = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({data: arr}).promise;
+            const imgs = [];
             
-            showLoadingBar(true);
-            const scale = IS_MOBILE ? 1.0 : 1.3;
+            showBar(true);
+            const scale = isMobile ? 1.0 : 1.3;
             
             for (let p = 1; p <= pdf.numPages; p++) {
+                updateLoad(`تحويل صفحة ${p} من ${pdf.numPages}`);
+                updateBar((p/pdf.numPages)*100);
+                
                 try {
-                    updateLoading(`تحويل ${p}/${pdf.numPages}`);
-                    updateLoadingBar((p / pdf.numPages) * 100);
-                    
                     const page = await pdf.getPage(p);
-                    let vp = page.getViewport({ scale });
+                    let vp = page.getViewport({scale});
                     
-                    // Limit size
-                    const maxDim = IS_MOBILE ? 600 : 900;
-                    if (vp.width > maxDim || vp.height > maxDim) {
-                        const ratio = Math.min(maxDim / vp.width, maxDim / vp.height);
-                        vp = page.getViewport({ scale: scale * ratio });
+                    const max = isMobile ? 700 : 1000;
+                    if (vp.width > max || vp.height > max) {
+                        const r = Math.min(max/vp.width, max/vp.height);
+                        vp = page.getViewport({scale: scale * r});
                     }
                     
-                    const canvas = document.createElement('canvas');
-                    canvas.width = vp.width;
-                    canvas.height = vp.height;
-                    const ctx = canvas.getContext('2d');
-                    
+                    const c = document.createElement('canvas');
+                    c.width = vp.width; c.height = vp.height;
+                    const ctx = c.getContext('2d');
                     ctx.fillStyle = '#FFFFFF';
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillRect(0, 0, c.width, c.height);
                     
-                    await page.render({ canvasContext: ctx, viewport: vp }).promise;
+                    await page.render({canvasContext: ctx, viewport: vp}).promise;
                     
-                    const dataUrl = canvas.toDataURL('image/jpeg', CONFIG.JPEG_QUALITY);
-                    
-                    images.push({
-                        id: p - 1,
-                        data: dataUrl,
-                        w: canvas.width,
-                        h: canvas.height,
-                        name: `page_${p}.jpg`,
-                        cat: 'valid'
+                    const data = c.toDataURL('image/jpeg', CFG.QUALITY);
+                    imgs.push({
+                        id: p-1, data, name: `page_${p}.jpg`,
+                        w: c.width, h: c.height, size: data.length, page: p, cat: 'valid'
                     });
                     
-                    log(`Rendered page ${p}`);
-                    
                     page.cleanup();
-                    canvas.width = canvas.height = 0;
-                    await delay(20);
-                    
+                    c.width = c.height = 0;
+                    await delay(15);
                 } catch (e) {
-                    log(`Page ${p} failed`, 'error');
+                    console.warn('Render error:', p, e);
                 }
             }
             
-            showLoadingBar(false);
-            return images;
+            showBar(false);
+            return imgs;
         }
 
-        // ============================================================
-        // IMAGE COMPRESSION
-        // ============================================================
-        async function compressImage(dataUrl) {
-            return new Promise(resolve => {
+        // =====================================================
+        // IMAGE PROCESSING
+        // =====================================================
+        async function compress(dataUrl) {
+            return new Promise(res => {
                 const img = new Image();
                 img.onload = () => {
-                    let w = img.width;
-                    let h = img.height;
-                    const max = CONFIG.MAX_IMG_SIZE;
+                    let w = img.width, h = img.height;
+                    const max = CFG.IMG_MAX;
                     
                     if (w > max || h > max) {
-                        const ratio = Math.min(max / w, max / h);
-                        w = Math.round(w * ratio);
-                        h = Math.round(h * ratio);
+                        const r = Math.min(max/w, max/h);
+                        w = Math.round(w * r);
+                        h = Math.round(h * r);
                     }
                     
-                    const canvas = document.createElement('canvas');
-                    canvas.width = w;
-                    canvas.height = h;
-                    const ctx = canvas.getContext('2d');
-                    
+                    const c = document.createElement('canvas');
+                    c.width = w; c.height = h;
+                    const ctx = c.getContext('2d');
                     ctx.fillStyle = '#FFFFFF';
                     ctx.fillRect(0, 0, w, h);
                     ctx.drawImage(img, 0, 0, w, h);
                     
-                    const data = canvas.toDataURL('image/jpeg', CONFIG.JPEG_QUALITY);
-                    canvas.width = canvas.height = 0;
-                    
-                    resolve({ data, w, h });
+                    const data = c.toDataURL('image/jpeg', CFG.QUALITY);
+                    c.width = c.height = 0;
+                    res({data, w, h});
                 };
-                img.onerror = () => resolve({ data: dataUrl, w: 100, h: 100 });
+                img.onerror = () => res({data: dataUrl, w: 100, h: 100});
                 img.src = dataUrl;
             });
         }
 
-        // ============================================================
-        // IMAGE ANALYSIS
-        // ============================================================
-        async function analyzeImages() {
-            state.categories = { valid: [], dup: [], logo: [] };
-            state.selected = new Set();
+        async function analyze() {
+            S.cats = {valid:[], dup:[], logo:[]};
+            S.selected = new Set();
             
             const hashes = new Map();
             
-            for (const img of state.images) {
-                // Check if logo
-                if (img.w < CONFIG.MIN_SIZE || img.h < CONFIG.MIN_SIZE) {
+            for (const img of S.images) {
+                if (isLogo(img)) {
                     img.cat = 'logo';
-                    state.categories.logo.push(img.id);
+                    S.cats.logo.push(img.id);
                     continue;
                 }
                 
-                // Get hash
                 const hash = await getHash(img.data);
+                img.hash = hash;
                 
-                // Check duplicate
                 let isDup = false;
-                for (const [h, id] of hashes) {
-                    if (similarity(hash, h) > 0.9) {
+                for (const [h] of hashes) {
+                    if (similarity(hash, h) > CFG.SIM) {
                         isDup = true;
                         break;
                     }
@@ -1740,558 +1528,466 @@
                 
                 if (isDup) {
                     img.cat = 'dup';
-                    state.categories.dup.push(img.id);
+                    S.cats.dup.push(img.id);
                 } else {
                     hashes.set(hash, img.id);
                     img.cat = 'valid';
-                    state.categories.valid.push(img.id);
-                    state.selected.add(img.id);
+                    S.cats.valid.push(img.id);
+                    S.selected.add(img.id);
                 }
             }
-            
-            log(`Valid: ${state.categories.valid.length}, Dup: ${state.categories.dup.length}, Logo: ${state.categories.logo.length}`);
+        }
+
+        function isLogo(img) {
+            return img.w < CFG.MIN || img.h < CFG.MIN || 
+                   (img.size < CFG.MAX_LOGO && img.w < 120 && img.h < 120);
         }
 
         async function getHash(dataUrl) {
-            return new Promise(resolve => {
+            return new Promise(res => {
                 const img = new Image();
                 img.onload = () => {
-                    const size = CONFIG.HASH_SIZE;
-                    const canvas = document.createElement('canvas');
-                    canvas.width = canvas.height = size;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, size, size);
+                    const c = document.createElement('canvas');
+                    c.width = c.height = CFG.HASH;
+                    const ctx = c.getContext('2d');
+                    ctx.drawImage(img, 0, 0, CFG.HASH, CFG.HASH);
                     
-                    const data = ctx.getImageData(0, 0, size, size).data;
-                    let hash = '';
-                    let sum = 0;
+                    const d = ctx.getImageData(0, 0, CFG.HASH, CFG.HASH).data;
+                    let hash = '', sum = 0;
                     const grays = [];
                     
-                    for (let i = 0; i < data.length; i += 4) {
-                        const gray = (data[i] + data[i+1] + data[i+2]) / 3;
-                        grays.push(gray);
-                        sum += gray;
+                    for (let i = 0; i < d.length; i += 4) {
+                        const g = (d[i] + d[i+1] + d[i+2]) / 3;
+                        grays.push(g);
+                        sum += g;
                     }
                     
                     const avg = sum / grays.length;
                     grays.forEach(g => hash += g > avg ? '1' : '0');
                     
-                    canvas.width = canvas.height = 0;
-                    resolve(hash);
+                    c.width = c.height = 0;
+                    res(hash);
                 };
-                img.onerror = () => resolve(Math.random().toString(36));
+                img.onerror = () => res(Math.random().toString(36));
                 img.src = dataUrl;
             });
         }
 
         function similarity(a, b) {
             if (a.length !== b.length) return 0;
-            let match = 0;
-            for (let i = 0; i < a.length; i++) {
-                if (a[i] === b[i]) match++;
-            }
-            return match / a.length;
+            let m = 0;
+            for (let i = 0; i < a.length; i++) if (a[i] === b[i]) m++;
+            return m / a.length;
         }
 
-        // ============================================================
+        // =====================================================
         // STATS & GALLERY
-        // ============================================================
+        // =====================================================
         function showStats() {
-            document.getElementById('statTotal').textContent = state.images.length;
-            document.getElementById('statValid').textContent = state.categories.valid.length;
-            document.getElementById('statFiltered').textContent = state.categories.dup.length + state.categories.logo.length;
-            document.getElementById('statsSection').classList.remove('hidden');
-            
-            toast(`${state.images.length} صورة، ${state.categories.valid.length} صالحة`, 'success');
-        }
-
-        function updateCounts() {
-            document.getElementById('cAll').textContent = state.images.length;
-            document.getElementById('cValid').textContent = state.categories.valid.length;
-            document.getElementById('cDup').textContent = state.categories.dup.length;
-            document.getElementById('cLogo').textContent = state.categories.logo.length;
-            document.getElementById('selectedCount').textContent = state.selected.size;
+            document.getElementById('s-total').textContent = S.images.length;
+            document.getElementById('s-valid').textContent = S.cats.valid.length;
+            document.getElementById('file-size').textContent = `${S.cats.valid.length} صورة صالحة`;
+            document.getElementById('stats-section').classList.remove('hidden');
+            toast(`تم استخراج ${S.images.length} صورة، ${S.cats.valid.length} صالحة`, 'success');
         }
 
         function renderGallery() {
-            const gallery = document.getElementById('gallery');
-            const filter = state.filter;
+            const g = document.getElementById('gallery');
+            const f = S.filter;
             
-            let list = state.images;
-            if (filter !== 'all') {
-                const ids = state.categories[filter] || [];
-                list = state.images.filter(img => ids.includes(img.id));
-            }
+            let imgs = f === 'all' ? S.images : S.images.filter(i => S.cats[f]?.includes(i.id));
             
-            updateCounts();
+            document.getElementById('f-all').textContent = S.images.length;
+            document.getElementById('f-valid').textContent = S.cats.valid.length;
+            document.getElementById('f-dup').textContent = S.cats.dup.length;
+            document.getElementById('f-logo').textContent = S.cats.logo.length;
             
-            if (!list.length) {
-                gallery.innerHTML = '';
-                document.getElementById('emptyGallery').classList.remove('hidden');
+            if (!imgs.length) {
+                g.innerHTML = '';
+                document.getElementById('gallery-empty').classList.remove('hidden');
                 return;
             }
             
-            document.getElementById('emptyGallery').classList.add('hidden');
+            document.getElementById('gallery-empty').classList.add('hidden');
             
-            gallery.innerHTML = list.map((img, idx) => `
-                <div class="gallery-item ${state.selected.has(img.id) ? 'selected' : 'excluded'}" 
-                     data-id="${img.id}" data-idx="${idx}"
-                     onclick="toggleSelect(${img.id})">
-                    <img src="${img.data}" loading="lazy">
+            g.innerHTML = imgs.map((img, idx) => `
+                <div class="gallery-item ${S.selected.has(img.id) ? 'selected' : 'excluded'}" 
+                     data-id="${img.id}" data-idx="${idx}" onclick="toggle(${img.id})">
+                    <img src="${img.data}" loading="lazy" alt="صورة ${idx + 1}">
                     ${img.cat === 'dup' ? '<span class="badge badge-dup">مكرر</span>' : ''}
                     ${img.cat === 'logo' ? '<span class="badge badge-logo">شعار</span>' : ''}
                     <div class="check">
-                        <span class="material-icons-round text-white text-xs">${state.selected.has(img.id) ? 'check' : ''}</span>
+                        <span class="material-icons-round" style="font-size:16px;color:white;">${S.selected.has(img.id)?'check':''}</span>
                     </div>
                 </div>
             `).join('');
             
-            // Long press for viewer
-            gallery.querySelectorAll('.gallery-item').forEach(el => {
+            // Long press for preview
+            g.querySelectorAll('.gallery-item').forEach(el => {
                 let timer;
                 el.addEventListener('touchstart', () => {
-                    timer = setTimeout(() => openViewer(parseInt(el.dataset.idx)), 400);
-                }, { passive: true });
+                    timer = setTimeout(() => openViewer(+el.dataset.idx), 400);
+                }, {passive: true});
                 el.addEventListener('touchend', () => clearTimeout(timer));
                 el.addEventListener('touchmove', () => clearTimeout(timer));
             });
         }
 
-        function filterBy(f) {
-            state.filter = f;
-            document.querySelectorAll('.tab').forEach(t => {
-                t.classList.toggle('active', t.dataset.f === f);
-            });
+        function filter(f) {
+            S.filter = f;
+            document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.f === f));
             renderGallery();
         }
 
-        function toggleSelect(id) {
-            if (state.selected.has(id)) {
-                state.selected.delete(id);
-            } else {
-                state.selected.add(id);
+        function toggle(id) {
+            S.selected.has(id) ? S.selected.delete(id) : S.selected.add(id);
+            const el = document.querySelector(`.gallery-item[data-id="${id}"]`);
+            if (el) {
+                el.classList.toggle('selected', S.selected.has(id));
+                el.classList.toggle('excluded', !S.selected.has(id));
+                el.querySelector('.check span').textContent = S.selected.has(id) ? 'check' : '';
             }
-            renderGallery();
+            updateCount();
         }
 
         function selectAll() {
-            const filter = state.filter;
-            const ids = filter === 'all' ? state.images.map(i => i.id) : (state.categories[filter] || []);
-            const allSel = ids.every(id => state.selected.has(id));
-            
-            ids.forEach(id => allSel ? state.selected.delete(id) : state.selected.add(id));
+            const f = S.filter;
+            const ids = f === 'all' ? S.images.map(i => i.id) : (S.cats[f] || []);
+            const all = ids.every(id => S.selected.has(id));
+            ids.forEach(id => all ? S.selected.delete(id) : S.selected.add(id));
             renderGallery();
+            updateCount();
         }
 
-        // ============================================================
-        // IMAGE VIEWER
-        // ============================================================
+        function updateCount() {
+            document.getElementById('sel-count').textContent = S.selected.size + ' صورة محددة';
+        }
+
+        // =====================================================
+        // VIEWER
+        // =====================================================
         function openViewer(idx) {
-            const filter = state.filter;
-            state.viewerList = filter === 'all' ? state.images : 
-                state.images.filter(img => (state.categories[filter] || []).includes(img.id));
-            
-            if (idx < 0 || idx >= state.viewerList.length) return;
-            state.viewerIdx = idx;
+            const f = S.filter;
+            S.vImgs = f === 'all' ? S.images : S.images.filter(i => S.cats[f]?.includes(i.id));
+            if (idx < 0 || idx >= S.vImgs.length) return;
+            S.vIdx = idx;
             updateViewer();
-            document.getElementById('imageViewer').classList.add('show');
+            document.getElementById('viewer').classList.add('show');
         }
 
         function updateViewer() {
-            const img = state.viewerList[state.viewerIdx];
-            document.getElementById('viewerImage').src = img.data;
-            document.getElementById('viewerCounter').textContent = `${state.viewerIdx + 1}/${state.viewerList.length}`;
-            document.getElementById('viewerInfo').textContent = `${img.w}×${img.h}`;
-            
-            const sel = state.selected.has(img.id);
-            document.getElementById('viewerToggle').style.background = sel ? 'var(--success)' : 'var(--error)';
-            document.getElementById('viewerToggleIcon').textContent = sel ? 'check' : 'close';
+            const img = S.vImgs[S.vIdx];
+            document.getElementById('viewer-img').src = img.data;
+            document.getElementById('viewer-count').textContent = `${S.vIdx+1} / ${S.vImgs.length}`;
+            const sel = S.selected.has(img.id);
+            document.getElementById('viewer-btn').style.background = sel ? 'var(--success)' : 'var(--error)';
+            document.getElementById('viewer-icon').textContent = sel ? 'check' : 'close';
         }
 
         function closeViewer() {
-            document.getElementById('imageViewer').classList.remove('show');
+            document.getElementById('viewer').classList.remove('show');
             renderGallery();
         }
 
-        function viewerPrev() { if (state.viewerIdx > 0) { state.viewerIdx--; updateViewer(); } }
-        function viewerNext() { if (state.viewerIdx < state.viewerList.length - 1) { state.viewerIdx++; updateViewer(); } }
-        
-        function toggleViewerSelect() {
-            toggleSelect(state.viewerList[state.viewerIdx].id);
-            updateViewer();
-        }
+        function viewerPrev() { if (S.vIdx > 0) { S.vIdx--; updateViewer(); } }
+        function viewerNext() { if (S.vIdx < S.vImgs.length - 1) { S.vIdx++; updateViewer(); } }
+        function toggleViewerSel() { toggle(S.vImgs[S.vIdx].id); updateViewer(); }
 
-        // Swipe
-        let touchX = 0;
-        document.getElementById('imageViewer').addEventListener('touchstart', e => touchX = e.touches[0].clientX, { passive: true });
-        document.getElementById('imageViewer').addEventListener('touchend', e => {
-            const diff = touchX - e.changedTouches[0].clientX;
-            if (Math.abs(diff) > 50) diff > 0 ? viewerNext() : viewerPrev();
+        // Swipe gestures
+        let touchStartX = 0;
+        document.getElementById('viewer').addEventListener('touchstart', e => {
+            touchStartX = e.touches[0].clientX;
+        }, {passive: true});
+        
+        document.getElementById('viewer').addEventListener('touchend', e => {
+            const diff = touchStartX - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 50) {
+                diff > 0 ? viewerNext() : viewerPrev();
+            }
         });
 
-        // ============================================================
-        // LAYOUT
-        // ============================================================
-        function buildLayoutGrid() {
-            const grid = document.getElementById('layoutGrid');
-            grid.innerHTML = Object.entries(CONFIG.LAYOUTS).map(([n, l]) => `
-                <div class="layout-item ${parseInt(n) === state.layout ? 'selected' : ''}" 
-                     data-n="${n}" onclick="setLayout(${n})">
-                    <div class="layout-preview" style="grid-template-columns: repeat(${l.cols}, 1fr);">
-                        ${Array(Math.min(parseInt(n), 9)).fill('<div class="layout-dot"></div>').join('')}
+        // =====================================================
+        // SETTINGS
+        // =====================================================
+        function initLayouts() {
+            const g = document.getElementById('layouts');
+            g.innerHTML = Object.entries(CFG.LAYOUTS).map(([k, v]) => `
+                <div class="layout-item ${+k === S.layout ? 'selected' : ''}" data-l="${k}" onclick="setLayout(${k})">
+                    <div class="layout-preview" style="grid-template-columns:repeat(${v.c},1fr)">
+                        ${Array(Math.min(v.c * v.r, 9)).fill('<div class="layout-dot"></div>').join('')}
                     </div>
-                    <div class="layout-label">${n}</div>
+                    <p class="text-center text-xs mt-1 font-bold">${k}</p>
                 </div>
             `).join('');
         }
 
-        function setLayout(n) {
-            state.layout = n;
-            document.querySelectorAll('.layout-item').forEach(el => {
-                el.classList.toggle('selected', parseInt(el.dataset.n) === n);
-            });
-            updateLayoutInfo();
-        }
-
-        function updateLayoutInfo() {
-            const l = CONFIG.LAYOUTS[state.layout];
-            const pages = Math.ceil(state.selected.size / (l.cols * l.rows));
-            
-            document.getElementById('pagesCount').textContent = pages;
-            document.getElementById('sumSelected').textContent = state.selected.size;
-            document.getElementById('sumExcluded').textContent = state.images.length - state.selected.size;
+        function setLayout(l) {
+            S.layout = l;
+            document.querySelectorAll('.layout-item').forEach(el => 
+                el.classList.toggle('selected', +el.dataset.l === l));
+            updateSettings();
         }
 
         function toggleAuto() {
-            state.autoDownload = !state.autoDownload;
-            document.getElementById('autoDownload').classList.toggle('checked', state.autoDownload);
+            S.autoDown = !S.autoDown;
+            document.getElementById('auto-toggle').classList.toggle('active', S.autoDown);
         }
 
-        // ============================================================
-        // PDF CREATION - THE CRITICAL PART
-        // ============================================================
+        function updateSettings() {
+            const l = CFG.LAYOUTS[S.layout];
+            const pages = Math.ceil(S.selected.size / (l.c * l.r));
+            document.getElementById('pages-count').textContent = pages;
+            document.getElementById('sum-sel').textContent = S.selected.size;
+            document.getElementById('sum-exc').textContent = S.images.length - S.selected.size;
+        }
+
+        // =====================================================
+        // PDF CREATION
+        // =====================================================
         async function createPDF() {
-            if (!state.selected.size) {
-                toast('اختر صوراً أولاً', 'warn');
-                return;
+            if (!S.selected.size) { 
+                toast('يرجى تحديد صور أولاً', 'warning'); 
+                return; 
             }
             
-            state.fileName = document.getElementById('fileName').value || 'output';
-            goTo('Processing');
+            goTo('processing');
             
             try {
-                await buildPDF();
+                const {jsPDF} = window.jspdf;
+                const doc = new jsPDF({
+                    orientation: 'portrait', 
+                    unit: 'mm', 
+                    format: 'a4', 
+                    compress: true
+                });
                 
-                await delay(300);
-                showResult();
+                const W = 210, H = 297, M = 4, P = 2;
+                const l = CFG.LAYOUTS[S.layout];
+                const cw = (W - M*2) / l.c;
+                const ch = (H - M*2) / l.r;
+                const pp = l.c * l.r;
                 
-                if (state.autoDownload) {
-                    await delay(500);
-                    downloadResult();
+                const imgs = S.images.filter(i => S.selected.has(i.id)).sort((a,b) => a.id - b.id);
+                const total = imgs.length;
+                const totalPages = Math.ceil(total / pp);
+                
+                let page = 0, added = 0;
+                
+                for (let i = 0; i < total; i++) {
+                    const pos = i % pp;
+                    const col = pos % l.c;
+                    const row = Math.floor(pos / l.c);
+                    
+                    if (pos === 0 && i > 0) doc.addPage();
+                    if (pos === 0) page++;
+                    
+                    const img = imgs[i];
+                    const x = M + col * cw;
+                    const y = M + row * ch;
+                    
+                    try {
+                        let data = img.data;
+                        if (!data.includes('data:image/jpeg')) {
+                            data = await toJPEG(data);
+                        }
+                        
+                        const mw = cw - P*2;
+                        const mh = ch - P*2;
+                        const ratio = (img.w || 100) / (img.h || 100);
+                        const cr = mw / mh;
+                        
+                        let dw, dh;
+                        if (ratio > cr) { dw = mw; dh = mw / ratio; }
+                        else { dh = mh; dw = mh * ratio; }
+                        
+                        const dx = x + P + (mw - dw) / 2;
+                        const dy = y + P + (mh - dh) / 2;
+                        
+                        // Draw border
+                        doc.setDrawColor(230, 230, 230);
+                        doc.setLineWidth(0.1);
+                        doc.rect(x + P, y + P, mw, mh);
+                        
+                        // Add image
+                        doc.addImage(data, 'JPEG', dx, dy, dw, dh);
+                        added++;
+                        
+                    } catch (e) {
+                        console.warn('Image failed:', i, e);
+                        doc.setFillColor(245, 245, 245);
+                        doc.rect(x + P, y + P, cw - P*2, ch - P*2, 'F');
+                    }
+                    
+                    const pct = ((i+1) / total) * 100;
+                    updateProgress(pct, `صفحة ${page} من ${totalPages}`);
+                    document.getElementById('p-images').textContent = added;
+                    document.getElementById('p-pages').textContent = page;
+                    
+                    if (i % 2 === 0) await delay(5);
                 }
                 
-            } catch (err) {
-                log(`PDF Error: ${err.message}`, 'error');
-                toast(err.message, 'error');
-                goTo('Layout');
+                if (added === 0) throw new Error('لم تتم إضافة أي صور');
+                
+                doc.setProperties({
+                    title: document.getElementById('filename').value || 'PDF Images',
+                    author: 'Mohamed Elherd',
+                    creator: 'PDF Maker Pro v7.0'
+                });
+                
+                S.blob = doc.output('blob');
+                S.stats = {images: added, pages: page};
+                
+                updateProgress(100, 'تم الإنشاء بنجاح!');
+                
+                setTimeout(() => {
+                    showResult();
+                    if (S.autoDown) setTimeout(download, 500);
+                }, 400);
+                
+            } catch (e) {
+                console.error('PDF Error:', e);
+                toast('خطأ: ' + e.message, 'error');
+                goTo('settings');
             }
         }
 
-        async function buildPDF() {
-            const { jsPDF } = window.jspdf;
-            
-            log('Creating PDF...');
-            
-            // Create with default settings
-            const doc = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4',
-                compress: true
-            });
-            
-            const PW = 210, PH = 297, M = 4, P = 2;
-            const layout = CONFIG.LAYOUTS[state.layout];
-            const cellW = (PW - M * 2) / layout.cols;
-            const cellH = (PH - M * 2) / layout.rows;
-            const perPage = layout.cols * layout.rows;
-            
-            // Get selected images sorted
-            const images = state.images
-                .filter(img => state.selected.has(img.id))
-                .sort((a, b) => a.id - b.id);
-            
-            const total = images.length;
-            const totalPages = Math.ceil(total / perPage);
-            
-            log(`Building: ${total} images, ${totalPages} pages`);
-            
-            let pageNum = 0;
-            let added = 0;
-            let errors = 0;
-            
-            for (let i = 0; i < total; i++) {
-                const pos = i % perPage;
-                const col = pos % layout.cols;
-                const row = Math.floor(pos / layout.cols);
-                
-                if (pos === 0 && i > 0) doc.addPage();
-                if (pos === 0) pageNum++;
-                
-                const img = images[i];
-                const x = M + col * cellW;
-                const y = M + row * cellH;
-                const maxW = cellW - P * 2;
-                const maxH = cellH - P * 2;
-                
-                try {
-                    // CRITICAL: Ensure JPEG format with proper encoding
-                    let imgData = img.data;
-                    
-                    // Always reconvert to ensure proper format
-                    imgData = await ensureJPEG(imgData);
-                    
-                    if (!imgData) {
-                        throw new Error('Invalid image');
-                    }
-                    
-                    // Calculate dimensions
-                    const ratio = (img.w || 100) / (img.h || 100);
-                    const cellRatio = maxW / maxH;
-                    let drawW, drawH;
-                    
-                    if (ratio > cellRatio) {
-                        drawW = maxW;
-                        drawH = maxW / ratio;
-                    } else {
-                        drawH = maxH;
-                        drawW = maxH * ratio;
-                    }
-                    
-                    const drawX = x + P + (maxW - drawW) / 2;
-                    const drawY = y + P + (maxH - drawH) / 2;
-                    
-                    // Draw border
-                    doc.setDrawColor(230);
-                    doc.setLineWidth(0.1);
-                    doc.rect(x + P, y + P, maxW, maxH);
-                    
-                    // Add image - use explicit JPEG format
-                    doc.addImage(
-                        imgData,
-                        'JPEG',
-                        drawX,
-                        drawY,
-                        drawW,
-                        drawH,
-                        undefined, // alias
-                        'FAST' // compression
-                    );
-                    
-                    added++;
-                    
-                } catch (e) {
-                    errors++;
-                    log(`Image ${i} failed: ${e.message}`, 'error');
-                    
-                    // Draw placeholder
-                    doc.setFillColor(250);
-                    doc.rect(x + P, y + P, maxW, maxH, 'F');
-                }
-                
-                // Update progress
-                const pct = ((i + 1) / total) * 100;
-                updateProgress(pct, pageNum, totalPages);
-                document.getElementById('procImages').textContent = added;
-                document.getElementById('procPages').textContent = pageNum;
-                document.getElementById('procErrors').textContent = errors;
-                
-                // Yield
-                if (i % 2 === 0) await delay(5);
-            }
-            
-            if (added === 0) {
-                throw new Error('لم تتم إضافة أي صور');
-            }
-            
-            log(`Done! ${added}/${total} images, ${errors} errors`);
-            
-            // Generate blob
-            state.pdfBlob = doc.output('blob');
-            state.pdfStats = { images: added, pages: pageNum, size: state.pdfBlob.size };
-            
-            updateProgress(100, pageNum, totalPages);
-        }
-
-        // CRITICAL FUNCTION: Ensure proper JPEG encoding
-        async function ensureJPEG(dataUrl) {
-            return new Promise((resolve, reject) => {
+        function toJPEG(dataUrl) {
+            return new Promise((res, rej) => {
                 const img = new Image();
                 img.onload = () => {
                     try {
-                        const canvas = document.createElement('canvas');
-                        // Use smaller size for reliability
-                        const maxSize = 400;
-                        let w = img.width;
-                        let h = img.height;
-                        
-                        if (w > maxSize || h > maxSize) {
-                            const ratio = Math.min(maxSize / w, maxSize / h);
-                            w = Math.round(w * ratio);
-                            h = Math.round(h * ratio);
-                        }
-                        
-                        canvas.width = w;
-                        canvas.height = h;
-                        const ctx = canvas.getContext('2d');
-                        
-                        // White background
+                        const c = document.createElement('canvas');
+                        c.width = img.width; 
+                        c.height = img.height;
+                        const ctx = c.getContext('2d');
                         ctx.fillStyle = '#FFFFFF';
-                        ctx.fillRect(0, 0, w, h);
-                        ctx.drawImage(img, 0, 0, w, h);
-                        
-                        // Get JPEG with medium quality
-                        const result = canvas.toDataURL('image/jpeg', 0.6);
-                        canvas.width = canvas.height = 0;
-                        
-                        resolve(result);
-                    } catch (e) {
-                        reject(e);
-                    }
+                        ctx.fillRect(0, 0, c.width, c.height);
+                        ctx.drawImage(img, 0, 0);
+                        const r = c.toDataURL('image/jpeg', 0.7);
+                        c.width = c.height = 0;
+                        res(r);
+                    } catch (e) { rej(e); }
                 };
-                img.onerror = () => reject(new Error('Failed to load image'));
+                img.onerror = rej;
                 img.src = dataUrl;
             });
         }
 
-        function updateProgress(pct, page, total) {
-            const circle = document.getElementById('progressCircle');
-            const offset = 565.48 - (pct / 100) * 565.48;
-            circle.style.strokeDashoffset = offset;
-            document.getElementById('progressPercent').textContent = `${Math.round(pct)}%`;
-            document.getElementById('progressLabel').textContent = `صفحة ${page}/${total}`;
+        function updateProgress(pct, status) {
+            const c = document.getElementById('prog-circle');
+            c.style.strokeDashoffset = 553 - (pct / 100) * 553;
+            document.getElementById('prog-pct').textContent = Math.round(pct) + '%';
+            document.getElementById('prog-status').textContent = status;
         }
 
-        // ============================================================
-        // RESULT
-        // ============================================================
+        // =====================================================
+        // RESULT & DOWNLOAD
+        // =====================================================
         function showResult() {
-            goTo('Result');
-            
-            document.getElementById('resImages').textContent = state.pdfStats?.images || state.selected.size;
-            document.getElementById('resPages').textContent = state.pdfStats?.pages || 0;
-            document.getElementById('resSize').textContent = ((state.pdfStats?.size || 0) / 1024 / 1024).toFixed(1);
-            
-            // Confetti!
-            createConfetti();
+            goTo('result');
+            document.getElementById('r-images').textContent = S.stats.images;
+            document.getElementById('r-pages').textContent = S.stats.pages;
         }
 
-        function createConfetti() {
-            const colors = ['#667eea', '#764ba2', '#f093fb', '#00f2fe', '#43e97b', '#f472b6'];
-            for (let i = 0; i < 50; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.animationDelay = Math.random() * 2 + 's';
-                confetti.style.animationDuration = 2 + Math.random() * 2 + 's';
-                document.body.appendChild(confetti);
-                setTimeout(() => confetti.remove(), 5000);
-            }
-        }
-
-        // ============================================================
-        // DOWNLOAD & SHARE - FIXED FOR WEBVIEW
-        // ============================================================
-        function downloadResult() {
-            if (!state.pdfBlob) {
-                toast('لا يوجد ملف', 'error');
-                return;
+        function download() {
+            if (!S.blob) { 
+                toast('لا يوجد ملف للتحميل', 'error'); 
+                return; 
             }
             
-            const filename = state.fileName + '.pdf';
-            log(`Downloading: ${filename}`);
+            const name = (document.getElementById('filename').value || 'output') + '.pdf';
             
             try {
-                const url = URL.createObjectURL(state.pdfBlob);
+                const url = URL.createObjectURL(S.blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = name;
+                a.style.display = 'none';
+                document.body.appendChild(a);
                 
-                // Method 1: Create link
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = filename;
-                link.style.position = 'fixed';
-                link.style.left = '-9999px';
-                document.body.appendChild(link);
-                
-                // For iOS - open in new tab
-                if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                // iOS Safari needs different handling
+                if (isIOS) {
                     window.open(url, '_blank');
-                    toast('تم فتح الملف', 'success');
+                    toast('تم فتح الملف في نافذة جديدة', 'success');
                 } else {
-                    link.click();
-                    toast('جاري التحميل...', 'success');
+                    a.click();
+                    toast('جاري تحميل: ' + name, 'success');
                 }
                 
                 setTimeout(() => {
-                    document.body.removeChild(link);
+                    document.body.removeChild(a);
                     URL.revokeObjectURL(url);
                 }, 1000);
                 
             } catch (e) {
-                log(`Download error: ${e.message}`, 'error');
-                previewResult(); // Fallback
+                console.error('Download error:', e);
+                preview();
             }
         }
 
-        async function shareResult() {
-            if (!state.pdfBlob) return;
+        async function share() {
+            if (!S.blob) { 
+                toast('لا يوجد ملف للمشاركة', 'error'); 
+                return; 
+            }
+            
+            const name = (document.getElementById('filename').value || 'output') + '.pdf';
             
             try {
-                const file = new File([state.pdfBlob], state.fileName + '.pdf', { type: 'application/pdf' });
+                const file = new File([S.blob], name, {type: 'application/pdf'});
                 
-                if (navigator.share && navigator.canShare?.({ files: [file] })) {
+                if (navigator.share && navigator.canShare && navigator.canShare({files: [file]})) {
                     await navigator.share({
                         files: [file],
-                        title: state.fileName
+                        title: name.replace('.pdf', ''),
+                        text: 'ملف PDF من PDF Maker Pro'
                     });
-                    toast('تمت المشاركة', 'success');
+                    toast('تمت المشاركة بنجاح', 'success');
                 } else {
-                    downloadResult();
+                    download();
                 }
             } catch (e) {
-                if (e.name !== 'AbortError') downloadResult();
+                if (e.name !== 'AbortError') {
+                    console.error('Share error:', e);
+                    download();
+                }
             }
         }
 
-        function previewResult() {
-            if (!state.pdfBlob) return;
+        function preview() {
+            if (!S.blob) { 
+                toast('لا يوجد ملف للمعاينة', 'error'); 
+                return; 
+            }
             
             try {
-                const url = URL.createObjectURL(state.pdfBlob);
+                const url = URL.createObjectURL(S.blob);
                 window.open(url, '_blank');
                 toast('تم فتح المعاينة', 'success');
             } catch (e) {
-                toast('خطأ', 'error');
+                console.error('Preview error:', e);
+                toast('خطأ في فتح المعاينة', 'error');
             }
         }
 
-        function startOver() {
-            // Cleanup
-            state.images.forEach(img => img.data = null);
-            resetState();
-            goTo('Welcome');
+        function restart() {
+            // Clean up memory
+            S.images.forEach(i => i.data = null);
+            S.blob = null;
+            reset();
+            goTo('welcome');
         }
 
-        // ============================================================
+        // =====================================================
         // UTILITIES
-        // ============================================================
+        // =====================================================
         function formatSize(bytes) {
             if (bytes < 1024) return bytes + ' B';
-            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-            return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
         }
 
-        function fileToDataURL(file) {
+        function readFile(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = () => resolve(reader.result);
@@ -2300,44 +1996,79 @@
             });
         }
 
-        function delay(ms) {
-            return new Promise(r => setTimeout(r, ms));
+        function delay(ms) { 
+            return new Promise(resolve => setTimeout(resolve, ms)); 
         }
 
-        function showLoading(text) {
-            document.getElementById('loadingText').textContent = text;
-            document.getElementById('loadingOverlay').style.display = 'flex';
-            showLoadingBar(false);
+        function showLoad(text, showBar = false) {
+            document.getElementById('loading-text').textContent = text;
+            document.getElementById('loading').style.display = 'flex';
+            document.getElementById('loading-fill').parentElement.style.display = showBar ? 'block' : 'none';
         }
 
-        function updateLoading(text) {
-            document.getElementById('loadingText').textContent = text;
+        function updateLoad(text) { 
+            document.getElementById('loading-text').textContent = text; 
         }
 
-        function showLoadingBar(show) {
-            document.getElementById('loadingBar').style.display = show ? 'block' : 'none';
+        function showBar(show) { 
+            document.getElementById('loading-fill').parentElement.style.display = show ? 'block' : 'none'; 
         }
 
-        function updateLoadingBar(pct) {
-            document.getElementById('loadingProgress').style.width = pct + '%';
+        function updateBar(percent) { 
+            document.getElementById('loading-fill').style.width = percent + '%'; 
         }
 
-        function hideLoading() {
-            document.getElementById('loadingOverlay').style.display = 'none';
+        function hideLoad() { 
+            document.getElementById('loading').style.display = 'none'; 
         }
 
-        function toast(msg, type = 'info') {
-            const snackbar = document.getElementById('snackbar');
-            const icons = { info: 'info', success: 'check_circle', error: 'error', warn: 'warning' };
-            const colors = { info: '#4facfe', success: '#43e97b', error: '#f5576c', warn: '#f59e0b' };
+        function toast(message, type = 'info') {
+            const t = document.getElementById('toast');
+            const icons = {
+                info: 'info',
+                success: 'check_circle',
+                error: 'error',
+                warning: 'warning'
+            };
+            const colors = {
+                info: '#667eea',
+                success: '#10b981',
+                error: '#ef4444',
+                warning: '#f59e0b'
+            };
             
-            document.getElementById('snackbarIcon').textContent = icons[type];
-            document.getElementById('snackbarIcon').style.color = colors[type];
-            document.getElementById('snackbarText').textContent = msg;
+            document.getElementById('toast-icon').textContent = icons[type] || 'info';
+            document.getElementById('toast-icon').style.color = colors[type] || colors.info;
+            document.getElementById('toast-text').textContent = message;
             
-            snackbar.classList.add('show');
-            setTimeout(() => snackbar.classList.remove('show'), 3000);
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3500);
         }
+
+        // Handle back button on Android
+        window.addEventListener('popstate', () => {
+            const activePage = document.querySelector('.page.active')?.id?.replace('page-', '');
+            
+            if (activePage === 'result') {
+                history.pushState(null, '', '');
+                goTo('settings');
+            } else if (activePage === 'processing') {
+                // Don't allow back during processing
+                history.pushState(null, '', '');
+            } else if (activePage === 'settings') {
+                history.pushState(null, '', '');
+                goTo('gallery');
+            } else if (activePage === 'gallery') {
+                history.pushState(null, '', '');
+                goTo('file');
+            } else if (activePage === 'file') {
+                history.pushState(null, '', '');
+                goTo('welcome');
+            }
+        });
+
+        // Push initial state
+        history.pushState(null, '', '');
     </script>
 </body>
 </html>
