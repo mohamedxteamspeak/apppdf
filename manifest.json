@@ -1,13 +1,13 @@
 {
   "name": "PDF Maker Pro",
   "short_name": "PDF Maker",
-  "description": "محول صور الدروس إلى PDF احترافي - استخراج الصور من PDF وتحويلها بسهولة",
-  "version": "7.0.0",
+  "description": "محول صور الدروس إلى PDF احترافي",
+  "version": "7.0.2",
   "id": "/",
-  "start_url": "/index.html",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui", "window-controls-overlay"],
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait",
   "theme_color": "#667eea",
   "background_color": "#0f0f23",
@@ -16,7 +16,6 @@
   "categories": ["utilities", "productivity"],
   "prefer_related_applications": false,
   "related_applications": [],
-  "iarc_rating_id": "",
   "icons": [
     {
       "src": "/icons/icon-72.png",
@@ -93,67 +92,43 @@
     {
       "name": "استخراج من PDF",
       "short_name": "PDF",
-      "description": "استخراج الصور من ملف PDF",
-      "url": "/index.html?mode=pdf",
-      "icons": [
-        {
-          "src": "/icons/icon-96.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
+      "url": "/?mode=pdf",
+      "icons": [{"src": "/icons/icon-96.png", "sizes": "96x96"}]
     },
     {
       "name": "تحويل صور",
       "short_name": "صور",
-      "description": "تحويل الصور إلى PDF",
-      "url": "/index.html?mode=images",
-      "icons": [
-        {
-          "src": "/icons/icon-96.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    }
-  ],
-  "file_handlers": [
-    {
-      "action": "/index.html",
-      "accept": {
-        "application/pdf": [".pdf"],
-        "image/jpeg": [".jpg", ".jpeg"],
-        "image/png": [".png"],
-        "image/gif": [".gif"],
-        "image/webp": [".webp"]
-      }
+      "url": "/?mode=images",
+      "icons": [{"src": "/icons/icon-96.png", "sizes": "96x96"}]
     }
   ],
   "share_target": {
-    "action": "/index.html",
+    "action": "/",
     "method": "POST",
     "enctype": "multipart/form-data",
     "params": {
-      "files": [
-        {
-          "name": "files",
-          "accept": ["application/pdf", "image/*"]
-        }
-      ]
+      "files": [{"name": "files", "accept": ["application/pdf", "image/*"]}]
     }
   },
+  "file_handlers": [
+    {
+      "action": "/",
+      "accept": {
+        "application/pdf": [".pdf"],
+        "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp"]
+      }
+    }
+  ],
   "launch_handler": {
-    "client_mode": ["navigate-existing", "auto"]
+    "client_mode": "navigate-existing"
   },
-  "handle_links": "preferred",
-  "scope_extensions": [],
   "edge_side_panel": {
     "preferred_width": 400
   },
   "protocol_handlers": [
     {
       "protocol": "web+pdfmaker",
-      "url": "/index.html?file=%s"
+      "url": "/?file=%s"
     }
   ]
 }
