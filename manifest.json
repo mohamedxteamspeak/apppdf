@@ -1,134 +1,108 @@
 {
-  "name": "PDF Maker Pro",
-  "short_name": "PDF Maker",
-  "description": "محول صور الدروس إلى PDF احترافي",
-  "version": "7.0.2",
-  "id": "/",
-  "start_url": "/",
-  "scope": "/",
-  "display": "standalone",
-  "display_override": ["standalone", "minimal-ui"],
-  "orientation": "portrait",
-  "theme_color": "#667eea",
-  "background_color": "#0f0f23",
-  "lang": "ar",
-  "dir": "rtl",
-  "categories": ["utilities", "productivity"],
-  "prefer_related_applications": false,
-  "related_applications": [],
-  "icons": [
-    {
-      "src": "/icons/icon-72.png",
-      "sizes": "72x72",
-      "type": "image/png",
-      "purpose": "any"
+    "name": "PDF Maker Pro",
+    "short_name": "PDF Maker",
+    "description": "محول صور الدروس إلى PDF احترافي",
+    "version": "8.0.0",
+    "id": "/",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "display_override": ["standalone", "minimal-ui"],
+    "orientation": "portrait",
+    "theme_color": "#0f0f23",
+    "background_color": "#0f0f23",
+    "lang": "ar",
+    "dir": "rtl",
+    "categories": ["utilities", "productivity"],
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "/icons/icon-72.png",
+            "sizes": "72x72",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/icon-96.png",
+            "sizes": "96x96",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/icon-128.png",
+            "sizes": "128x128",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/icon-144.png",
+            "sizes": "144x144",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/icon-152.png",
+            "sizes": "152x152",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/icon-384.png",
+            "sizes": "384x384",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "استخراج من PDF",
+            "short_name": "PDF",
+            "url": "/?mode=pdf",
+            "icons": [{"src": "/icons/icon-96.png", "sizes": "96x96"}]
+        },
+        {
+            "name": "تحويل صور",
+            "short_name": "صور",
+            "url": "/?mode=images",
+            "icons": [{"src": "/icons/icon-96.png", "sizes": "96x96"}]
+        }
+    ],
+    "share_target": {
+        "action": "/",
+        "method": "POST",
+        "enctype": "multipart/form-data",
+        "params": {
+            "files": [{"name": "files", "accept": ["application/pdf", "image/*"]}]
+        }
     },
-    {
-      "src": "/icons/icon-96.png",
-      "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icons/icon-128.png",
-      "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icons/icon-144.png",
-      "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icons/icon-152.png",
-      "sizes": "152x152",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icons/icon-384.png",
-      "sizes": "384x384",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icons/maskable-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+    "file_handlers": [
+        {
+            "action": "/",
+            "accept": {
+                "application/pdf": [".pdf"],
+                "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp"]
+            }
+        }
+    ],
+    "launch_handler": {
+        "client_mode": "navigate-existing"
     }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshots/screenshot1.png",
-      "sizes": "1080x1920",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "الشاشة الرئيسية"
-    },
-    {
-      "src": "/screenshots/screenshot2.png",
-      "sizes": "1080x1920",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "معاينة الصور"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "استخراج من PDF",
-      "short_name": "PDF",
-      "url": "/?mode=pdf",
-      "icons": [{"src": "/icons/icon-96.png", "sizes": "96x96"}]
-    },
-    {
-      "name": "تحويل صور",
-      "short_name": "صور",
-      "url": "/?mode=images",
-      "icons": [{"src": "/icons/icon-96.png", "sizes": "96x96"}]
-    }
-  ],
-  "share_target": {
-    "action": "/",
-    "method": "POST",
-    "enctype": "multipart/form-data",
-    "params": {
-      "files": [{"name": "files", "accept": ["application/pdf", "image/*"]}]
-    }
-  },
-  "file_handlers": [
-    {
-      "action": "/",
-      "accept": {
-        "application/pdf": [".pdf"],
-        "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp"]
-      }
-    }
-  ],
-  "launch_handler": {
-    "client_mode": "navigate-existing"
-  },
-  "edge_side_panel": {
-    "preferred_width": 400
-  },
-  "protocol_handlers": [
-    {
-      "protocol": "web+pdfmaker",
-      "url": "/?file=%s"
-    }
-  ]
 }
