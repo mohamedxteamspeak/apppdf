@@ -1,8 +1,0 @@
-[{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "app.netlify.zesty_kelpie_cb21ff.twa",
-        "sha256_cert_fingerprints": ["2F:78:D5:D0:18:70:41:33:18:24:44:5B:4C:46:8D:04:DC:35:81:FE:AE:F6:38:D4:1D:29:9E:E5:FD:19:02:E8"]
-      }
-    }]
