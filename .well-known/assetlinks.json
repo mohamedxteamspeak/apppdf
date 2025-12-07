@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.mohamedx.pdfEXTRACT",
+        "sha256_cert_fingerprints": ["72:58:31:D5:C3:C0:A1:47:A3:23:48:41:F6:74:02:FC:28:1F:89:B8:94:E6:06:5D:20:EE:B0:06:A1:69:B7:1F"]
+      }
+    }]
