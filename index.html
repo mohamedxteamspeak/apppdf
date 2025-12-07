@@ -5841,111 +5841,144 @@
             }
         };
 
-        // ═══════════════════════════════════════════════════════════════
-        // 🎬 SPLASH SCREEN
-        // ═══════════════════════════════════════════════════════════════
-        const Splash = {
-            /**
-             * Initialize and show splash screen
-             */
-            async show() {
-                const startTime = Date.now();
-                let progress = 0;
-                
-                const updateProgress = async (value, text) => {
-                    progress = value;
-                    DOM.splashProgressBar.style.width = value + '%';
-                    DOM.splashStatusText.textContent = text;
-                    await Utils.delay(80);
-                };
-                
-                try {
-                    // Step 1: Initialize
-                    await updateProgress(15, 'تهيئة التطبيق...');
-                    
-                    // Step 2: Load libraries
-                    await updateProgress(30, 'تحميل المكتبات...');
-                    await this.waitForLibraries();
-                    
-                    // Step 3: Cache DOM
-                    await updateProgress(50, 'إعداد الواجهة...');
-                    initDOMCache();
-                    
-                    // Step 4: Load settings
-                    await updateProgress(70, 'تحميل الإعدادات...');
-                    this.loadSavedData();
-                    
-                    // Step 5: Setup events
-                    await updateProgress(85, 'تجهيز الأحداث...');
-                    EventHandlers.init();
-                    
-                    // Step 6: Complete
-                    await updateProgress(100, 'جاهز للاستخدام!');
-                    
-                } catch (error) {
-                    console.error('Splash error:', error);
-                    DOM.splashStatusText.textContent = 'خطأ في التحميل';
-                }
-                
-                // Ensure minimum duration
-                const elapsed = Date.now() - startTime;
-                if (elapsed < CONFIG.ui.splashDuration) {
-                    await Utils.delay(CONFIG.ui.splashDuration - elapsed);
-                }
-                
-                // Hide splash
-                this.hide();
-            },
-            
-            /**
-             * Wait for external libraries to load
-             */
-            waitForLibraries() {
-                return new Promise((resolve) => {
-                    const check = () => {
-                        if (window.pdfjsLib && window.jspdf) {
-                            // Configure PDF.js
-                            pdfjsLib.GlobalWorkerOptions.workerSrc = 
-                                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-                            resolve();
-                        } else {
-                            setTimeout(check, 50);
-                        }
-                    };
-                    check();
-                });
-            },
-            
-            /**
-             * Load saved data from storage
-             */
-            loadSavedData() {
-                // Load theme
-                Theme.init();
-                
-                // Load stats
-                const savedStats = Utils.loadFromStorage(CONFIG.storage.stats, {
-                    totalConverted: 0,
-                    totalImages: 0
-                });
-                State.stats = { ...State.stats, ...savedStats };
-                
-                // Load settings
-                const savedSettings = Utils.loadFromStorage(CONFIG.storage.settings, {});
-                State.settings = { ...State.settings, ...savedSettings };
-            },
-            
-            /**
-             * Hide splash screen
-             */
-            hide() {
-                DOM.splashScreen.classList.add('hidden');
-                State.isSplashVisible = false;
-                
-                // Update welcome stats
-                Navigation.updateWelcomeStats();
+// ═══════════════════════════════════════════════════════════════
+// 🎬 SPLASH SCREEN
+// ═══════════════════════════════════════════════════════════════
+const Splash = {
+    // عناصر Splash (تُحمّل مباشرة)
+    elements: {
+        screen: null,
+        progressBar: null,
+        statusText: null
+    },
+    
+    /**
+     * Initialize splash elements
+     */
+    initElements() {
+        this.elements.screen = document.getElementById('splash-screen');
+        this.elements.progressBar = document.getElementById('splash-progress-bar');
+        this.elements.statusText = document.getElementById('splash-status-text');
+    },
+    
+    /**
+     * Initialize and show splash screen
+     */
+    async show() {
+        // تهيئة عناصر Splash أولاً
+        this.initElements();
+        
+        const startTime = Date.now();
+        let progress = 0;
+        
+        const updateProgress = async (value, text) => {
+            progress = value;
+            if (this.elements.progressBar) {
+                this.elements.progressBar.style.width = value + '%';
             }
+            if (this.elements.statusText) {
+                this.elements.statusText.textContent = text;
+            }
+            await Utils.delay(80);
         };
+        
+        try {
+            // Step 1: Initialize
+            await updateProgress(15, 'تهيئة التطبيق...');
+            
+            // Step 2: Load libraries
+            await updateProgress(30, 'تحميل المكتبات...');
+            await this.waitForLibraries();
+            
+            // Step 3: Cache DOM
+            await updateProgress(50, 'إعداد الواجهة...');
+            initDOMCache();
+            
+            // Step 4: Load settings
+            await updateProgress(70, 'تحميل الإعدادات...');
+            this.loadSavedData();
+            
+            // Step 5: Setup events
+            await updateProgress(85, 'تجهيز الأحداث...');
+            EventHandlers.init();
+            
+            // Step 6: Complete
+            await updateProgress(100, 'جاهز للاستخدام!');
+            
+        } catch (error) {
+            console.error('Splash error:', error);
+            if (this.elements.statusText) {
+                this.elements.statusText.textContent = 'خطأ في التحميل';
+            }
+        }
+        
+        // Ensure minimum duration
+        const elapsed = Date.now() - startTime;
+        if (elapsed < CONFIG.ui.splashDuration) {
+            await Utils.delay(CONFIG.ui.splashDuration - elapsed);
+        }
+        
+        // Hide splash
+        this.hide();
+    },
+    
+    /**
+     * Wait for external libraries to load
+     */
+    waitForLibraries() {
+        return new Promise((resolve, reject) => {
+            let attempts = 0;
+            const maxAttempts = 100; // 10 ثواني كحد أقصى
+            
+            const check = () => {
+                attempts++;
+                if (window.pdfjsLib && window.jspdf) {
+                    // Configure PDF.js
+                    pdfjsLib.GlobalWorkerOptions.workerSrc = 
+                        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                    resolve();
+                } else if (attempts >= maxAttempts) {
+                    reject(new Error('فشل تحميل المكتبات'));
+                } else {
+                    setTimeout(check, 100);
+                }
+            };
+            check();
+        });
+    },
+    
+    /**
+     * Load saved data from storage
+     */
+    loadSavedData() {
+        // Load theme
+        Theme.init();
+        
+        // Load stats
+        const savedStats = Utils.loadFromStorage(CONFIG.storage.stats, {
+            totalConverted: 0,
+            totalImages: 0
+        });
+        State.stats = { ...State.stats, ...savedStats };
+        
+        // Load settings
+        const savedSettings = Utils.loadFromStorage(CONFIG.storage.settings, {});
+        State.settings = { ...State.settings, ...savedSettings };
+    },
+    
+    /**
+     * Hide splash screen
+     */
+    hide() {
+        if (this.elements.screen) {
+            this.elements.screen.classList.add('hidden');
+        }
+        State.isSplashVisible = false;
+        
+        // Update welcome stats
+        Navigation.updateWelcomeStats();
+    }
+};
                 // ═══════════════════════════════════════════════════════════════
         // 🖼️ IMAGE PROCESSOR - Advanced Image Handling
         // ═══════════════════════════════════════════════════════════════
@@ -7321,7 +7354,7 @@
                 };
             }
         };
-              // ═══════════════════════════════════════════════════════════════
+                // ═══════════════════════════════════════════════════════════════
         // 🎮 APP CONTROLLER - Main Application Logic
         // ═══════════════════════════════════════════════════════════════
         const App = {
