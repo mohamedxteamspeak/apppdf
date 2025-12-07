@@ -22,5 +22,5 @@
 /screenshots/*
   Cache-Control: public, max-age=31536000, immutable
 
-/assetlinks.json
+/.well-known/assetlinks.json
 Content-Type: application/json
