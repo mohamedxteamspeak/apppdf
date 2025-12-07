@@ -1,19 +1,19 @@
 {
     "name": "PDF Maker Pro",
     "short_name": "PDF Maker",
-    "description": "محول صور الدروس إلى PDF احترافي",
-    "version": "8.0.0",
+    "description": "محول صور الدروس إلى PDF احترافي - تجربة خارقة",
+    "version": "9.0.0",
     "id": "/",
     "start_url": "/",
     "scope": "/",
     "display": "standalone",
-    "display_override": ["standalone", "minimal-ui"],
+    "display_override": ["standalone", "minimal-ui", "window-controls-overlay"],
     "orientation": "portrait",
-    "theme_color": "#0f0f23",
-    "background_color": "#0f0f23",
+    "theme_color": "#0a0a1a",
+    "background_color": "#030014",
     "lang": "ar",
     "dir": "rtl",
-    "categories": ["utilities", "productivity"],
+    "categories": ["utilities", "productivity", "education"],
     "prefer_related_applications": false,
     "icons": [
         {
@@ -90,7 +90,12 @@
         "method": "POST",
         "enctype": "multipart/form-data",
         "params": {
-            "files": [{"name": "files", "accept": ["application/pdf", "image/*"]}]
+            "files": [
+                {
+                    "name": "files",
+                    "accept": ["application/pdf", "image/*"]
+                }
+            ]
         }
     },
     "file_handlers": [
@@ -98,11 +103,13 @@
             "action": "/",
             "accept": {
                 "application/pdf": [".pdf"],
-                "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp"]
+                "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp"]
             }
         }
     ],
     "launch_handler": {
         "client_mode": "navigate-existing"
-    }
+    },
+    "handle_links": "preferred",
+    "capture_links": "existing-client-event"
 }
